@@ -67,9 +67,10 @@ struct NewPartArgs {
 
 #[derive(Debug, Args)]
 struct UpdateTypeArgs {
-    name: String,
+    old_name: String,
+    new_name: Option<String>,
     #[arg(short = 'p', long = "parent")]
-    parent_type: String,
+    parent_type: Option<String>,
 }
 
 #[derive(Debug, Args)]
@@ -149,14 +150,20 @@ fn part_cmd(cmd: &PartCommand) {
 fn type_cmd(cmd: &TypeCommand) {
     match &cmd.command {
         Some(TypeSubCommand::New(args)) => {
-            let res = elebox_core::add_part_type(&args.name, args.parent_type.as_ref());
-            match res {
-                Err(err) => println!("{err}"),
-                Ok(_) => {}
-            }
+            if let Err(err) = elebox_core::add_part_type(&args.name, args.parent_type.as_ref()) {
+                println!("{err}");
+            };
         }
         Some(TypeSubCommand::Delete(args)) => todo!(),
-        Some(TypeSubCommand::Update(args)) => todo!(),
+        Some(TypeSubCommand::Update(args)) => {
+            if let Err(err) = elebox_core::update_part_type(
+                &args.old_name,
+                args.new_name.as_ref(),
+                args.parent_type.as_ref(),
+            ) {
+                println!("{err}");
+            };
+        }
         None => {
             println!("List part type");
             let pts = elebox_core::get_part_types();

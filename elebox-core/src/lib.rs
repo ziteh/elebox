@@ -163,6 +163,48 @@ pub fn get_part_type(name: &String) -> Option<PartType> {
     return Some(part_type);
 }
 
+pub fn update_part_type(
+    old_name: &String,
+    new_name: Option<&String>,
+    new_parent: Option<&String>,
+) -> Result<(), EleboxError> {
+    let id = get_part_type_id(old_name);
+    if id.is_none() {
+        return Err(EleboxError::PartNotExists(old_name.to_string()));
+    }
+
+    let old_db_pt = get_db_part_type_from_id(id.as_ref().unwrap()).unwrap();
+
+    let p_id = match new_parent {
+        Some(name) => match get_part_type_id(name) {
+            Some(id) => id,
+            None => return Err(EleboxError::PartNotExists(name.to_string())),
+        },
+        None => old_db_pt.parent_id,
+    };
+
+    let db_part_type = DbPartType {
+        name: match new_name {
+            Some(name) => name.to_string(),
+            None => old_db_pt.name,
+        },
+        parent_id: p_id,
+    };
+
+    {
+        let db = DB::open(DEFAULT_DATABASE_PATH).unwrap();
+        let tx = db.tx(true).unwrap();
+        let bucket = tx.get_bucket(PART_TYPES_BUCKET).unwrap();
+
+        let value = rmp_serde::to_vec(&db_part_type).unwrap();
+        // let id = Uuid::new_v4().to_string();
+        bucket.put(id.unwrap(), value).unwrap();
+        let _ = tx.commit();
+    }
+
+    Ok(())
+}
+
 pub fn add_part_type(name: &String, parent: Option<&String>) -> Result<(), EleboxError> {
     if get_part_type_id(name).is_some() {
         return Err(EleboxError::PartAlreadyExists(name.to_string()));
