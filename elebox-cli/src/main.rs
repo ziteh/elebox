@@ -47,8 +47,8 @@ enum PartSubCommand {
     /// Restock
     Add(AddPartArgs),
 
-    /// Retrieve
-    Take(TakePartArgs),
+    /// Consume
+    Use(UsePartArgs),
 }
 
 #[derive(Debug, Subcommand)]
@@ -97,7 +97,7 @@ struct AddPartArgs {
 }
 
 #[derive(Debug, Args)]
-struct TakePartArgs {
+struct UsePartArgs {
     name: String,
     quantity: u16,
 }
@@ -164,7 +164,7 @@ fn part_cmd(db_path: &String, cmd: &PartCommand) {
                     println!("{err}");
                 }
             }
-            PartSubCommand::Take(args) => {
+            PartSubCommand::Use(args) => {
                 let q = args.quantity as i16 * -1;
                 if let Err(err) = elebox_core::update_part_quantity(db_path, &args.name, q) {
                     println!("{err}");
