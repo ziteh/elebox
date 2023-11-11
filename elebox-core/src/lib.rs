@@ -112,6 +112,18 @@ pub fn get_part_types() -> Vec<PartType> {
     return part_types;
 }
 
+pub fn get_db_part_from_id(id: &String) -> Option<DbPart> {
+    let db = DB::open(DEFAULT_DATABASE_PATH).unwrap();
+    let tx = db.tx(false).unwrap();
+    let bucket = tx.get_bucket(PARTS_BUCKET).unwrap();
+
+    if let Some(data) = bucket.get(id) {
+        let db_part: DbPart = rmp_serde::from_slice(data.kv().value()).unwrap();
+        return Some(db_part);
+    }
+    return None;
+}
+
 pub fn get_db_part_type_from_id(id: &String) -> Option<DbPartType> {
     let db = DB::open(DEFAULT_DATABASE_PATH).unwrap();
     let tx = db.tx(false).unwrap();
@@ -163,6 +175,52 @@ pub fn get_part_type(name: &String) -> Option<PartType> {
     return Some(part_type);
 }
 
+pub fn update_part(
+    old_name: &String,
+    new_name: Option<&String>,
+    new_quantity: Option<u16>,
+    new_parent: Option<&String>,
+) -> Result<(), EleboxError> {
+    let id = get_part_id(old_name);
+    if id.is_none() {
+        return Err(EleboxError::PartNotExists(old_name.to_string()));
+    }
+
+    let old_db_part = get_db_part_from_id(id.as_ref().unwrap()).unwrap();
+
+    let type_id = match new_parent {
+        Some(name) => match get_part_type_id(name) {
+            Some(id) => id,
+            None => return Err(EleboxError::PartNotExists(name.to_string())),
+        },
+        None => old_db_part.type_id,
+    };
+
+    let db_part = DbPart {
+        name: match new_name {
+            Some(name) => name.to_string(),
+            None => old_db_part.name,
+        },
+        quantity: match new_quantity {
+            Some(q) => q,
+            None => old_db_part.quantity,
+        },
+        type_id,
+    };
+
+    {
+        let db = DB::open(DEFAULT_DATABASE_PATH).unwrap();
+        let tx = db.tx(true).unwrap();
+        let bucket = tx.get_bucket(PARTS_BUCKET).unwrap();
+
+        let value = rmp_serde::to_vec(&db_part).unwrap();
+        bucket.put(id.unwrap(), value).unwrap();
+        let _ = tx.commit();
+    }
+
+    Ok(())
+}
+
 pub fn update_part_type(
     old_name: &String,
     new_name: Option<&String>,
@@ -197,7 +255,6 @@ pub fn update_part_type(
         let bucket = tx.get_bucket(PART_TYPES_BUCKET).unwrap();
 
         let value = rmp_serde::to_vec(&db_part_type).unwrap();
-        // let id = Uuid::new_v4().to_string();
         bucket.put(id.unwrap(), value).unwrap();
         let _ = tx.commit();
     }

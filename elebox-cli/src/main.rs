@@ -75,9 +75,10 @@ struct UpdateTypeArgs {
 
 #[derive(Debug, Args)]
 struct UpdatePartArgs {
-    name: String,
-    quantity: u16,
-    part_type: String,
+    old_name: String,
+    new_name: Option<String>,
+    new_quantity: Option<u16>,
+    new_part_type: Option<String>,
     #[arg(short = 'm', long = "mfr")]
     mfr: Option<String>,
 }
@@ -133,7 +134,16 @@ fn part_cmd(cmd: &PartCommand) {
             PartSubCommand::Delete(args) => {
                 println!("Delete part {}", args.name);
             }
-            PartSubCommand::Update(args) => todo!(),
+            PartSubCommand::Update(args) => {
+                if let Err(err) = elebox_core::update_part(
+                    &args.old_name,
+                    args.new_name.as_ref(),
+                    args.new_quantity,
+                    args.new_part_type.as_ref(),
+                ) {
+                    println!("{err}");
+                }
+            }
             PartSubCommand::Add(args) => todo!(),
             PartSubCommand::Take(args) => todo!(),
         },
