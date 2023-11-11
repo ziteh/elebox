@@ -10,8 +10,12 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum EntityType {
+    /// Edit or list part
     Part(PartCommand),
+    /// Edit or list part type
     Type(TypeCommand),
+    /// Create a new database
+    Init,
 }
 
 #[derive(Debug, Args)]
@@ -115,6 +119,7 @@ struct DeleteTypeArgs {
 fn main() {
     let cli = Cli::parse();
     match &cli.entity_type {
+        Some(EntityType::Init) => elebox_core::init(),
         Some(EntityType::Part(p_cmd)) => part_cmd(p_cmd),
         Some(EntityType::Type(t_cmd)) => type_cmd(t_cmd),
         None => {}
