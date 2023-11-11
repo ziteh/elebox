@@ -73,3 +73,7 @@ Rename `AMS1117` to `ams1117-3.3v`:
 ```
 elebox-cli part update AMS1117 ams1117-3.3v
 ```
+
+## License
+
+Licensed under either of [Apache-2.0](/LICENSE-APACHE) or [MIT license](/LICENSE-MIT) at your option.
