@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 elebox-core = { path = "../elebox-core" }
+iced = "0.10" # GUI
