@@ -8,7 +8,7 @@ struct Cli {
     #[arg(default_value = "elebox.db")]
     db: String,
     #[clap(subcommand)]
-    entity_type: Option<EntityType>,
+    entity_type: EntityType,
 }
 
 #[derive(Debug, Subcommand)]
@@ -17,7 +17,7 @@ enum EntityType {
     Part(PartCommand),
     /// Edit or list part type
     Type(TypeCommand),
-    /// Create a new database
+    /// Create and init a new database
     Init,
 }
 
@@ -125,10 +125,9 @@ fn main() {
     println!("{}", cli.db);
 
     match &cli.entity_type {
-        Some(EntityType::Init) => elebox_core::init(&cli.db),
-        Some(EntityType::Part(p_cmd)) => part_cmd(&cli.db, p_cmd),
-        Some(EntityType::Type(t_cmd)) => type_cmd(&cli.db, t_cmd),
-        None => {}
+        EntityType::Init => elebox_core::init(&cli.db),
+        EntityType::Part(p_cmd) => part_cmd(&cli.db, p_cmd),
+        EntityType::Type(t_cmd) => type_cmd(&cli.db, t_cmd),
     };
 }
 
