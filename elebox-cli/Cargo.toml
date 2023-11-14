@@ -12,3 +12,7 @@ edition = "2021"
 [dependencies]
 elebox-core = { path = "../elebox-core" }
 clap = { version = "4.0.22", features = ["derive"] }
+
+[profile.release]
+lto = true
+strip = true
