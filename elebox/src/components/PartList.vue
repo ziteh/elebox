@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 
 const parts = ref("");
@@ -8,13 +8,15 @@ async function getParts() {
   parts.value = await invoke("get_parts", {});
   console.log(parts.value);
 }
+
+onMounted(getParts);
 </script>
 
 <template>
   <form class="row" @submit.prevent="getParts">
-    <!-- <input id="greet-input" v-model="name" placeholder="Enter a name..." /> -->
     <button type="submit">Update</button>
   </form>
+
   <table>
     <thead>
       <tr>

@@ -8,9 +8,9 @@ import PartList from "./components/PartList.vue";
 
 <template>
   <div class="container">
+
     <PartList />
 
-    <!-- <Greet /> -->
   </div>
 </template>
 

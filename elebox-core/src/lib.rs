@@ -54,6 +54,7 @@ pub struct DbPartType {
     pub parent_id: String,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PartType {
     pub name: String,
     pub parent: String,
