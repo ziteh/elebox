@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+import PartQty from "./PartQty.vue";
 
 const parts = ref("");
 
@@ -28,7 +29,9 @@ onMounted(getParts);
     <tbody>
       <tr v-for="(p, index) in parts" :key="index">
         <td>{{ p.name }}</td>
-        <td>{{ p.quantity }}</td>
+        <td>{{ p.quantity }}
+          <PartQty :part="p.name" />
+        </td>
         <td>{{ p.part_type }}</td>
       </tr>
     </tbody>
