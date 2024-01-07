@@ -41,6 +41,7 @@ pub struct DbPart {
     pub quantity: u16,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
     pub name: String,
     pub part_type: String,
