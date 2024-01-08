@@ -2,12 +2,14 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import PartList from "./components/PartList.vue";
+import PartNew from "./components/PartNew.vue";
 
 </script>
 
 <template>
   <div class="container">
 
+    <PartNew />
     <PartList />
 
   </div>

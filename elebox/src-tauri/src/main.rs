@@ -14,13 +14,25 @@ fn part_add(part: &str, qty: i16) {
 }
 
 #[tauri::command]
+fn part_new(name: &str, qty: u16, ptype: &str) {
+    elebox_core::add_part(
+        &String::from("./elebox.db"),
+        &name.to_string(),
+        &qty,
+        &ptype.to_string(),
+    );
+}
+
+#[tauri::command]
 fn get_types() -> Vec<PartType> {
     elebox_core::get_part_types(&String::from("./elebox.db"))
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_parts, get_types, part_add])
+        .invoke_handler(tauri::generate_handler![
+            get_parts, get_types, part_add, part_new
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
