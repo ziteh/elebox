@@ -9,6 +9,11 @@ fn get_parts() -> Vec<Part> {
 }
 
 #[tauri::command]
+fn part_del(part: &str) {
+    elebox_core::delete_part(&String::from("./elebox.db"), &part.to_string());
+}
+
+#[tauri::command]
 fn part_add(part: &str, qty: i16) {
     elebox_core::update_part_quantity(&String::from("./elebox.db"), &part.to_string(), qty);
 }
@@ -31,7 +36,7 @@ fn get_types() -> Vec<PartType> {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            get_parts, get_types, part_add, part_new
+            get_parts, get_types, part_add, part_new, part_del
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

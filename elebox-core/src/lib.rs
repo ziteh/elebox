@@ -181,6 +181,26 @@ pub fn get_part_type(db_path: &String, name: &String) -> Option<PartType> {
     return Some(part_type);
 }
 
+pub fn delete_part(db_path: &String, name: &String) -> Result<(), EleboxError> {
+    let id = get_part_id(db_path, name);
+    if id.is_none() {
+        return Err(EleboxError::PartNotExists(name.to_string()));
+    }
+
+    {
+        let db = DB::open(db_path).unwrap();
+        let tx = db.tx(true).unwrap();
+        let bucket = tx.get_bucket(PARTS_BUCKET).unwrap();
+
+        // assert!(bucket.get_kv(&id.unwrap()).is_some());
+        let _ = bucket.delete(&id.unwrap());
+        let _ = tx.commit();
+        // assert!(bucket.get_kv(id.unwrap()).is_none());
+    }
+
+    Ok(())
+}
+
 pub fn update_part(
     db_path: &String,
     old_name: &String,

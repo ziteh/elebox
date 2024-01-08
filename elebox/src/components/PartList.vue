@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import PartQty from "./PartQty.vue";
+import PartDel from "./PartDel.vue";
 
 const parts = ref("");
 
@@ -24,6 +25,7 @@ onMounted(getParts);
         <th>Part</th>
         <th>Quantity</th>
         <th>Type</th>
+        <th>Edit</th>
       </tr>
     </thead>
     <tbody>
@@ -33,6 +35,9 @@ onMounted(getParts);
           <PartQty :part="p.name" />
         </td>
         <td>{{ p.part_type }}</td>
+        <td>
+          <PartDel :part="p.name" />
+        </td>
       </tr>
     </tbody>
   </table>
