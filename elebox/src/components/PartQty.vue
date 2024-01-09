@@ -15,4 +15,3 @@ async function partAdd(part: String, qty: Number) {
   <button @click="partAdd(part, 1)">+</button>
   <button @click="partAdd(part, -1)">-</button>
 </template>
-

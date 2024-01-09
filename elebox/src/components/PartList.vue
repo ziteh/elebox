@@ -15,10 +15,7 @@ onMounted(getParts);
 </script>
 
 <template>
-  <form class="row" @submit.prevent="getParts">
-    <button type="submit">Update</button>
-  </form>
-
+  <button @click="getParts">Update</button>
   <table>
     <thead>
       <tr>
@@ -42,4 +39,3 @@ onMounted(getParts);
     </tbody>
   </table>
 </template>
-
