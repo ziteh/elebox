@@ -47,14 +47,4 @@ onMounted(async () => {
   </form>
 </template>
 
-<style>
-.row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.form-group {
-  margin-right: 10px;
-}
-</style>
 
