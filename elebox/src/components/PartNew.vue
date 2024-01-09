@@ -36,8 +36,8 @@ onMounted(async () => {
     <div class="form-group">
       <label for="part-type-in">Type: </label>
       <select v-model="partType">
-        <option disabled value="LDO">LDO</option>
-        <option v-for="(t, index) in types" :key="index">
+        <option disabled value="Category">Category</option>
+        <option v-for="(t, index) in types" :key="index" :title="t.parent">
           {{ t.name }}
         </option>
       </select>

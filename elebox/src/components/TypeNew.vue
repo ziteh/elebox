@@ -12,7 +12,6 @@ async function newType() {
   await getTypes();
 }
 
-
 async function getTypes() {
   types.value = await invoke("get_types", {});
   console.debug(`Types: ${types.value}`);
@@ -33,8 +32,8 @@ onMounted(async () => {
     <div class="form-group">
       <label for="part-type-in">Type: </label>
       <select v-model="typeParent">
-        <option disabled value="LDO">LDO</option>
-        <option v-for="(t, index) in types" :key="index">
+        <option disabled value="Category">Category</option>
+        <option v-for="(t, index) in types" :key="index" :title="t.parent">
           {{ t.name }}
         </option>
       </select>
