@@ -2,14 +2,16 @@
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 
-const partName = ref("");
-const partQty = ref("");
-const partType = ref("");
+const typeName = ref("");
+const typeParent = ref("");
 const types = ref("");
 
-async function newPart() {
-  await invoke("part_new", { name: partName.value, qty: parseInt(partQty.value), ptype: partType.value });
+async function newType() {
+  await invoke("type_new", { name: typeName.value, parent: typeParent.value });
+
+  await getTypes();
 }
+
 
 async function getTypes() {
   types.value = await invoke("get_types", {});
@@ -22,20 +24,15 @@ onMounted(async () => {
 </script>
 
 <template>
-  <form class="row" @submit.prevent="newPart">
+  <form class="row" @submit.prevent="newType">
     <div class="form-group">
       <label for="part-name-in">Name: </label>
-      <input id="part-name-in" v-model="partName" placeholder="AMS1117" />
-    </div>
-
-    <div class="form-group">
-      <label for="part-qty-in">Quantity: </label>
-      <input id="part-qty-in" v-model="partQty" placeholder="15" type="number" pattern="[0-9]*" />
+      <input id="part-name-in" v-model="typeName" placeholder="LDO" />
     </div>
 
     <div class="form-group">
       <label for="part-type-in">Type: </label>
-      <select v-model="partType">
+      <select v-model="typeParent">
         <option disabled value="LDO">LDO</option>
         <option v-for="(t, index) in types" :key="index">
           {{ t.name }}
@@ -57,4 +54,5 @@ onMounted(async () => {
   margin-right: 10px;
 }
 </style>
+
 

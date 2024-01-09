@@ -3,12 +3,14 @@
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import PartList from "./components/PartList.vue";
 import PartNew from "./components/PartNew.vue";
+import TypeNew from "./components/TypeNew.vue";
 
 </script>
 
 <template>
   <div class="container">
 
+    <TypeNew />
     <PartNew />
     <PartList />
 
