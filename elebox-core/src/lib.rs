@@ -1,8 +1,8 @@
-use core::fmt;
+mod errors;
+
 use std::{
     collections::{hash_map::RandomState, HashMap},
-    error::Error,
-    fmt::{Debug, Display},
+    fmt::Debug,
     io::Read,
     ptr,
     str::{self, from_utf8},
@@ -13,26 +13,7 @@ use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug)]
-pub enum EleboxError {
-    PartAlreadyExists(String),
-    PartNotExists(String),
-    PartInventoryShortage(String),
-}
-
-impl Error for EleboxError {}
-
-impl fmt::Display for EleboxError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            EleboxError::PartAlreadyExists(ref name) => write!(f, "Part {} already exists", name),
-            EleboxError::PartNotExists(ref name) => write!(f, "Part {} does not exists", name),
-            EleboxError::PartInventoryShortage(ref name) => {
-                write!(f, "Part {} not enough stock", name)
-            }
-        }
-    }
-}
+pub use errors::*;
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct DbPart {
