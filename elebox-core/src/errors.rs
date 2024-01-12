@@ -12,7 +12,7 @@ impl Error for EleboxError {}
 
 impl fmt::Display for EleboxError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
+        match self {
             EleboxError::PartAlreadyExists(ref name) => write!(f, "Part {} already exists", name),
             EleboxError::PartNotExists(ref name) => write!(f, "Part {} does not exists", name),
             EleboxError::PartInventoryShortage(ref name) => {
