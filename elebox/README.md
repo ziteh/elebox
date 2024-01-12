@@ -20,5 +20,5 @@ You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/
 ```
 cd elebox
 pnpm install
-pnpm run tauri dev
+pnpm tauri dev
 ```
