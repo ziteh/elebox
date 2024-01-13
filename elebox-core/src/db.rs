@@ -59,7 +59,7 @@ pub fn init_db(db_path: &str) {
     let _ = tx.commit();
 }
 
-pub fn add_db_item<T>(db_path: &str, bucket: &str, item: &T)
+fn add_db_item<T>(db_path: &str, bucket: &str, item: &T)
 where
     T: Serialize,
 {
@@ -71,6 +71,25 @@ where
     let id = Uuid::new_v4().to_string();
     bkt.put(id, value).unwrap();
     let _ = tx.commit();
+}
+
+pub fn update_db_part(db_path: &str, name: &str, db_part: &DbPart) {
+    let id = get_part_id(db_path, name);
+    if id.is_none() {
+        // return Err(EleboxError::NotExists(name.to_string()));
+    }
+
+    let db = DB::open(db_path).unwrap();
+    let tx = db.tx(true).unwrap();
+    let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
+
+    let value = rmp_serde::to_vec(&db_part).unwrap();
+    bkt.put(id.unwrap(), value).unwrap();
+    let _ = tx.commit();
+}
+
+pub fn add_db_part(db_path: &str, db_part: &DbPart) {
+    add_db_item::<DbPart>(db_path, PARTS_BUCKET, db_part);
 }
 
 pub fn add_db_part_type(db_path: &str, db_part_type: &DbPartType) {
@@ -128,6 +147,19 @@ pub fn get_part_type_id(db_path: &str, name: &str) -> Option<String> {
     return None;
 }
 
+pub fn delete_db_part(db_path: &str, id: &str) {
+    let db = DB::open(db_path).unwrap();
+    let tx = db.tx(true).unwrap();
+    let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
+
+    // assert!(bkt.get_kv(id).is_some());
+
+    let _ = bkt.delete(id);
+    let _ = tx.commit();
+
+    // assert!(bkt.get_kv(id).is_none());
+}
+
 pub fn get_db_items<T>(db_path: &str, bucket: &str) -> Vec<T>
 where
     T: for<'a> Deserialize<'a>,
@@ -143,6 +175,10 @@ where
     }
 
     return items;
+}
+
+pub fn get_db_parts(db_path: &str) -> Vec<DbPart> {
+    get_db_items::<DbPart>(db_path, PARTS_BUCKET)
 }
 
 pub fn get_db_part_types(db_path: &str) -> Vec<DbPartType> {

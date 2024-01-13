@@ -120,15 +120,17 @@ struct DeleteTypeArgs {
 }
 
 fn main() {
-//     let cli = Cli::parse();
+    // let p = elebox_core::PartType::list("./");
+    // let r = p[0].add("./");
+    //     let cli = Cli::parse();
 
-//     println!("{}", cli.db);
+    //     println!("{}", cli.db);
 
-//     match &cli.entity_type {
-//         EntityType::Init => elebox_core::init(&cli.db),
-//         EntityType::Part(p_cmd) => part_cmd(&cli.db, p_cmd),
-//         EntityType::Type(t_cmd) => type_cmd(&cli.db, t_cmd),
-//     };
+    //     match &cli.entity_type {
+    //         EntityType::Init => elebox_core::init(&cli.db),
+    //         EntityType::Part(p_cmd) => part_cmd(&cli.db, p_cmd),
+    //         EntityType::Type(t_cmd) => type_cmd(&cli.db, t_cmd),
+    //     };
 }
 
 // fn part_cmd(db_path: &String, cmd: &PartCommand) {
