@@ -46,12 +46,6 @@ impl DbItem for DbPartType {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct PartType {
-    pub name: String,
-    pub parent: String,
-}
-
 const DEFAULT_DATABASE_PATH: &str = "./elebox.db";
 const PARTS_BUCKET: &str = "parts";
 const PART_TYPES_BUCKET: &str = "part_types";
@@ -134,6 +128,27 @@ pub fn get_part_type_id(db_path: &str, name: &str) -> Option<String> {
     return None;
 }
 
+pub fn get_db_items<T>(db_path: &str, bucket: &str) -> Vec<T>
+where
+    T: for<'a> Deserialize<'a>,
+{
+    let db = DB::open(db_path).unwrap();
+    let tx = db.tx(false).unwrap();
+    let bkt = tx.get_bucket(bucket).unwrap();
+
+    let mut items: Vec<T> = Vec::new();
+    for data in bkt.cursor() {
+        let item: T = rmp_serde::from_slice(data.kv().value()).unwrap();
+        items.push(item);
+    }
+
+    return items;
+}
+
+pub fn get_db_part_types(db_path: &str) -> Vec<DbPartType> {
+    get_db_items::<DbPartType>(db_path, PART_TYPES_BUCKET)
+}
+
 pub fn get_db_part_from_id(db_path: &str, id: &str) -> Option<DbPart> {
     get_db_item::<DbPart>(db_path, PARTS_BUCKET, id)
 }
@@ -156,20 +171,20 @@ where
     return None;
 }
 
-pub fn get_part_type_from_id(db_path: &str, id: &str) -> Option<PartType> {
-    let db_part_type = match get_db_part_type_from_id(db_path, id) {
-        Some(pt) => pt,
-        None => return None,
-    };
+// pub fn get_part_type_from_id(db_path: &str, id: &str) -> Option<PartType> {
+//     let db_part_type = match get_db_part_type_from_id(db_path, id) {
+//         Some(pt) => pt,
+//         None => return None,
+//     };
 
-    let parent_name = match get_db_part_type_from_id(db_path, &db_part_type.parent_id) {
-        Some(pt) => pt.name,
-        None => "none".to_string(),
-    };
+//     let parent_name = match get_db_part_type_from_id(db_path, &db_part_type.parent_id) {
+//         Some(pt) => pt.name,
+//         None => "none".to_string(),
+//     };
 
-    let part_type = PartType {
-        name: db_part_type.name,
-        parent: parent_name,
-    };
-    return Some(part_type);
-}
+//     let part_type = PartType {
+//         name: db_part_type.name,
+//         parent: parent_name,
+//     };
+//     return Some(part_type);
+// }
