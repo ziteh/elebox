@@ -4,6 +4,14 @@ Lightweight personal electronic parts inventory management tool.
 
 ## Usage
 
+### Tauri GUI
+
+```
+cd elebox
+pnpm install
+pnpm tauri dev
+```
+
 ### CLI
 
 If you're run via Cargo (i.e. not using the released executable), replace `elebox-cli` with `cargo run -p elebox-cli --` in the following command. For example, use `cargo run -p elebox-cli -- help` instead of `elebox-cli help`.
