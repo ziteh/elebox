@@ -1,10 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use dirs;
 use elebox_core::{Part, PartType};
+use serde::de::value::Error;
+use std::path::PathBuf;
 use std::sync::Mutex;
 
-const DEFAULT_DB_PATH: &str = "./elebox.db";
+const DEFAULT_DB: &str = "elebox.db";
 struct DbPath(Mutex<String>);
 
 #[tauri::command]
@@ -43,13 +46,33 @@ fn get_types(db: tauri::State<DbPath>) -> Vec<PartType> {
 }
 
 fn main() {
+    let db_path = match get_default_path() {
+        Ok(path) => path,
+        Err(err) => panic!("{}", err),
+    };
+
     tauri::Builder::default()
-        .manage(DbPath(Mutex::new(DEFAULT_DB_PATH.to_string())))
+        .manage(DbPath(Mutex::new(db_path)))
         .invoke_handler(tauri::generate_handler![
             get_parts, get_types, part_add, part_new, part_del, type_new
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn get_default_path() -> Result<String, String> {
+    if let Some(mut dir) = dirs::data_local_dir() {
+        dir.push("elebox");
+
+        if let Err(err) = std::fs::create_dir_all(&dir) {
+            return Err(format!("Unable to creating directory. {}", err));
+        }
+
+        let db_path = dir.join(DEFAULT_DB);
+        return Ok(db_path.into_os_string().into_string().unwrap());
+    } else {
+        return Err("Unable to determine user's local data directory.".to_string());
+    }
 }
 
 fn update_db_path(db: tauri::State<DbPath>, new_path: &str) {
