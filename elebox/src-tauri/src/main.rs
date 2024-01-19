@@ -66,6 +66,8 @@ fn main() {
         Err(err) => panic!("{}", err),
     };
 
+    init_db(&db_path);
+
     tauri::Builder::default()
         .manage(DbPath(Mutex::new(db_path)))
         .invoke_handler(tauri::generate_handler![
@@ -100,4 +102,8 @@ fn get_default_path() -> Result<String, String> {
 fn update_db_path(db: tauri::State<DbPath>, new_path: &str) {
     let mut p = DB_PATH!(db);
     *p = String::from(new_path);
+}
+
+fn init_db(path: &str) {
+    elebox_core::init(path);
 }
