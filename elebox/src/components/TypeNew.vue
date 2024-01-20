@@ -8,6 +8,7 @@ const types = ref("");
 
 async function newType() {
   await invoke("type_new", { name: typeName.value, parent: typeParent.value });
+  console.debug(`Types: ${typeName.value}, ${typeParent.value}`);
 
   await getTypes();
 }

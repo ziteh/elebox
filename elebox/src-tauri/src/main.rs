@@ -3,8 +3,6 @@
 
 use dirs;
 use elebox_core::{Part, PartType};
-use serde::de::value::Error;
-use std::path::PathBuf;
 use std::sync::Mutex;
 
 macro_rules! DB_PATH {
@@ -34,7 +32,10 @@ fn part_add(db: tauri::State<DbPath>, part: &str, qty: i16) {
 fn type_new(db: tauri::State<DbPath>, name: &str, parent: &str) {
     let pt = PartType {
         name: name.to_string(),
-        parent: Some(parent.to_string()),
+        parent: match parent {
+            "" => None,
+            _ => Some(parent.to_string()),
+        },
     };
     let _ = pt.add(&DB_PATH!(db));
 }
@@ -58,6 +59,7 @@ fn get_db_path(db: tauri::State<DbPath>) -> String {
 #[tauri::command]
 fn set_db_path(db: tauri::State<DbPath>, path: &str) {
     update_db_path(db, path);
+    init_db(path);
 }
 
 fn main() {
