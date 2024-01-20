@@ -6,6 +6,8 @@ Lightweight personal electronic parts inventory management tool.
 
 ### Tauri GUI
 
+Install Node.js >= `20.9.0` for Vite.
+
 ```
 cd elebox
 pnpm install
