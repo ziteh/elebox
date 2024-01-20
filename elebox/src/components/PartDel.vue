@@ -5,12 +5,12 @@ defineProps({
   part: String
 })
 
-async function partDel(part: String) {
+async function partDel(part: string) {
   console.debug(`Part delete: ${part}`);
   await invoke("part_del", { part });
 }
 </script>
 
 <template>
-  <button @click="partDel(part)">🗑️</button>
+  <button @click="partDel(part!)">🗑️</button>
 </template>

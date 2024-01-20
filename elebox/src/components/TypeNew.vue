@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+
+interface Types {
+  [index: number]: {
+    name: string;
+    parent: string;
+  }
+}
 
 const typeName = ref("");
 const typeParent = ref("");
-const types = ref("");
+let types = reactive<Types>({});
 
 async function newType() {
   await invoke("type_new", { name: typeName.value, parent: typeParent.value });
@@ -14,8 +21,8 @@ async function newType() {
 }
 
 async function getTypes() {
-  types.value = await invoke("get_types", {});
-  console.debug(`Types: ${types.value}`);
+  types = await invoke("get_types", {});
+  console.debug(`Types: ${types}`);
 }
 
 onMounted(async () => {

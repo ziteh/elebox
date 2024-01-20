@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import PartQty from "./PartQty.vue";
 import PartDel from "./PartDel.vue";
 
-const parts = ref("");
+interface Parts {
+  [index: number]: {
+    name: string;
+    quantity: number;
+    part_type: string;
+  }
+}
+
+let parts = reactive<Parts>({});
 
 async function getParts() {
-  parts.value = await invoke("get_parts", {});
-  console.log(parts.value);
+  parts = await invoke("get_parts", {});
+  console.log(parts);
 }
 
 onMounted(getParts);

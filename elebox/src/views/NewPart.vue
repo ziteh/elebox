@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import router from '../router.js';
+
+interface Types {
+  [index: number]: {
+    name: string;
+    parent: string;
+  }
+}
 
 const partName = ref("");
 const partQty = ref("");
 const partType = ref("");
-const types = ref("");
+let types = reactive<Types>({});
 const location = ref("");
 
 function goHome() {
@@ -18,8 +25,8 @@ async function newPart() {
 }
 
 async function getTypes() {
-  types.value = await invoke("get_types", {});
-  console.debug(`Types: ${types.value}`);
+  types = await invoke("get_types", {});
+  console.debug(`Types: ${types}`);
 }
 
 onMounted(async () => {
