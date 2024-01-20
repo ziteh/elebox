@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "elebox",
-    "version": "0.0.0"
+    "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -36,7 +36,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "elebox",
+        "title": "Elebox",
         "width": 800,
         "height": 600
       }
