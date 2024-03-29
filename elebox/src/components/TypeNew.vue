@@ -20,6 +20,13 @@ async function newType() {
   await getTypes();
 }
 
+async function deleteType() {
+  let res = await invoke("type_del", { name: typeName.value});
+  console.debug(`Types: ${typeName.value} ${res}`);
+
+  await getTypes();
+}
+
 async function getTypes() {
   types = await invoke("get_types", {});
   console.debug(`Types: ${types}`);
@@ -48,6 +55,7 @@ onMounted(async () => {
     </div>
 
     <button type="submit">Add</button>
+    <button @click="deleteType">Delete</button>
   </form>
 </template>
 

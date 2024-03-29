@@ -3,7 +3,7 @@
 
 use dirs;
 use elebox_core::{Part, PartType};
-use std::sync::Mutex;
+use std::{slice::RChunksExact, sync::Mutex};
 
 macro_rules! DB_PATH {
     ($db:expr) => {
@@ -38,6 +38,15 @@ fn type_new(db: tauri::State<DbPath>, name: &str, parent: &str) {
         },
     };
     let _ = pt.add(&DB_PATH!(db));
+}
+
+#[tauri::command]
+fn type_del(db: tauri::State<DbPath>, name: &str) -> String {
+    let res = PartType::delete_by_name(&DB_PATH!(db), name);
+    match res {
+        Err(e)=>return e.to_string(),
+        Ok(s)=> return format!("OK {s}"),
+    }
 }
 
 #[tauri::command]
@@ -79,6 +88,7 @@ fn main() {
             part_new,
             part_del,
             type_new,
+            type_del,
             get_db_path,
             set_db_path
         ])

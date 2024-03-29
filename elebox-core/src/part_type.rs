@@ -54,8 +54,14 @@ impl PartType {
         todo!()
     }
 
-    pub fn delete_by_name(db_path: &str, name: &str) -> Result<(), EleboxError> {
-        todo!()
+    pub fn delete_by_name(db_path: &str, name: &str) -> Result<String, EleboxError> {
+        let id = get_part_type_id(db_path, name);
+        if id.is_none(){
+            return Err(EleboxError::NotExists(name.to_string()));
+        }
+
+       let res = delete_db_part_types(db_path, &id.unwrap());
+        return Ok(res);
     }
 
     pub fn update(

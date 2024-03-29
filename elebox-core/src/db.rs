@@ -8,7 +8,7 @@ use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::EleboxError;
+use crate::{EleboxError, PartType};
 
 trait DbItem {
     fn get_name(&self) -> String;
@@ -148,17 +148,41 @@ pub fn get_part_type_id(db_path: &str, name: &str) -> Option<String> {
 }
 
 pub fn delete_db_part(db_path: &str, id: &str) {
-    let db = DB::open(db_path).unwrap();
-    let tx = db.tx(true).unwrap();
-    let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
+    // let db = DB::open(db_path).unwrap();
+    // let tx = db.tx(true).unwrap();
+    // let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
+
+    // // assert!(bkt.get_kv(id).is_some());
+
+    // let _ = bkt.delete(id);
+    // let _ = tx.commit();
+
+    // // assert!(bkt.get_kv(id).is_none());
+
+    delete_db_items(db_path, PARTS_BUCKET, id);
+}
+
+pub fn delete_db_part_types(db_path: &str, id: &str) ->String {
+    delete_db_items(db_path, PART_TYPES_BUCKET, id)
+}
+
+pub fn delete_db_items(db_path: &str, bucket: &str, id:&str) -> String 
+    {
+       let db = DB::open(db_path).unwrap();
+       let tx = db.tx(true).unwrap();
+       let bkt = tx.get_bucket(bucket).unwrap(); 
 
     // assert!(bkt.get_kv(id).is_some());
-
-    let _ = bkt.delete(id);
-    let _ = tx.commit();
+       
+       let res = bkt.delete(id);
+    //    let _ = tx.commit();
+       match res {
+           Err(e)=> return e.to_string(),
+           _=> return "ok".to_string()
+       }
 
     // assert!(bkt.get_kv(id).is_none());
-}
+    }
 
 pub fn get_db_items<T>(db_path: &str, bucket: &str) -> Vec<T>
 where

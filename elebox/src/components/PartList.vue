@@ -19,10 +19,16 @@ async function getParts() {
   console.log(parts);
 }
 
+async function t() {
+await invoke("part_del", {part: "LDO"});
+  console.log("Del");
+}
+
 onMounted(getParts);
 </script>
 
 <template>
+  <button @click="t">D</button>
   <button @click="getParts">Update</button>
   <table>
     <thead>
