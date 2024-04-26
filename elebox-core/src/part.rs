@@ -5,7 +5,7 @@ use std::fmt::Debug;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
     pub name: String,
-    pub part_type: String,
+    pub catrgory: String,
     pub quantity: u16,
     pub package: Option<String>,
     pub alias: Option<String>,
@@ -24,10 +24,10 @@ pub struct Part {
 }
 
 impl Part {
-    pub fn new(name: &str, part_type: &str, quantity: u16) -> Part {
+    pub fn new(name: &str, category: &str, quantity: u16) -> Part {
         Part {
             name: name.to_string(),
-            part_type: part_type.to_string(),
+            catrgory: category.to_string(),
             quantity,
             package: None,
             alias: None,
@@ -70,12 +70,12 @@ impl Part {
 
         let old_db_part = get_db_part_from_id(db_path, id.as_ref().unwrap()).unwrap();
 
-        let type_id = match new_parent {
-            Some(name) => match get_part_type_id(db_path, name) {
+        let catrgory_id = match new_parent {
+            Some(name) => match get_category_id(db_path, name) {
                 Some(id) => id,
                 None => return Err(EleboxError::NotExists(name.to_string())),
             },
-            None => old_db_part.type_id,
+            None => old_db_part.category_id,
         };
 
         let db_part = DbPart {
@@ -87,7 +87,7 @@ impl Part {
                 Some(q) => q,
                 None => old_db_part.quantity,
             },
-            type_id,
+            category_id: catrgory_id,
         };
 
         add_db_part(db_path, &db_part);
@@ -131,11 +131,11 @@ impl Part {
             return Err(EleboxError::AlreadyExists(self.name.to_string()));
         }
 
-        let part_type_id = get_part_type_id(db_path, &self.part_type);
+        let category_id = get_category_id(db_path, &self.catrgory);
         let db_part = DbPart {
             name: self.name.to_string(),
             quantity: self.quantity,
-            type_id: match part_type_id {
+            category_id: match category_id {
                 Some(id) => id.to_string(),
                 None => "none".to_string(),
             },
@@ -150,11 +150,11 @@ impl Part {
         let mut parts: Vec<Part> = Vec::new();
 
         for db_part in db_parts {
-            let part_type = match get_db_part_type_from_id(db_path, &db_part.type_id) {
+            let category = match get_db_category_from_id(db_path, &db_part.category_id) {
                 Some(pt) => pt.name,
                 None => "none".to_string(),
             };
-            parts.push(Part::new(&db_part.name, &part_type, db_part.quantity));
+            parts.push(Part::new(&db_part.name, &category, db_part.quantity));
         }
         return parts;
     }

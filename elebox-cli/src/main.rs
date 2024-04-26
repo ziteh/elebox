@@ -120,7 +120,7 @@ struct DeleteTypeArgs {
 }
 
 fn main() {
-    // let p = elebox_core::PartType::list("./");
+    // let p = elebox_core::Category::list("./");
     // let r = p[0].add("./");
     //     let cli = Cli::parse();
 

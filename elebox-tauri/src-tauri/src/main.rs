@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dirs;
-use elebox_core::{Part, PartType};
+use elebox_core::{Part, Category};
 use std::{slice::RChunksExact, sync::Mutex};
 
 macro_rules! DB_PATH {
@@ -30,7 +30,7 @@ fn part_add(db: tauri::State<DbPath>, part: &str, qty: i16) {
 
 #[tauri::command]
 fn type_new(db: tauri::State<DbPath>, name: &str, parent: &str) {
-    let pt = PartType {
+    let pt = Category {
         name: name.to_string(),
         parent: match parent {
             "" => None,
@@ -42,7 +42,7 @@ fn type_new(db: tauri::State<DbPath>, name: &str, parent: &str) {
 
 #[tauri::command]
 fn type_del(db: tauri::State<DbPath>, name: &str) -> String {
-    let res = PartType::delete_by_name(&DB_PATH!(db), name);
+    let res = Category::delete_by_name(&DB_PATH!(db), name);
     match res {
         Err(e)=>return e.to_string(),
         Ok(s)=> return format!("OK {s}"),
@@ -56,8 +56,8 @@ fn part_new(db: tauri::State<DbPath>, name: &str, qty: u16, ptype: &str) {
 }
 
 #[tauri::command]
-fn get_types(db: tauri::State<DbPath>) -> Vec<PartType> {
-    PartType::list(&DB_PATH!(db))
+fn get_types(db: tauri::State<DbPath>) -> Vec<Category> {
+    Category::list(&DB_PATH!(db))
 }
 
 #[tauri::command]
