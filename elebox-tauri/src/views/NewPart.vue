@@ -25,8 +25,13 @@ async function newPart() {
 }
 
 async function getTypes() {
+<<<<<<< HEAD:elebox-tauri/src/views/NewPart.vue
   types = await invoke("get_types", {});
   console.debug(`Types: ${types}`);
+=======
+  types.value = await invoke("get_types", {});
+  console.debug(`Types: ${types.value}`);
+>>>>>>> origin/core:elebox/src/views/NewPart.vue
 }
 
 onMounted(async () => {

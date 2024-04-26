@@ -12,6 +12,9 @@ function toHome() {
   <div class="container">
     <button @click="toHome">&#11013; Back</button>
     <TypeNew />
+<<<<<<< HEAD:elebox-tauri/src/views/NewType.vue
     <TypeList />
+=======
+>>>>>>> origin/core:elebox/src/views/NewType.vue
   </div>
 </template>
