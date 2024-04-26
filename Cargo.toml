@@ -1,3 +1,3 @@
 [workspace]
 
-members = ["elebox-core", "elebox-cli", "elebox/src-tauri"]
+members = ["elebox-core", "elebox-cli", "elebox-tauri/src-tauri"]
