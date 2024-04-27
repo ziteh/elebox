@@ -104,7 +104,7 @@ impl<'a> PartManager<'a> {
         return Ok(());
     }
 
-    pub fn update_part_quantity(&self, name: &String, quantity: i16) -> Result<(), EleboxError> {
+    pub fn update_part_quantity(&self, name: &str, quantity: i16) -> Result<(), EleboxError> {
         let id = self.db.get_part_id(name);
         if id.is_none() {
             return Err(EleboxError::NotExists(name.to_string()));

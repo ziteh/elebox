@@ -2,10 +2,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dirs;
-use elebox_core::{Part, Category};
-use std::{slice::RChunksExact, sync::Mutex};
+use elebox_core::{Category, Datebase, Part};
+use std::sync::Mutex;
 
-macro_rules! DB_PATH {
+macro_rules! GET {
     ($db:expr) => {
         $db.0.lock().unwrap()
     };
@@ -14,61 +14,77 @@ macro_rules! DB_PATH {
 struct DbPath(Mutex<String>);
 
 #[tauri::command]
-fn get_parts(db: tauri::State<DbPath>) -> Vec<Part> {
-    Part::list(&DB_PATH!(db))
+fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::PartManager::new(&db);
+    mgr.list()
 }
 
 #[tauri::command]
-fn part_del(db: tauri::State<DbPath>, part: &str) {
-    let _ = Part::delete_by_name(&DB_PATH!(db), &part.to_string());
+fn part_del(path: tauri::State<DbPath>, part: &str) {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::PartManager::new(&db);
+    let _ = mgr.delete(part);
 }
 
 #[tauri::command]
-fn part_add(db: tauri::State<DbPath>, part: &str, qty: i16) {
-    let _ = Part::update_part_quantity(&DB_PATH!(db), &part.to_string(), qty);
+fn part_add(path: tauri::State<DbPath>, part: &str, qty: i16) {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::PartManager::new(&db);
+    let _ = mgr.update_part_quantity(part, qty);
 }
 
 #[tauri::command]
-fn type_new(db: tauri::State<DbPath>, name: &str, parent: &str) {
-    let pt = Category {
+fn type_new(path: tauri::State<DbPath>, name: &str, parent: &str) {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::CategoryManager::new(&db);
+
+    let cat = Category {
         name: name.to_string(),
         parent: match parent {
             "" => None,
             _ => Some(parent.to_string()),
         },
     };
-    let _ = pt.add(&DB_PATH!(db));
+    let _ = mgr.add(&cat);
 }
 
 #[tauri::command]
-fn type_del(db: tauri::State<DbPath>, name: &str) -> String {
-    let res = Category::delete_by_name(&DB_PATH!(db), name);
+fn type_del(path: tauri::State<DbPath>, name: &str) -> String {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::CategoryManager::new(&db);
+
+    let res = mgr.delete(name);
     match res {
-        Err(e)=>return e.to_string(),
-        Ok(s)=> return format!("OK {s}"),
+        Err(e) => return e.to_string(),
+        Ok(s) => return format!("OK {s}"),
     }
 }
 
 #[tauri::command]
-fn part_new(db: tauri::State<DbPath>, name: &str, qty: u16, ptype: &str) {
+fn part_new(path: tauri::State<DbPath>, name: &str, qty: u16, ptype: &str) {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::PartManager::new(&db);
     let part = Part::new(name, ptype, qty);
-    let _ = part.add(&DB_PATH!(db));
+    let _ = mgr.add(&part);
 }
 
 #[tauri::command]
-fn get_types(db: tauri::State<DbPath>) -> Vec<Category> {
-    Category::list(&DB_PATH!(db))
+fn get_types(path: tauri::State<DbPath>) -> Vec<Category> {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::CategoryManager::new(&db);
+    mgr.list()
 }
 
 #[tauri::command]
-fn get_db_path(db: tauri::State<DbPath>) -> String {
-    DB_PATH!(db).to_string()
+fn get_db_path(path: tauri::State<DbPath>) -> String {
+    GET!(path).to_string()
 }
 
 #[tauri::command]
-fn set_db_path(db: tauri::State<DbPath>, path: &str) {
-    update_db_path(db, path);
-    init_db(path);
+fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
+    update_db_path(path, new_path);
+    init_db(new_path);
 }
 
 fn main() {
@@ -112,10 +128,11 @@ fn get_default_path() -> Result<String, String> {
 }
 
 fn update_db_path(db: tauri::State<DbPath>, new_path: &str) {
-    let mut p = DB_PATH!(db);
+    let mut p = GET!(db);
     *p = String::from(new_path);
 }
 
 fn init_db(path: &str) {
-    elebox_core::init(path);
+    let db = elebox_core::JammDatebase::new(path);
+    db.init();
 }

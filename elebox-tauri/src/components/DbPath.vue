@@ -10,7 +10,7 @@ async function getPath() {
 }
 
 async function setPath() {
-  await invoke("set_db_path", { path: path.value });
+  await invoke("set_db_path", { new_path: path.value });
   console.debug(`DB path: ${path.value}`);
 }
 
