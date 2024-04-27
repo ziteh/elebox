@@ -113,36 +113,10 @@ impl Datebase {
 
     pub fn get_part_id(&self, name: &str) -> Option<String> {
         self.get_item_id::<DbPart>(PARTS_BUCKET, name)
-        // let db = DB::open(&self.path).unwrap();
-        // let tx = db.tx(false).unwrap();
-        // let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
-
-        // for data in bkt.cursor() {
-        //     let part: DbPart = rmp_serde::from_slice(data.kv().value()).unwrap();
-
-        //     if &part.name == name {
-        //         let id = from_utf8(data.kv().key()).unwrap();
-        //         return Some(id.to_string());
-        //     }
-        // }
-        // return None;
     }
 
     pub fn get_category_id(&self, name: &str) -> Option<String> {
         self.get_item_id::<DbCategory>(CATEGORIES_BUCKET, name)
-        // let db = DB::open(&self.path).unwrap();
-        // let tx = db.tx(false).unwrap();
-        // let bkt = tx.get_bucket(CATEGORIES_BUCKET).unwrap();
-
-        // for data in bkt.cursor() {
-        //     let category: DbCategory = rmp_serde::from_slice(data.kv().value()).unwrap();
-
-        //     if &category.name == name {
-        //         let id = from_utf8(data.kv().key()).unwrap();
-        //         return Some(id.to_string());
-        //     };
-        // }
-        // return None;
     }
 
     fn get_item<T>(&self, bucket: &str, id: &str) -> Option<T>

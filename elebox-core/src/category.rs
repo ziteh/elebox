@@ -9,6 +9,7 @@ pub struct Category {
     pub name: String,
     pub parent: Option<String>,
 }
+
 impl Category {
     pub fn new(name: &str, parent: Option<&str>) -> Self {
         Self {
