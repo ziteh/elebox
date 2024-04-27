@@ -9,6 +9,17 @@ pub struct Category {
     pub name: String,
     pub parent: Option<String>,
 }
+impl Category {
+    pub fn new(name: &str, parent: Option<&str>) -> Self {
+        Self {
+            name: name.to_string(),
+            parent: match parent {
+                Some(p) => Some(p.to_string()),
+                None => None,
+            },
+        }
+    }
+}
 
 pub struct CategoryManager {
     db: Datebase,
@@ -102,12 +113,12 @@ impl CategoryManager {
     }
 
     pub fn add(&self, category: &Category) -> Result<(), EleboxError> {
-        // Part type name is unique
+        // Part category name is unique
         if self.db.get_category_id(&category.name).is_some() {
             return Err(EleboxError::AlreadyExists(category.name.to_string()));
         }
 
-        // Get the ID of parent type
+        // Get the ID of parent category
         let p_id = match &category.parent {
             Some(p_name) => match self.db.get_category_id(&p_name) {
                 Some(id) => id,

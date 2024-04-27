@@ -3,12 +3,12 @@ use std::{
     str::{self, from_utf8},
 };
 
-use jammdb::{Bucket, Data, KVPair, DB};
-use rmp_serde::{Deserializer, Serializer};
+use jammdb::DB;
+// use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{Category, EleboxError};
+// use crate::{Category, EleboxError};
 
 trait DbItem {
     fn get_name(&self) -> String;
@@ -46,7 +46,7 @@ impl DbItem for DbCategory {
     }
 }
 
-const DEFAULT_DATABASE_PATH: &str = "./elebox.db";
+// const DEFAULT_DATABASE_PATH: &str = "./elebox.db";
 const PARTS_BUCKET: &str = "parts";
 const CATEGORIES_BUCKET: &str = "catrgories";
 
