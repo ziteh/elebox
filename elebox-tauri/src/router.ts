@@ -5,15 +5,15 @@ export default createRouter({
   routes: [
     {
       path: "/",
-      component: () => import("./views/PartList.vue"),
+      component: () => import("./views/Home.vue"),
     },
     {
-      path: "/new-part",
-      component: () => import("./views/NewPart.vue"),
+      path: "/part",
+      component: () => import("./views/Part.vue"),
     },
     {
-      path: "/new-type",
-      component: () => import("./views/NewType.vue"),
+      path: "/category",
+      component: () => import("./views/Category.vue"),
     },
   ],
 });

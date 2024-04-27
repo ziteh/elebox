@@ -3,7 +3,7 @@ import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import router from '../router.js';
 
-interface Types {
+interface Categories {
   [index: number]: {
     name: string;
     parent: string;
@@ -12,8 +12,8 @@ interface Types {
 
 const partName = ref("");
 const partQty = ref("");
-const partType = ref("");
-let types = reactive<Types>({});
+const category = ref("");
+let categories = reactive<Categories>({});
 const location = ref("");
 
 function goHome() {
@@ -21,21 +21,16 @@ function goHome() {
 }
 
 async function newPart() {
-  await invoke("part_new", { name: partName.value, qty: parseInt(partQty.value), ptype: partType.value });
+  await invoke("part_new", { name: partName.value, qty: parseInt(partQty.value), ptype: category.value });
 }
 
-async function getTypes() {
-<<<<<<< HEAD:elebox-tauri/src/views/NewPart.vue
-  types = await invoke("get_types", {});
-  console.debug(`Types: ${types}`);
-=======
-  types.value = await invoke("get_types", {});
-  console.debug(`Types: ${types.value}`);
->>>>>>> origin/core:elebox/src/views/NewPart.vue
+async function getCategories() {
+  categories = await invoke("get_categories", {});
+  console.debug(`get categories: ${categories}`);
 }
 
 onMounted(async () => {
-  await getTypes();
+  await getCategories();
 });
 </script>
 
@@ -61,10 +56,10 @@ onMounted(async () => {
             <input id="part-qty-in" v-model="partQty" placeholder="15" type="number" pattern="[0-9]*" />
           </div>
           <div class="field">
-            <label for="part-type-in">Type</label>
-            <select v-model="partType">
+            <label for="category-in">Category</label>
+            <select v-model="category">
               <option disabled value="Category">Category</option>
-              <option v-for="(t, index) in types" :key="index" :title="t.parent">
+              <option v-for="(t, index) in categories" :key="index" :title="t.parent">
                 {{ t.name }}
               </option>
             </select>

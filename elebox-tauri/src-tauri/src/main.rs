@@ -4,6 +4,7 @@
 use dirs;
 use elebox_core::{Category, Datebase, Part};
 use std::sync::Mutex;
+use tauri::Manager;
 
 macro_rules! GET {
     ($db:expr) => {
@@ -35,7 +36,7 @@ fn part_add(path: tauri::State<DbPath>, part: &str, qty: i16) {
 }
 
 #[tauri::command]
-fn type_new(path: tauri::State<DbPath>, name: &str, parent: &str) {
+fn new_category(path: tauri::State<DbPath>, name: &str, parent: &str) {
     let db = elebox_core::JammDatebase::new(&GET!(path));
     let mgr = elebox_core::CategoryManager::new(&db);
 
@@ -50,7 +51,7 @@ fn type_new(path: tauri::State<DbPath>, name: &str, parent: &str) {
 }
 
 #[tauri::command]
-fn type_del(path: tauri::State<DbPath>, name: &str) -> String {
+fn del_category(path: tauri::State<DbPath>, name: &str) -> String {
     let db = elebox_core::JammDatebase::new(&GET!(path));
     let mgr = elebox_core::CategoryManager::new(&db);
 
@@ -70,7 +71,7 @@ fn part_new(path: tauri::State<DbPath>, name: &str, qty: u16, ptype: &str) {
 }
 
 #[tauri::command]
-fn get_types(path: tauri::State<DbPath>) -> Vec<Category> {
+fn get_categories(path: tauri::State<DbPath>) -> Vec<Category> {
     let db = elebox_core::JammDatebase::new(&GET!(path));
     let mgr = elebox_core::CategoryManager::new(&db);
     mgr.list()
@@ -96,15 +97,20 @@ fn main() {
     init_db(&db_path);
 
     tauri::Builder::default()
+        .setup(|app| {
+            // https://github.com/tauri-apps/tauri/issues/1213#issuecomment-1700917797
+            app.get_window("main").unwrap().open_devtools();
+            Ok(())
+        })
         .manage(DbPath(Mutex::new(db_path)))
         .invoke_handler(tauri::generate_handler![
             get_parts,
-            get_types,
+            get_categories,
             part_add,
             part_new,
             part_del,
-            type_new,
-            type_del,
+            new_category,
+            del_category,
             get_db_path,
             set_db_path
         ])

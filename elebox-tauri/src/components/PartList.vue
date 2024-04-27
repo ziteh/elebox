@@ -8,27 +8,23 @@ interface Parts {
   [index: number]: {
     name: string;
     quantity: number;
-    part_type: string;
+    category: string;
   }
 }
 
 let parts = reactive<Parts>({});
 
 async function getParts() {
-  parts = await invoke("get_parts", {});
-  console.log(parts);
-}
-
-async function t() {
-await invoke("part_del", {part: "LDO"});
-  console.log("Del");
+  console.log("get parts");
+  const ps = await invoke("get_parts", {});
+  Object.assign(parts, ps);
+  console.debug(parts);
 }
 
 onMounted(getParts);
 </script>
 
 <template>
-  <button @click="t">D</button>
   <button @click="getParts">Update</button>
   <table>
     <thead>
@@ -45,7 +41,7 @@ onMounted(getParts);
         <td>{{ p.quantity }}
           <PartQty :part="p.name" />
         </td>
-        <td>{{ p.part_type }}</td>
+        <td>{{ p.category }}</td>
         <td>
           <PartDel :part="p.name" />
         </td>

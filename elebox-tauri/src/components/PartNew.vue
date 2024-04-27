@@ -19,7 +19,7 @@ async function newPart() {
 }
 
 async function getTypes() {
-  types = await invoke("get_types", {});
+  types = await invoke("get_categories", {});
   console.debug(`Types: ${types}`);
 }
 

@@ -3,20 +3,22 @@ import router from '../router.js';
 import PartList from "../components/PartList.vue";
 import DbPath from "../components/DbPath.vue";
 
-function toNewPart() {
-  router.replace({ path: "/new-part" })
+function toPart() {
+  router.replace({ path: "/part" })
 }
 
-function toNewType() {
-  router.replace({ path: "/new-type" })
+function toCategory() {
+  router.replace({ path: "/category" })
 }
 </script>
 
 <template>
   <div class="container">
     <DbPath />
-    <button @click="toNewPart">New part</button>
-    <button @click="toNewType">New type</button>
+    <hr>
+    <button @click="toPart">New Part</button>
+    <button @click="toCategory">New Category</button>
+    <hr>
     <PartList />
   </div>
 </template>
