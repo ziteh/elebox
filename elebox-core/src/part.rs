@@ -24,8 +24,8 @@ pub struct Part {
 }
 
 impl Part {
-    pub fn new(name: &str, category: &str, quantity: u16) -> Part {
-        Part {
+    pub fn new(name: &str, category: &str, quantity: u16) -> Self {
+        Self {
             name: name.to_string(),
             catrgory: category.to_string(),
             quantity,
@@ -45,33 +45,43 @@ impl Part {
             suppliers: None,
         }
     }
+}
 
-    pub fn delete_by_name(db_path: &str, name: &str) -> Result<(), EleboxError> {
-        let id = get_part_id(db_path, name);
+pub struct PartManager {
+    db: Datebase,
+}
+
+impl PartManager {
+    pub fn new(db: Datebase) -> Self {
+        Self { db }
+    }
+
+    pub fn delete(&self, name: &str) -> Result<(), EleboxError> {
+        let id = self.db.get_part_id(name);
         if id.is_none() {
             return Err(EleboxError::NotExists(name.to_string()));
         }
 
-        delete_db_part(db_path, &id.unwrap());
+        self.db.delete_part(&id.unwrap());
         return Ok(());
     }
 
     pub fn update(
-        db_path: &str,
+        &self,
         old_name: &str,
         new_name: Option<&str>,
         new_quantity: Option<u16>,
         new_parent: Option<&str>,
     ) -> Result<(), EleboxError> {
-        let id = get_part_id(db_path, old_name);
+        let id = self.db.get_part_id(old_name);
         if id.is_none() {
             return Err(EleboxError::NotExists(old_name.to_string()));
         }
 
-        let old_db_part = get_db_part_from_id(db_path, id.as_ref().unwrap()).unwrap();
+        let old_db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
 
         let catrgory_id = match new_parent {
-            Some(name) => match get_category_id(db_path, name) {
+            Some(name) => match self.db.get_category_id(name) {
                 Some(id) => id,
                 None => return Err(EleboxError::NotExists(name.to_string())),
             },
@@ -90,31 +100,17 @@ impl Part {
             category_id: catrgory_id,
         };
 
-        add_db_part(db_path, &db_part);
-        // {
-        //     let db = DB::open(db_path).unwrap();
-        //     let tx = db.tx(true).unwrap();
-        //     let bucket = tx.get_bucket(PARTS_BUCKET).unwrap();
-
-        //     let value = rmp_serde::to_vec(&db_part).unwrap();
-        //     bucket.put(id.unwrap(), value).unwrap();
-        //     let _ = tx.commit();
-        // }
-
+        self.db.add_part(&db_part);
         return Ok(());
     }
 
-    pub fn update_part_quantity(
-        db_path: &String,
-        name: &String,
-        quantity: i16,
-    ) -> Result<(), EleboxError> {
-        let id = get_part_id(db_path, name);
+    pub fn update_part_quantity(&self, name: &String, quantity: i16) -> Result<(), EleboxError> {
+        let id = self.db.get_part_id(name);
         if id.is_none() {
             return Err(EleboxError::NotExists(name.to_string()));
         }
 
-        let mut db_part = get_db_part_from_id(db_path, id.as_ref().unwrap()).unwrap();
+        let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
         let new_q = db_part.quantity as i16 + quantity;
         if new_q < 0 {
             return Err(EleboxError::InventoryShortage(name.to_string()));
@@ -122,35 +118,35 @@ impl Part {
             db_part.quantity = new_q as u16;
         }
 
-        update_db_part(db_path, name, &db_part);
+        self.db.update_part(name, &db_part);
         return Ok(());
     }
 
-    pub fn add(&self, db_path: &str) -> Result<(), EleboxError> {
-        if get_part_id(db_path, &self.name).is_some() {
-            return Err(EleboxError::AlreadyExists(self.name.to_string()));
+    pub fn add(&self, part: &Part) -> Result<(), EleboxError> {
+        if self.db.get_part_id(&part.name).is_some() {
+            return Err(EleboxError::AlreadyExists(part.name.to_string()));
         }
 
-        let category_id = get_category_id(db_path, &self.catrgory);
+        let category_id = self.db.get_category_id(&part.catrgory);
         let db_part = DbPart {
-            name: self.name.to_string(),
-            quantity: self.quantity,
+            name: part.name.to_string(),
+            quantity: part.quantity,
             category_id: match category_id {
                 Some(id) => id.to_string(),
                 None => "none".to_string(),
             },
         };
 
-        add_db_part(db_path, &db_part);
+        self.db.add_part(&db_part);
         return Ok(());
     }
 
-    pub fn list(db_path: &str) -> Vec<Part> {
-        let db_parts = get_db_parts(db_path);
+    pub fn list(&self) -> Vec<Part> {
+        let db_parts = self.db.get_parts();
         let mut parts: Vec<Part> = Vec::new();
 
         for db_part in db_parts {
-            let category = match get_db_category_from_id(db_path, &db_part.category_id) {
+            let category = match self.db.get_category_from_id(&db_part.category_id) {
                 Some(pt) => pt.name,
                 None => "none".to_string(),
             };

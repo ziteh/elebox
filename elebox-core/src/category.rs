@@ -11,7 +11,7 @@ pub struct Category {
 }
 
 pub struct CategoryManager {
-    pub db: Datebase,
+    db: Datebase,
 }
 
 impl CategoryManager {
@@ -101,14 +101,14 @@ impl CategoryManager {
         return Ok(());
     }
 
-    pub fn add(&self, name: &str, parent: Option<&str>) -> Result<(), EleboxError> {
+    pub fn add(&self, category: &Category) -> Result<(), EleboxError> {
         // Part type name is unique
-        if self.db.get_category_id(name).is_some() {
-            return Err(EleboxError::AlreadyExists(name.to_string()));
+        if self.db.get_category_id(&category.name).is_some() {
+            return Err(EleboxError::AlreadyExists(category.name.to_string()));
         }
 
         // Get the ID of parent type
-        let p_id = match parent {
+        let p_id = match &category.parent {
             Some(p_name) => match self.db.get_category_id(&p_name) {
                 Some(id) => id,
                 None => return Err(EleboxError::NotExists(p_name.to_string())),
@@ -117,7 +117,7 @@ impl CategoryManager {
         };
 
         let db_category = DbCategory {
-            name: name.to_string(),
+            name: category.name.to_string(),
             parent_id: p_id,
         };
 
