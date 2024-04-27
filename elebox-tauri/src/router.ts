@@ -16,8 +16,8 @@ export default createRouter({
       component: () => import("./views/Category.vue"),
     },
     {
-      path: "/config",
-      component: () => import("./views/Config.vue"),
+      path: "/settings",
+      component: () => import("./views/Settings.vue"),
     },
   ],
 });

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import router from '../router.js';
 
 interface Categories {
   [index: number]: {
@@ -16,9 +15,6 @@ const category = ref("");
 let categories = reactive<Categories>({});
 const location = ref("");
 
-function goHome() {
-  router.replace({ path: "/" })
-}
 
 async function newPart() {
   await invoke("part_new", { name: partName.value, qty: parseInt(partQty.value), ptype: category.value });
@@ -30,17 +26,11 @@ async function getCategories() {
   console.debug(`get categories: ${categories}`);
 }
 
-onMounted(async () => {
-  await getCategories();
-});
+onMounted(getCategories);
 </script>
 
 <template>
   <div class="container">
-    <div>
-      <button @click="goHome">&#11013; Back</button>
-    </div>
-
     <div>
       <form>
         <div class="field">

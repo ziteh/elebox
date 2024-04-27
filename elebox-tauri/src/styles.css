@@ -9,9 +9,19 @@
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  --primary: #2e2c3c;
+  --dark: #0f0f0f;
+  --light: #f6f6f6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
 }
 
 .container {
