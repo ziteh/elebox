@@ -25,7 +25,8 @@ async function newPart() {
 }
 
 async function getCategories() {
-  categories = await invoke("get_categories", {});
+  const cs = await invoke("get_categories", {});
+  Object.assign(categories, cs);
   console.debug(`get categories: ${categories}`);
 }
 
