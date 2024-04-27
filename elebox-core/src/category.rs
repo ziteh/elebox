@@ -22,12 +22,12 @@ impl Category {
     }
 }
 
-pub struct CategoryManager {
-    db: Datebase,
+pub struct CategoryManager<'a> {
+    db: &'a dyn Datebase,
 }
 
-impl CategoryManager {
-    pub fn new(db: Datebase) -> Self {
+impl<'a> CategoryManager<'a> {
+    pub fn new(db: &'a dyn Datebase) -> Self {
         Self { db }
     }
 
