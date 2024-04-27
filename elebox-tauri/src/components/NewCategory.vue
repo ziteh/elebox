@@ -54,8 +54,8 @@ onMounted(getCategories);
     </div>
 
     <button type="submit">Add</button>
-    <button @click="deleteType">Delete</button>
   </form>
+  <button @click="deleteType">Delete</button>
 </template>
 
 <style>
