@@ -5,7 +5,7 @@ use std::fmt::Debug;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
     pub name: String,
-    pub catrgory: String,
+    pub category: String,
     pub quantity: u16,
     pub package: Option<String>,
     pub alias: Option<String>,
@@ -27,7 +27,7 @@ impl Part {
     pub fn new(name: &str, category: &str, quantity: u16) -> Self {
         Self {
             name: name.to_string(),
-            catrgory: category.to_string(),
+            category: category.to_string(),
             quantity,
             package: None,
             alias: None,
@@ -127,7 +127,7 @@ impl<'a> PartManager<'a> {
             return Err(EleboxError::AlreadyExists(part.name.to_string()));
         }
 
-        let category_id = self.db.get_category_id(&part.catrgory);
+        let category_id = self.db.get_category_id(&part.category);
         let db_part = DbPart {
             name: part.name.to_string(),
             quantity: part.quantity,

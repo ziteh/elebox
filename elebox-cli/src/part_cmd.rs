@@ -107,7 +107,7 @@ pub fn part_cmd(db: &dyn elebox_core::Datebase, cmd: &PartCommand) {
             println!("List part");
             let parts = manager.list();
             for part in parts {
-                println!("{}   {}   {}", part.name, part.quantity, part.catrgory);
+                println!("{}   {}   {}", part.name, part.quantity, part.category);
             }
         }
     }

@@ -31,7 +31,7 @@ onMounted(getParts);
       <tr>
         <th>Part</th>
         <th>Quantity</th>
-        <th>Type</th>
+        <th>Category</th>
         <th>Edit</th>
       </tr>
     </thead>
