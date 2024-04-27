@@ -50,7 +50,11 @@ pub fn category_cmd(db: &dyn elebox_core::Datebase, cmd: &CategoryCommand) {
                 println!("{err}");
             };
         }
-        Some(CategorySubCommand::Delete(_args)) => todo!(),
+        Some(CategorySubCommand::Delete(args)) => {
+            if let Err(err) = manager.delete(&args.name) {
+                print!("{err}");
+            };
+        }
         Some(CategorySubCommand::Update(args)) => {
             if let Err(err) = manager.update(
                 &args.old_name,

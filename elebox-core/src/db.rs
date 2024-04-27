@@ -4,11 +4,8 @@ use std::{
 };
 
 use jammdb::DB;
-// use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-// use crate::{Category, EleboxError};
 
 trait DbItem {
     fn get_name(&self) -> String;
@@ -46,7 +43,6 @@ impl DbItem for DbCategory {
     }
 }
 
-// const DEFAULT_DATABASE_PATH: &str = "./elebox.db";
 const PARTS_BUCKET: &str = "parts";
 const CATEGORIES_BUCKET: &str = "catrgories";
 
@@ -151,16 +147,10 @@ impl JammDatebase {
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
-        // assert!(bkt.get_kv(id).is_some());
+        bkt.delete(id).unwrap();
+        let _ = tx.commit();
 
-        let res = bkt.delete(id);
-        //    let _ = tx.commit();
-        match res {
-            Err(e) => return e.to_string(),
-            _ => return "ok".to_string(),
-        }
-
-        // assert!(bkt.get_kv(id).is_none());
+        "done".to_string() // TODO
     }
 }
 

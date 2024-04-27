@@ -77,7 +77,9 @@ pub fn part_cmd(db: &dyn elebox_core::Datebase, cmd: &PartCommand) {
                 }
             }
             PartSubCommand::Delete(args) => {
-                println!("Delete part {}", args.name);
+                if let Err(err) = manager.delete(&args.name) {
+                    println!("{err}");
+                }
             }
             PartSubCommand::Update(args) => {
                 if let Err(err) = manager.update(
