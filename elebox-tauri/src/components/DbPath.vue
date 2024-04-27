@@ -18,7 +18,9 @@ onMounted(getPath);
 </script>
 
 <template>
-  <input id="db_path" v-model="path" placeholder=".db" />
-  <button @click="setPath">Set DB Path</button>
+  <div class="row">
+    <label for="path-in">Database Path</label>
+    <input id="db_path" v-model="path" placeholder="elebox.db" />
+    <button @click="setPath">Apply</button>
+  </div>
 </template>
-
