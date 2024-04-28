@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <v-app>
+  <v-app class="pa-4">
 
     <v-navigation-drawer expand-on-hover rail mobile-breakpoint="sm">
       <v-list density="compact" nav>
