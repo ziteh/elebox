@@ -2,8 +2,9 @@
 </script>
 
 <template>
-  <v-layout>
-    <v-navigation-drawer expand-on-hover rail>
+  <v-app>
+
+    <v-navigation-drawer expand-on-hover rail mobile-breakpoint="sm">
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-folder" title="Home" to="/"></v-list-item>
 
@@ -19,5 +20,5 @@
       <router-view />
     </v-main>
 
-  </v-layout>
+  </v-app>
 </template>
