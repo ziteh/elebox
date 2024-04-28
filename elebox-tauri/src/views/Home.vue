@@ -28,7 +28,7 @@ onMounted(getParts);
 
 <template>
   <v-container>
-    <v-row>
+    <v-row class="ga-8" align="center">
       <v-autocomplete label="Search" variant="outlined"
         :items="Object.values(parts).map(part => part.name)"></v-autocomplete>
       <v-btn @click="getParts">Update</v-btn>

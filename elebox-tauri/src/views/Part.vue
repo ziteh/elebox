@@ -35,20 +35,20 @@ onMounted(getCategories);
       <v-row>
         <v-btn @click="newPart">Save</v-btn>
       </v-row>
-      <v-row>
+      <v-row class="ga-8">
         <v-text-field label="Name" variant="outlined" v-model="partName" placeholder="RP2040"></v-text-field>
         <v-text-field label="Quantity" variant="outlined" v-model="partQty"></v-text-field>
         <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)"
           variant="outlined"></v-select>
       </v-row>
-      <v-row>
+      <v-row class="ga-8">
         <v-select label="Package" :items="Object.values(categories).map(cat => cat.name)" variant="outlined"></v-select>
         <v-select label="Manufacturer" :items="Object.values(categories).map(cat => cat.name)"
           variant="outlined"></v-select>
         <v-text-field label="Cost" variant="outlined" v-model="val"></v-text-field>
         <v-text-field label="Location" variant="outlined" v-model="val" placeholder="Box #1"></v-text-field>
       </v-row>
-      <v-row>
+      <v-row class="ga-8">
         <v-text-field label="Alias" variant="outlined" v-model="val" placeholder=""></v-text-field>
         <v-text-field label="Mfr #" variant="outlined" v-model="val" placeholder="SC0914(7)"
           title="Manufacturer #"></v-text-field>
@@ -56,15 +56,15 @@ onMounted(getCategories);
         <v-text-field label="Digi-Key #" variant="outlined" v-model="val"
           placeholder="2648-SC0914(7)CT-ND"></v-text-field>
       </v-row>
-      <v-row>
+      <v-row class="ga-8">
         <v-text-field label="Product Url" variant="outlined" v-model="val" placeholder="https://"></v-text-field>
         <v-text-field label="Datasheet" variant="outlined" v-model="val" placeholder="https://"></v-text-field>
         <v-text-field label="Image" variant="outlined" v-model="val" placeholder=""></v-text-field>
       </v-row>
-      <v-row>
+      <v-row class="ga-8">
         <v-textarea label="Description" variant="outlined" v-model="val" placeholder="Write something ..."></v-textarea>
       </v-row>
-      <v-row>
+      <v-row class="ga-8">
         <v-textarea label="Suppliers" variant="outlined" v-model="val" placeholder=""></v-textarea>
       </v-row>
     </v-container>

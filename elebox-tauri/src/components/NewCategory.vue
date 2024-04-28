@@ -32,7 +32,7 @@ onMounted(getCategories);
 <template>
   <v-form>
     <v-container>
-      <v-row>
+      <v-row class="ga-8">
         <v-text-field label="Name" variant="outlined" v-model="catName" placeholder="MCU"></v-text-field>
         <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)"
           variant="outlined"></v-select>
