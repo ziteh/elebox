@@ -17,6 +17,7 @@
     "vuetify": "^3.5.17"
   },
   "devDependencies": {
+    "@mdi/font": "^7.4.47",
     "@tauri-apps/cli": "^1.5.8",
     "@vitejs/plugin-vue": "^4.2.3",
     "typescript": "^5.0.2",
