@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import PartQty from "../components/PartQty.vue";
 import PartDel from "../components/PartDel.vue";
 
+
 interface Parts {
   [index: number]: {
     name: string;
@@ -26,6 +27,7 @@ onMounted(getParts);
 </script>
 
 <template>
+  <v-card test="123">222</v-card>
   <div class="part-list">
     <!-- TODO Breadcrumb -->
     <div class="row">
