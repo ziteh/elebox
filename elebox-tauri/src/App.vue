@@ -7,7 +7,6 @@
     <v-navigation-drawer expand-on-hover rail mobile-breakpoint="sm">
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-folder" title="Home" to="/"></v-list-item>
-
         <v-divider></v-divider>
 
         <v-list-item prepend-icon="mdi-account-multiple" title="Parts" to="/part"></v-list-item>
