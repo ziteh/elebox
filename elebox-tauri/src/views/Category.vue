@@ -4,8 +4,8 @@ import CategoryList from "../components/CategoryList.vue";
 </script>
 
 <template>
-  <div class="container">
+  <v-container>
     <NewCategory />
     <CategoryList />
-  </div>
+  </v-container>
 </template>
