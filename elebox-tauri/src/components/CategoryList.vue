@@ -11,17 +11,38 @@ interface Categories {
 
 let categories = reactive<Categories>({});
 
-async function getTypes() {
+async function getCategories() {
     const cs = await invoke("get_categories", {});
     Object.assign(categories, cs)
     console.debug(`get categories: ${categories}`);
 }
 
-onMounted(getTypes);
+async function delCategory(name: string) {
+    console.debug(`delete: ${name}`);
+    await invoke("del_category", { name });
+    // await getCategories();
+}
+
+onMounted(getCategories);
 </script>
 
 <template>
-    <ul v-for="(t) in categories">
-        <li>{{ t.name }}</li>
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Parent</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(c, index) in categories" :key="index">
+                <td>{{ c.name }}</td>
+                <td>{{ c.parent }}</td>
+                <td>
+                    <button @click="delCategory(c.name)" title="Delete">🗑️</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </template>

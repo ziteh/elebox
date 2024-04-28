@@ -40,7 +40,7 @@ onMounted(getCategories);
         <div class="row">
           <div class="field">
             <label for="part-name-in">Name</label>
-            <input id="part-name-in" v-model="partName" placeholder="LM3670" />
+            <input id="part-name-in" v-model="partName" placeholder="RP2040" />
           </div>
           <div class="field">
             <label for="part-qty-in">Quantity</label>
@@ -97,16 +97,15 @@ onMounted(getCategories);
         <div class="row">
           <div class="field">
             <label for="part-name-in" title="Manufacturer part number">Mfr #</label>
-            <input id="part-name-in" v-model="location" placeholder="LM3670MF-3.3/NOPB"
-              title="Manufacturer part number" />
+            <input id="part-name-in" v-model="location" placeholder="SC0914(7)" title="Manufacturer part number" />
           </div>
           <div class="field">
             <label for="part-name-in">Mouser #</label>
-            <input id="part-name-in" v-model="location" placeholder="" />
+            <input id="part-name-in" v-model="location" placeholder="358-SC09147 " />
           </div>
           <div class="field">
             <label for="part-name-in">Digi-Key #</label>
-            <input id="part-name-in" v-model="location" placeholder="" />
+            <input id="part-name-in" v-model="location" placeholder="2648-SC0914(7)CT-ND" />
           </div>
           <div class="field">
             <label for="part-name-in">Alias</label>

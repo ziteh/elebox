@@ -20,13 +20,6 @@ async function newCategory() {
   await getCategories();
 }
 
-async function deleteType() {
-  let res = await invoke("del_category", { name: catName.value });
-  console.debug(`delete category: ${catName.value}, ${res}`);
-
-  await getCategories();
-}
-
 async function getCategories() {
   const cs = await invoke("get_categories", {});
   Object.assign(categories, cs);
@@ -39,12 +32,12 @@ onMounted(getCategories);
 <template>
   <form class="row" @submit.prevent="newCategory">
     <div class="form-group">
-      <label for="name-in">Name: </label>
-      <input id="name-in" v-model="catName" placeholder="LDO" />
+      <label for="name-in">Name</label>
+      <input id="name-in" v-model="catName" placeholder="MCU" />
     </div>
 
     <div class="form-group">
-      <label for="category-in">Category: </label>
+      <label for="parent-in">Parent</label>
       <select v-model="catParent">
         <option disabled value="Category">Category</option>
         <option v-for="(t, index) in categories" :key="index" :title="t.parent">
@@ -55,7 +48,6 @@ onMounted(getCategories);
 
     <button type="submit">Add</button>
   </form>
-  <button @click="deleteType">Delete</button>
 </template>
 
 <style>
