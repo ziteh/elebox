@@ -30,33 +30,14 @@ onMounted(getCategories);
 </script>
 
 <template>
-  <form class="row" @submit.prevent="newCategory">
-    <div class="form-group">
-      <label for="name-in">Name</label>
-      <input id="name-in" v-model="catName" placeholder="MCU" />
-    </div>
-
-    <div class="form-group">
-      <label for="parent-in">Parent</label>
-      <select v-model="catParent">
-        <option disabled value="Category">Category</option>
-        <option v-for="(t, index) in categories" :key="index" :title="t.parent">
-          {{ t.name }}
-        </option>
-      </select>
-    </div>
-
-    <button type="submit">Add</button>
-  </form>
+  <v-form>
+    <v-container>
+      <v-row>
+        <v-text-field label="Name" variant="outlined" v-model="catName" placeholder="MCU"></v-text-field>
+        <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)"
+          variant="outlined"></v-select>
+        <v-btn @click="newCategory">Save</v-btn>
+      </v-row>
+    </v-container>
+  </v-form>
 </template>
-
-<style>
-.row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.form-group {
-  margin-right: 10px;
-}
-</style>

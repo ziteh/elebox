@@ -3,7 +3,7 @@ import DbPath from "../components/DbPath.vue";
 </script>
 
 <template>
-    <div class="container">
+    <v-container>
         <DbPath />
-    </div>
+    </v-container>
 </template>

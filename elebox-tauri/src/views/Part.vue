@@ -13,8 +13,8 @@ const partName = ref("");
 const partQty = ref("");
 const category = ref("");
 let categories = reactive<Categories>({});
-const location = ref("");
 
+const val = ref("");
 
 async function newPart() {
   await invoke("part_new", { name: partName.value, qty: parseInt(partQty.value), ptype: category.value });
@@ -30,118 +30,43 @@ onMounted(getCategories);
 </script>
 
 <template>
-  <div class="container">
-    <div>
-      <form>
-        <div class="field">
-          <button @click="newPart">Save</button>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="part-name-in">Name</label>
-            <input id="part-name-in" v-model="partName" placeholder="RP2040" />
-          </div>
-          <div class="field">
-            <label for="part-qty-in">Quantity</label>
-            <input id="part-qty-in" v-model="partQty" placeholder="15" type="number" pattern="[0-9]*" />
-          </div>
-          <div class="field">
-            <label for="category-in">Category</label>
-            <select v-model="category">
-              <option disabled value="Category">Category</option>
-              <option v-for="(t, index) in categories" :key="index" :title="t.parent">
-                {{ t.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="part-name-in">Package</label>
-            <select v-model="location">
-              <option disabled value="Category">Package tyep</option>
-              <option>
-                SOT-23
-              </option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="part-name-in">Manufacturer</label>
-            <select v-model="location">
-              <option disabled value="Category">Manufacturer</option>
-              <option>
-                Texas Instruments
-              </option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="part-qty-in">Cost</label>
-            <input id="part-qty-in" v-model="location" placeholder="15" type="number" pattern="[0-9]*" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="part-name-in">Description</label>
-            <textarea id="multiLineInput" v-model="location" rows="4" cols="50"
-              placeholder="Write something ..."></textarea>
-          </div>
-          <div class="field">
-            <label for="part-name-in">Location</label>
-            <input id="part-name-in" v-model="location" placeholder="Box #1" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="part-name-in" title="Manufacturer part number">Mfr #</label>
-            <input id="part-name-in" v-model="location" placeholder="SC0914(7)" title="Manufacturer part number" />
-          </div>
-          <div class="field">
-            <label for="part-name-in">Mouser #</label>
-            <input id="part-name-in" v-model="location" placeholder="358-SC09147 " />
-          </div>
-          <div class="field">
-            <label for="part-name-in">Digi-Key #</label>
-            <input id="part-name-in" v-model="location" placeholder="2648-SC0914(7)CT-ND" />
-          </div>
-          <div class="field">
-            <label for="part-name-in">Alias</label>
-            <input id="part-name-in" v-model="location" placeholder="" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label for="part-name-in">Product Url</label>
-            <input id="part-name-in" v-model="location" placeholder="" />
-          </div>
-          <div class="field">
-            <label for="part-name-in">Datasheet</label>
-            <input id="part-name-in" v-model="location" placeholder="" />
-          </div>
-          <div class="field">
-            <label for="part-name-in">Image</label>
-            <input id="part-name-in" v-model="location" placeholder="" />
-          </div>
-          <div class="field">
-            <label for="part-name-in">Octopart</label>
-            <input id="part-name-in" v-model="location" placeholder="" />
-          </div>
-          <div class="field">
-            <label for="part-name-in">Suppliers</label>
-            <input id="part-name-in" v-model="location" placeholder="" />
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
+  <v-form>
+    <v-container>
+      <v-row>
+        <v-btn @click="newPart">Save</v-btn>
+      </v-row>
+      <v-row>
+        <v-text-field label="Name" variant="outlined" v-model="partName" placeholder="RP2040"></v-text-field>
+        <v-text-field label="Quantity" variant="outlined" v-model="partQty"></v-text-field>
+        <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)"
+          variant="outlined"></v-select>
+      </v-row>
+      <v-row>
+        <v-select label="Package" :items="Object.values(categories).map(cat => cat.name)" variant="outlined"></v-select>
+        <v-select label="Manufacturer" :items="Object.values(categories).map(cat => cat.name)"
+          variant="outlined"></v-select>
+        <v-text-field label="Cost" variant="outlined" v-model="val"></v-text-field>
+        <v-text-field label="Location" variant="outlined" v-model="val" placeholder="Box #1"></v-text-field>
+      </v-row>
+      <v-row>
+        <v-text-field label="Alias" variant="outlined" v-model="val" placeholder=""></v-text-field>
+        <v-text-field label="Mfr #" variant="outlined" v-model="val" placeholder="SC0914(7)"
+          title="Manufacturer #"></v-text-field>
+        <v-text-field label="Mouser #" variant="outlined" v-model="val" placeholder="358-SC09147"></v-text-field>
+        <v-text-field label="Digi-Key #" variant="outlined" v-model="val"
+          placeholder="2648-SC0914(7)CT-ND"></v-text-field>
+      </v-row>
+      <v-row>
+        <v-text-field label="Product Url" variant="outlined" v-model="val" placeholder="https://"></v-text-field>
+        <v-text-field label="Datasheet" variant="outlined" v-model="val" placeholder="https://"></v-text-field>
+        <v-text-field label="Image" variant="outlined" v-model="val" placeholder=""></v-text-field>
+      </v-row>
+      <v-row>
+        <v-textarea label="Description" variant="outlined" v-model="val" placeholder="Write something ..."></v-textarea>
+      </v-row>
+      <v-row>
+        <v-textarea label="Suppliers" variant="outlined" v-model="val" placeholder=""></v-textarea>
+      </v-row>
+    </v-container>
+  </v-form>
 </template>
-
-<style>
-.row {
-  display: flex;
-  justify-content: space-between;
-}
-</style>

@@ -1,8 +1,8 @@
 import { createApp } from "vue";
-import "./styles.css";
+// import "./styles.css";
 import router from './router.js';
 import App from "./App.vue";
-//
+
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
@@ -10,6 +10,9 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
 const vuetify = createVuetify({
+    theme: {
+        defaultTheme: "dark"
+    },
     components,
     directives,
 })

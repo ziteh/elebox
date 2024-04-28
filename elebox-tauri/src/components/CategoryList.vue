@@ -23,11 +23,12 @@ async function delCategory(name: string) {
     // await getCategories();
 }
 
+
 onMounted(getCategories);
 </script>
 
 <template>
-    <table>
+    <v-table>
         <thead>
             <tr>
                 <th>Name</th>
@@ -36,13 +37,13 @@ onMounted(getCategories);
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(c, index) in categories" :key="index">
-                <td>{{ c.name }}</td>
-                <td>{{ c.parent }}</td>
+            <tr v-for="(cat, i) in categories" :key="i">
+                <td>{{ cat.name }}</td>
+                <td>{{ cat.parent }}</td>
                 <td>
-                    <button @click="delCategory(c.name)" title="Delete">🗑️</button>
+                    <v-btn @click="delCategory(cat.name)" title="Delete">🗑️</v-btn>
                 </td>
             </tr>
         </tbody>
-    </table>
+    </v-table>
 </template>

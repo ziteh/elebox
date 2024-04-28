@@ -18,9 +18,9 @@ onMounted(getPath);
 </script>
 
 <template>
-  <div class="row">
-    <label for="path-in">Database Path</label>
-    <input id="db_path" v-model="path" placeholder="elebox.db" />
-    <button @click="setPath">Apply</button>
-  </div>
+  <v-row>
+    <!-- <v-file-input label="Database file" variant="outlined" v-model="path" placeholder="elebox.db"></v-file-input> -->
+    <v-text-field label="Database file" variant="outlined" v-model="path" placeholder="elebox.db"></v-text-field>
+    <v-btn @click="setPath">Apply</v-btn>
+  </v-row>
 </template>

@@ -12,6 +12,6 @@ async function partAdd(part: string, qty: Number) {
 </script>
 
 <template>
-  <button @click="partAdd(part!, 1)">+</button>
-  <button @click="partAdd(part!, -1)">-</button>
+  <v-btn @click="partAdd(part!, 1)">+</v-btn>
+  <v-btn @click="partAdd(part!, -1)">-</v-btn>
 </template>

@@ -19,11 +19,6 @@
   --light: #f6f6f6;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-}
-
 .container {
   margin: 0;
   padding-top: 3vh;

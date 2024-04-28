@@ -27,16 +27,14 @@ onMounted(getParts);
 </script>
 
 <template>
-  <v-card test="123">222</v-card>
-  <div class="part-list">
-    <!-- TODO Breadcrumb -->
-    <div class="row">
-      <!-- TODO -->
-      <input id="search-in" v-model="search" placeholder="search" />
-      <button @click="getParts">Update</button>
-    </div>
+  <v-container>
+    <v-row>
+      <v-autocomplete label="Search" variant="outlined"
+        :items="Object.values(parts).map(part => part.name)"></v-autocomplete>
+      <v-btn @click="getParts">Update</v-btn>
+    </v-row>
 
-    <table>
+    <v-table>
       <thead>
         <tr>
           <th>Part</th>
@@ -45,6 +43,7 @@ onMounted(getParts);
           <th>Edit</th>
         </tr>
       </thead>
+
       <tbody>
         <tr v-for="(p, index) in parts" :key="index">
           <td>{{ p.name }}</td>
@@ -57,13 +56,6 @@ onMounted(getParts);
           </td>
         </tr>
       </tbody>
-    </table>
-  </div>
+    </v-table>
+  </v-container>
 </template>
-
-<style>
-.part-list {
-  display: flex;
-  flex-direction: column;
-}
-</style>
