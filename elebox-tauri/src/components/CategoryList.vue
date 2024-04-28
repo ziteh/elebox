@@ -41,7 +41,7 @@ onMounted(getCategories);
                 <td>{{ cat.name }}</td>
                 <td>{{ cat.parent }}</td>
                 <td>
-                    <v-btn @click="delCategory(cat.name)" title="Delete">🗑️</v-btn>
+                    <v-btn density="comfortable" icon="mdi-trash-can-outline" @click="delCategory(cat.name)" title="Delete"></v-btn>
                 </td>
             </tr>
         </tbody>

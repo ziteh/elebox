@@ -12,5 +12,5 @@ async function partDel(part: string) {
 </script>
 
 <template>
-  <v-btn @click="partDel(part!)">🗑️</v-btn>
+  <v-btn density="comfortable" icon="mdi-trash-can-outline" @click="partDel(part!)"></v-btn>
 </template>
