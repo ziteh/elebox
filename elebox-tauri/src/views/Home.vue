@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import PartQty from "../components/PartQty.vue";
 import PartDel from "../components/PartDel.vue";
@@ -14,7 +14,6 @@ interface Parts {
 }
 
 let parts = reactive<Parts>({});
-const search = ref("")
 
 async function getParts() {
   console.log("get parts");
