@@ -39,7 +39,7 @@ onMounted(getCategories);
         <v-text-field label="Name" variant="outlined" v-model="partName" placeholder="RP2040"></v-text-field>
         <v-text-field label="Quantity" variant="outlined" v-model="partQty"></v-text-field>
         <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)"
-          variant="outlined"></v-select>
+          variant="outlined" v-model="category"></v-select>
       </v-row>
       <v-row class="ga-8">
         <v-select label="Package" :items="Object.values(categories).map(cat => cat.name)" variant="outlined"></v-select>

@@ -34,8 +34,8 @@ onMounted(getCategories);
     <v-container>
       <v-row class="ga-8">
         <v-text-field label="Name" variant="outlined" v-model="catName" placeholder="MCU"></v-text-field>
-        <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)"
-          variant="outlined"></v-select>
+        <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)" variant="outlined"
+          v-model="catParent"></v-select>
         <v-btn @click="newCategory">Save</v-btn>
       </v-row>
     </v-container>
