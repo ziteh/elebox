@@ -55,7 +55,7 @@ impl<'a> PackageManager<'a> {
 
         let db_pkg = DbPackage {
             name: item.name.to_string(),
-            ptype: match item.ptype {
+            pkg_type: match item.ptype {
                 PackageType::Smt => String::from("smt"),
                 PackageType::Tht => String::from("tht"),
                 PackageType::Others => String::from("others"),
@@ -77,7 +77,7 @@ impl<'a> PackageManager<'a> {
         for db_pkg in db_pkgs {
             let p = Package::new(
                 &db_pkg.name,
-                match db_pkg.ptype.as_str() {
+                match db_pkg.pkg_type.as_str() {
                     "smt" => PackageType::Smt,
                     "tht" => PackageType::Tht,
                     "others" => PackageType::Others,

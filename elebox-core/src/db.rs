@@ -42,7 +42,7 @@ impl DbItem for DbCategory {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DbPackage {
-    pub ptype: String,
+    pub pkg_type: String,
     pub name: String,
     pub alias: String,
 }
