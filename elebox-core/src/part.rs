@@ -5,8 +5,8 @@ use std::fmt::Debug;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
     pub name: String,
-    pub category: String,
     pub quantity: u16,
+    pub category: String,
     pub package: Option<String>,
     pub alias: Option<String>,
     pub description: Option<String>,
@@ -98,6 +98,8 @@ impl<'a> PartManager<'a> {
                 None => old_db_part.quantity,
             },
             category_id: catrgory_id,
+            package_id: old_db_part.package_id,
+            mfr_id: old_db_part.mfr_id,
         };
 
         self.db.add_part(&db_part);
@@ -127,14 +129,23 @@ impl<'a> PartManager<'a> {
             return Err(EleboxError::AlreadyExists(part.name.to_string()));
         }
 
-        let category_id = self.db.get_category_id(&part.category);
+        let category_id = match self.db.get_category_id(&part.category) {
+            Some(id) => id.to_string(),
+            None => "none".to_string(),
+        };
+        let package_id = match &part.package {
+            Some(n) => match self.db.get_package_id(&n) {
+                Some(id) => id,
+                None => return Err(EleboxError::NotExists(n.to_string())),
+            },
+            None => "".to_string(),
+        };
         let db_part = DbPart {
             name: part.name.to_string(),
             quantity: part.quantity,
-            category_id: match category_id {
-                Some(id) => id.to_string(),
-                None => "none".to_string(),
-            },
+            category_id,
+            package_id,
+            mfr_id: "".to_string(), // TODO
         };
 
         self.db.add_part(&db_part);

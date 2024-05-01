@@ -2,6 +2,7 @@ mod category;
 mod db;
 mod errors;
 mod part;
+mod package;
 
 pub use category::*;
  pub use db::Datebase;

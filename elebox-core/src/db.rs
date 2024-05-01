@@ -7,6 +7,8 @@ use jammdb::DB;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+type Id = String;
+
 trait DbItem {
     fn get_name(&self) -> String;
 }
@@ -14,8 +16,10 @@ trait DbItem {
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct DbPart {
     pub name: String,
-    pub category_id: String,
     pub quantity: u16,
+    pub category_id: Id,
+    pub package_id: Id,
+    pub mfr_id: Id,
 }
 
 impl DbItem for DbPart {
@@ -24,17 +28,10 @@ impl DbItem for DbPart {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Part {
-    pub name: String,
-    pub category: String,
-    pub quantity: u16,
-}
-
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct DbCategory {
     pub name: String,
-    pub parent_id: String,
+    pub parent_id: Id,
 }
 
 impl DbItem for DbCategory {
@@ -43,26 +40,47 @@ impl DbItem for DbCategory {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct DbPackage {
+    pub ptype: String,
+    pub name: String,
+    pub alias: String,
+}
+
+impl DbItem for DbPackage {
+    fn get_name(&self) -> String {
+        self.name.to_string()
+    }
+}
+
 const PARTS_BUCKET: &str = "parts";
 const CATEGORIES_BUCKET: &str = "catrgories";
+const PACKAGES_BUCKET: &str = "packages";
+const MFR_BUCKET: &str = "manufacturers";
+const STAR_BUCKET: &str = "stars";
 
 pub trait Datebase {
     fn init(&self);
 
     fn add_part(&self, part: &DbPart);
     fn add_category(&self, category: &DbCategory);
+    fn add_package(&self, package: &DbPackage);
 
     fn get_part_id(&self, name: &str) -> Option<String>;
     fn get_category_id(&self, name: &str) -> Option<String>;
+    fn get_package_id(&self, name: &str) -> Option<String>;
 
     fn get_part_from_id(&self, id: &str) -> Option<DbPart>;
     fn get_category_from_id(&self, id: &str) -> Option<DbCategory>;
+    fn get_package_from_id(&self, id: &str) -> Option<DbPackage>;
 
     fn get_parts(&self) -> Vec<DbPart>;
     fn get_categories(&self) -> Vec<DbCategory>;
+    fn get_packages(&self) -> Vec<DbPackage>;
 
     fn delete_part(&self, id: &str) -> String;
     fn delete_category(&self, id: &str) -> String;
+    fn delete_package(&self, id: &str) -> String;
 
     fn update_part(&self, name: &str, part: &DbPart);
 }
@@ -161,6 +179,8 @@ impl Datebase for JammDatebase {
 
         tx.get_or_create_bucket(PARTS_BUCKET).unwrap();
         tx.get_or_create_bucket(CATEGORIES_BUCKET).unwrap();
+        tx.get_or_create_bucket(PACKAGES_BUCKET).unwrap();
+        tx.get_or_create_bucket(MFR_BUCKET).unwrap();
         let _ = tx.commit();
     }
 
@@ -172,12 +192,20 @@ impl Datebase for JammDatebase {
         self.add_item::<DbCategory>(CATEGORIES_BUCKET, category);
     }
 
+    fn add_package(&self, package: &DbPackage) {
+        self.add_item::<DbPackage>(PACKAGES_BUCKET, package);
+    }
+
     fn get_part_id(&self, name: &str) -> Option<String> {
         self.get_item_id::<DbPart>(PARTS_BUCKET, name)
     }
 
     fn get_category_id(&self, name: &str) -> Option<String> {
         self.get_item_id::<DbCategory>(CATEGORIES_BUCKET, name)
+    }
+
+    fn get_package_id(&self, name: &str) -> Option<String> {
+        self.get_item_id::<DbPackage>(PACKAGES_BUCKET, name)
     }
 
     fn get_part_from_id(&self, id: &str) -> Option<DbPart> {
@@ -188,6 +216,10 @@ impl Datebase for JammDatebase {
         self.get_item::<DbCategory>(CATEGORIES_BUCKET, id)
     }
 
+    fn get_package_from_id(&self, id: &str) -> Option<DbPackage> {
+        self.get_item::<DbPackage>(PACKAGES_BUCKET, id)
+    }
+
     fn get_parts(&self) -> Vec<DbPart> {
         self.get_items::<DbPart>(PARTS_BUCKET)
     }
@@ -196,12 +228,20 @@ impl Datebase for JammDatebase {
         self.get_items::<DbCategory>(CATEGORIES_BUCKET)
     }
 
+    fn get_packages(&self) -> Vec<DbPackage> {
+        self.get_items::<DbPackage>(PACKAGES_BUCKET)
+    }
+
     fn delete_part(&self, id: &str) -> String {
         self.delete_item(PARTS_BUCKET, id)
     }
 
     fn delete_category(&self, id: &str) -> String {
         self.delete_item(CATEGORIES_BUCKET, id)
+    }
+
+    fn delete_package(&self, id: &str) -> String {
+        self.delete_item(PACKAGES_BUCKET, id)
     }
 
     fn update_part(&self, name: &str, part: &DbPart) {
