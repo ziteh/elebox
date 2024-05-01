@@ -25,6 +25,7 @@ interface Manufacturer {
   }
 }
 
+const favorite = ref()
 const partName = ref();
 const partQty = ref();
 const category = ref();
@@ -55,8 +56,9 @@ onMounted(getCategories);
 <template>
   <v-form fast-fail @submit.prevent>
     <v-container>
-      <v-row class="mb-3">
+      <v-row class="mb-3 ga-8" align="center">
         <v-btn type="submit" @click="newPart">ADD</v-btn>
+        <v-switch true-icon="mdi-star" v-model="favorite" color="primary" label="Favorite" hide-details></v-switch>
       </v-row>
       <v-row class="ga-8">
         <v-text-field label="Name" variant="outlined" v-model="partName" placeholder="RP2040"
