@@ -16,6 +16,14 @@ export default createRouter({
       component: () => import("./views/Category.vue"),
     },
     {
+      path: "/mfr",
+      component: () => import("./views/Manufacturer.vue"),
+    },
+    {
+      path: "/package",
+      component: () => import("./views/Package.vue"),
+    },
+    {
       path: "/settings",
       component: () => import("./views/Settings.vue"),
     },

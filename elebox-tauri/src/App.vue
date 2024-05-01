@@ -12,6 +12,8 @@
 
         <v-list-item prepend-icon="mdi-archive-plus" title="Parts" to="/part"></v-list-item>
         <v-list-item prepend-icon="mdi-tag-multiple" title="Categories" to="category"></v-list-item>
+        <v-list-item prepend-icon="mdi-chip" title="Package" to="package"></v-list-item>
+        <v-list-item prepend-icon="mdi-factory" title="Manufacturer" to="mfr"></v-list-item>
         <v-list-item prepend-icon="mdi-cog" title="Settings" to="/settings"></v-list-item>
       </v-list>
     </v-navigation-drawer>
