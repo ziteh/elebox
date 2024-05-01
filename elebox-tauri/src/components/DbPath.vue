@@ -20,7 +20,7 @@ onMounted(getPath);
 <template>
   <v-row>
     <!-- <v-file-input label="Database file" variant="outlined" v-model="path" placeholder="elebox.db"></v-file-input> -->
-    <v-text-field label="Database file" variant="outlined" v-model="path" placeholder="elebox.db"></v-text-field>
+    <v-text-field label="Database Path" variant="outlined" v-model="path" placeholder="elebox.db"></v-text-field>
     <v-btn @click="setPath">Apply</v-btn>
   </v-row>
 </template>

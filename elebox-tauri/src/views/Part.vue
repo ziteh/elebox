@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+// import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
 interface Categories {
   [index: number]: {
@@ -30,17 +31,22 @@ onMounted(getCategories);
 </script>
 
 <template>
-  <v-form>
+  <v-form fast-fail @submit.prevent>
     <v-container>
-      <v-row>
-        <v-btn @click="newPart">Save</v-btn>
+      <v-row class="mb-3">
+        <v-btn type="submit" @click="newPart">ADD</v-btn>
       </v-row>
       <v-row class="ga-8">
-        <v-text-field label="Name" variant="outlined" v-model="partName" placeholder="RP2040"></v-text-field>
-        <v-text-field label="Quantity" variant="outlined" v-model="partQty"></v-text-field>
-        <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)"
-          variant="outlined" v-model="category"></v-select>
+        <v-text-field label="Name" variant="outlined" v-model="partName" placeholder="RP2040"
+          :rules="[(v: any) => !!v || 'Required']" required></v-text-field>
+        <v-text-field label="Quantity" variant="outlined" v-model="partQty" placeholder="15"
+          :rules="[(v: any) => !!v || 'Required']" required type="number" min="0"></v-text-field>
+        <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)" variant="outlined"
+          v-model="category" :rules="[(v: any) => !!v || 'Required']" required></v-select>
       </v-row>
+
+      <v-divider class="ma-8"></v-divider>
+
       <v-row class="ga-8">
         <v-select label="Package" :items="Object.values(categories).map(cat => cat.name)" variant="outlined"></v-select>
         <v-select label="Manufacturer" :items="Object.values(categories).map(cat => cat.name)"
