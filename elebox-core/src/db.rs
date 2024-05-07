@@ -53,6 +53,19 @@ impl DbItem for DbPackage {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct DbManufacturer {
+    pub name: String,
+    pub alias: String,
+    pub url: String,
+}
+
+impl DbItem for DbManufacturer {
+    fn get_name(&self) -> String {
+        self.name.to_string()
+    }
+}
+
 const PARTS_BUCKET: &str = "parts";
 const CATEGORIES_BUCKET: &str = "catrgories";
 const PACKAGES_BUCKET: &str = "packages";
@@ -65,22 +78,27 @@ pub trait Datebase {
     fn add_part(&self, part: &DbPart);
     fn add_category(&self, category: &DbCategory);
     fn add_package(&self, package: &DbPackage);
+    fn add_mfr(&self, mfr: &DbManufacturer);
 
     fn get_part_id(&self, name: &str) -> Option<String>;
     fn get_category_id(&self, name: &str) -> Option<String>;
     fn get_package_id(&self, name: &str) -> Option<String>;
+    fn get_mfr_id(&self, name: &str) -> Option<String>;
 
     fn get_part_from_id(&self, id: &str) -> Option<DbPart>;
     fn get_category_from_id(&self, id: &str) -> Option<DbCategory>;
     fn get_package_from_id(&self, id: &str) -> Option<DbPackage>;
+    fn get_mfr_from_id(&self, id: &str) -> Option<DbManufacturer>;
 
     fn get_parts(&self) -> Vec<DbPart>;
     fn get_categories(&self) -> Vec<DbCategory>;
     fn get_packages(&self) -> Vec<DbPackage>;
+    fn get_mfrs(&self) -> Vec<DbManufacturer>;
 
     fn delete_part(&self, id: &str) -> String;
     fn delete_category(&self, id: &str) -> String;
     fn delete_package(&self, id: &str) -> String;
+    fn delete_mfr(&self, id: &str) -> String;
 
     fn update_part(&self, name: &str, part: &DbPart);
 }
@@ -196,6 +214,10 @@ impl Datebase for JammDatebase {
         self.add_item::<DbPackage>(PACKAGES_BUCKET, package);
     }
 
+    fn add_mfr(&self, mfr: &DbManufacturer) {
+        self.add_item::<DbManufacturer>(MFR_BUCKET, mfr);
+    }
+
     fn get_part_id(&self, name: &str) -> Option<String> {
         self.get_item_id::<DbPart>(PARTS_BUCKET, name)
     }
@@ -206,6 +228,10 @@ impl Datebase for JammDatebase {
 
     fn get_package_id(&self, name: &str) -> Option<String> {
         self.get_item_id::<DbPackage>(PACKAGES_BUCKET, name)
+    }
+
+    fn get_mfr_id(&self, name: &str) -> Option<String> {
+        self.get_item_id::<DbManufacturer>(MFR_BUCKET, name)
     }
 
     fn get_part_from_id(&self, id: &str) -> Option<DbPart> {
@@ -220,6 +246,10 @@ impl Datebase for JammDatebase {
         self.get_item::<DbPackage>(PACKAGES_BUCKET, id)
     }
 
+    fn get_mfr_from_id(&self, id: &str) -> Option<DbManufacturer> {
+        self.get_item::<DbManufacturer>(MFR_BUCKET, id)
+    }
+
     fn get_parts(&self) -> Vec<DbPart> {
         self.get_items::<DbPart>(PARTS_BUCKET)
     }
@@ -232,6 +262,10 @@ impl Datebase for JammDatebase {
         self.get_items::<DbPackage>(PACKAGES_BUCKET)
     }
 
+    fn get_mfrs(&self) -> Vec<DbManufacturer> {
+        self.get_items::<DbManufacturer>(MFR_BUCKET)
+    }
+
     fn delete_part(&self, id: &str) -> String {
         self.delete_item(PARTS_BUCKET, id)
     }
@@ -242,6 +276,10 @@ impl Datebase for JammDatebase {
 
     fn delete_package(&self, id: &str) -> String {
         self.delete_item(PACKAGES_BUCKET, id)
+    }
+
+    fn delete_mfr(&self, id: &str) -> String {
+        self.delete_item(MFR_BUCKET, id)
     }
 
     fn update_part(&self, name: &str, part: &DbPart) {

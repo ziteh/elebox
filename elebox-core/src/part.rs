@@ -133,6 +133,7 @@ impl<'a> PartManager<'a> {
             Some(id) => id.to_string(),
             None => "none".to_string(),
         };
+
         let package_id = match &part.package {
             Some(n) => match self.db.get_package_id(&n) {
                 Some(id) => id,
@@ -140,12 +141,21 @@ impl<'a> PartManager<'a> {
             },
             None => "".to_string(),
         };
+
+        let mfr_id = match &part.mfr {
+            Some(n) => match self.db.get_mfr_id(&n) {
+                Some(id) => id,
+                None => return Err(EleboxError::NotExists(n.to_string())),
+            },
+            None => "".to_string(),
+        };
+
         let db_part = DbPart {
             name: part.name.to_string(),
             quantity: part.quantity,
             category_id,
             package_id,
-            mfr_id: "".to_string(), // TODO
+            mfr_id,
         };
 
         self.db.add_part(&db_part);
