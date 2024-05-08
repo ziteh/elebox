@@ -130,10 +130,27 @@ fn del_category(path: tauri::State<DbPath>, name: &str) -> String {
 }
 
 #[tauri::command]
-fn part_new(path: tauri::State<DbPath>, name: &str, qty: u16, ptype: &str) {
+fn new_part(
+    path: tauri::State<DbPath>,
+    name: &str,
+    qty: u16,
+    category: &str,
+    package: &str,
+    mfr: &str,
+) {
     let db = elebox_core::JammDatebase::new(&GET!(path));
     let mgr = elebox_core::PartManager::new(&db);
-    let part = Part::new(name, ptype, qty);
+
+    let mut part = Part::new(name, category, qty);
+    part.package = match package {
+        "" => None,
+        _ => Some(package.to_string()),
+    };
+    part.mfr = match mfr {
+        "" => None,
+        _ => Some(mfr.to_string()),
+    };
+
     let _ = mgr.add(&part);
 }
 
@@ -174,7 +191,7 @@ fn main() {
             get_parts,
             get_categories,
             part_add,
-            part_new,
+            new_part,
             part_del,
             new_category,
             del_category,

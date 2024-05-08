@@ -10,6 +10,8 @@ interface Parts {
     name: string;
     quantity: number;
     category: string;
+    package:string;
+    mfr:string;
   }
 }
 
@@ -39,17 +41,21 @@ onMounted(getParts);
           <th>Part</th>
           <th>Quantity</th>
           <th>Category</th>
+          <th>Package</th>
+          <th>Mfr</th>
           <th>Edit</th>
         </tr>
       </thead>
 
       <tbody>
         <tr v-for="(p, index) in parts" :key="index">
-          <td>{{ p.name }}</td>
+          <td title="12">{{ p.name }}</td>
           <td>{{ p.quantity }}
             <PartQty :part="p.name" />
           </td>
           <td>{{ p.category }}</td>
+          <td>{{ p.package }}</td>
+          <td>{{ p.mfr }}</td>
           <td>
             <PartDel :part="p.name" />
           </td>

@@ -18,6 +18,9 @@ const name = ref();
 const alias = ref();
 
 async function newPackage() {
+    if (alias.value == undefined) {
+        alias.value = ""
+    }
     await invoke("new_package", { name: name.value, ptype: ptype.value, alias: alias.value });
 
     await getPackages();

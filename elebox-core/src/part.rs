@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError};
+use crate::{db::*, errors::EleboxError, package};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -24,17 +24,31 @@ pub struct Part {
 }
 
 impl Part {
-    pub fn new(name: &str, category: &str, quantity: u16) -> Self {
+    pub fn new(
+        name: &str,
+        category: &str,
+        quantity: u16,
+        // package: Option<&str>,
+        // mfr: Option<&str>,
+    ) -> Self {
         Self {
             name: name.to_string(),
             category: category.to_string(),
             quantity,
             package: None,
+            mfr: None,
+            // package: match package {
+            //     Some(s) => Some(s.to_string()),
+            //     None => None,
+            // },
+            // mfr: match mfr {
+            //     Some(s) => Some(s.to_string()),
+            //     None => None,
+            // },
             alias: None,
             description: None,
             cost: None,
             location: None,
-            mfr: None,
             mfr_part: None,
             mouser_part: None,
             digikey_part: None,
@@ -171,7 +185,22 @@ impl<'a> PartManager<'a> {
                 Some(pt) => pt.name,
                 None => "none".to_string(),
             };
-            parts.push(Part::new(&db_part.name, &category, db_part.quantity));
+
+            let package = match self.db.get_package_from_id(&db_part.package_id) {
+                Some(p) => Some(p.name),
+                None => None,
+            };
+
+            let mfr = match self.db.get_mfr_from_id(&db_part.mfr_id) {
+                Some(p) => Some(p.name),
+                None => None,
+            };
+
+            let mut part = Part::new(&db_part.name, &category, db_part.quantity);
+            part.package = package;
+            part.mfr = mfr;
+
+            parts.push(part);
         }
         return parts;
     }
