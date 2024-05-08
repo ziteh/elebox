@@ -12,7 +12,7 @@ interface Categories {
 
 interface Package {
   [index: number]: {
-    name: string;
+    pname: string;
     type: string;
     alias: string;
   }
@@ -22,6 +22,7 @@ interface Manufacturer {
   [index: number]: {
     name: string;
     alias: string;
+    url: string;
   }
 }
 
@@ -50,7 +51,21 @@ async function getCategories() {
   console.debug(`get categories: ${categories}`);
 }
 
-onMounted(getCategories);
+async function getMfrs() {
+  const cs = await invoke("get_mfrs", {});
+  Object.assign(manufacturers, cs);
+}
+
+async function getPackages() {
+  const cs = await invoke("get_packages", {});
+  Object.assign(packages, cs);
+}
+
+onMounted(() => {
+  getCategories();
+  getMfrs();
+  getPackages();
+});
 </script>
 
 <template>

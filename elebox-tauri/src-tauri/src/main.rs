@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dirs;
-use elebox_core::{Category, Datebase, Part};
+use elebox_core::{Category, Datebase, Manufacturer, Package, PackageType, Part};
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -13,6 +13,59 @@ macro_rules! GET {
 }
 
 struct DbPath(Mutex<String>);
+
+#[tauri::command]
+fn get_packages(path: tauri::State<DbPath>) -> Vec<Package> {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::PackageManager::new(&db);
+    mgr.list()
+}
+
+#[tauri::command]
+fn new_package(path: tauri::State<DbPath>, name: &str, ptype: &str, alias: &str) {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::PackageManager::new(&db);
+
+    let pkg = Package {
+        name: name.to_string(),
+        ptype: match ptype.to_uppercase().as_str() {
+            "SMT" => PackageType::Smt,
+            "THT" => PackageType::Tht,
+            _ => PackageType::Others,
+        },
+        alias: match alias {
+            "" => None,
+            _ => Some(alias.to_string()),
+        },
+    };
+    let _ = mgr.add(&pkg);
+}
+
+#[tauri::command]
+fn get_mfrs(path: tauri::State<DbPath>) -> Vec<Manufacturer> {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::ManufacturerManager::new(&db);
+    mgr.list()
+}
+
+#[tauri::command]
+fn new_mfr(path: tauri::State<DbPath>, name: &str, alias: &str, url: &str) {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::ManufacturerManager::new(&db);
+
+    let mfr = Manufacturer {
+        name: name.to_string(),
+        alias: match alias {
+            "" => None,
+            _ => Some(alias.to_string()),
+        },
+        url: match url {
+            "" => None,
+            _ => Some(url.to_string()),
+        },
+    };
+    let _ = mgr.add(&mfr);
+}
 
 #[tauri::command]
 fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
@@ -97,11 +150,11 @@ fn main() {
     init_db(&db_path);
 
     tauri::Builder::default()
-        // .setup(|app| {
-        //     // https://github.com/tauri-apps/tauri/issues/1213#issuecomment-1700917797
-        //     app.get_window("main").unwrap().open_devtools();
-        //     Ok(())
-        // })
+        .setup(|app| {
+            // https://github.com/tauri-apps/tauri/issues/1213#issuecomment-1700917797
+            app.get_window("main").unwrap().open_devtools();
+            Ok(())
+        })
         .manage(DbPath(Mutex::new(db_path)))
         .invoke_handler(tauri::generate_handler![
             get_parts,
@@ -112,7 +165,11 @@ fn main() {
             new_category,
             del_category,
             get_db_path,
-            set_db_path
+            set_db_path,
+            get_packages,
+            new_package,
+            get_mfrs,
+            new_mfr,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
