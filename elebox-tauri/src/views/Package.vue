@@ -23,6 +23,11 @@ async function newPackage() {
     await getPackages();
 }
 
+async function delPackage(name: string) {
+    await invoke("del_package", { name });
+    await getPackages();
+}
+
 async function getPackages() {
     const cs = await invoke("get_packages", {});
     Object.assign(packages, cs);
@@ -59,7 +64,10 @@ onMounted(getPackages);
                     <td>{{ pkg.name }}</td>
                     <td>{{ pkg.ptype.toUpperCase() }}</td>
                     <td>{{ pkg.alias }}</td>
-                    <td></td>
+                    <td>
+                        <v-btn density="comfortable" icon="mdi-trash-can-outline" @click="delPackage(pkg.name)"
+                            title="Delete"></v-btn>
+                    </td>
                 </tr>
             </tbody>
         </v-table>

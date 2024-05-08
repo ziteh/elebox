@@ -42,6 +42,13 @@ fn new_package(path: tauri::State<DbPath>, name: &str, ptype: &str, alias: &str)
 }
 
 #[tauri::command]
+fn del_package(path: tauri::State<DbPath>, name: &str) {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::PackageManager::new(&db);
+    let _ = mgr.delete(name);
+}
+
+#[tauri::command]
 fn get_mfrs(path: tauri::State<DbPath>) -> Vec<Manufacturer> {
     let db = elebox_core::JammDatebase::new(&GET!(path));
     let mgr = elebox_core::ManufacturerManager::new(&db);
@@ -65,6 +72,13 @@ fn new_mfr(path: tauri::State<DbPath>, name: &str, alias: &str, url: &str) {
         },
     };
     let _ = mgr.add(&mfr);
+}
+
+#[tauri::command]
+fn del_mfr(path: tauri::State<DbPath>, name: &str) {
+    let db = elebox_core::JammDatebase::new(&GET!(path));
+    let mgr = elebox_core::ManufacturerManager::new(&db);
+    let _ = mgr.delete(name);
 }
 
 #[tauri::command]
@@ -168,8 +182,10 @@ fn main() {
             set_db_path,
             get_packages,
             new_package,
+            del_package,
             get_mfrs,
             new_mfr,
+            del_mfr,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

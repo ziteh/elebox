@@ -22,6 +22,11 @@ async function newMfr() {
     await getMfrs();
 }
 
+async function delMfr(name: string) {
+    await invoke("del_mfr", { name });
+    await getMfrs();
+}
+
 async function getMfrs() {
     const cs = await invoke("get_mfrs", {});
     Object.assign(manufacturers, cs);
@@ -58,6 +63,8 @@ onMounted(getMfrs);
                     <td>{{ mfr.name }}</td>
                     <td>{{ mfr.alias }}</td>
                     <td>
+                        <v-btn density="comfortable" icon="mdi-trash-can-outline" @click="delMfr(mfr.name)"
+                            title="Delete"></v-btn>
                     </td>
                 </tr>
             </tbody>
