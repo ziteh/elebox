@@ -4,7 +4,7 @@
 
 Lightweight personal electronic parts inventory management tool.
 
-The goal is to keep it simple and intuitive, zero configuration and works out of the box. Single-file database easy to backup.
+It aims to remain simple, intuitive, zero configuration and works out of the box. The embedded, single-file database is easy to backup.
 
 ## Usage
 
