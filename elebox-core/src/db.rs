@@ -20,6 +20,17 @@ pub struct DbPart {
     pub category_id: Id,
     pub package_id: Id,
     pub mfr_id: Id,
+    pub alias: String,
+    pub description: String,
+    pub cost: f32,
+    pub location: String,
+    pub mfr_no: String,
+    pub mouser_no: String,
+    pub digikey_no: String,
+    pub datasheet_url: String,
+    pub product_url: String,
+    pub image_url: String,
+    pub suppliers: String,
 }
 
 impl DbItem for DbPart {

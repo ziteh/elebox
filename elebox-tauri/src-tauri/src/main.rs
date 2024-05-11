@@ -137,19 +137,41 @@ fn new_part(
     category: &str,
     package: &str,
     mfr: &str,
+    alias: &str,
+    description: &str,
+    cost: f32,
+    location: &str,
+    mfr_no: &str,
+    mouser_no: &str,
+    digikey_no: &str,
+    datasheet_url: &str,
+    product_url: &str,
+    image_url: &str,
+    suppliers: &str,
 ) {
     let db = elebox_core::JammDatebase::new(&GET!(path));
     let mgr = elebox_core::PartManager::new(&db);
 
     let mut part = Part::new(name, category, qty);
-    part.package = match package {
-        "" => None,
-        _ => Some(package.to_string()),
-    };
-    part.mfr = match mfr {
-        "" => None,
-        _ => Some(mfr.to_string()),
-    };
+
+    part.package = Option::from(package.to_string()).filter(|s| !s.is_empty());
+    part.mfr = Option::from(mfr.to_string()).filter(|s| !s.is_empty());
+    part.alias = Option::from(alias.to_string()).filter(|s| !s.is_empty());
+    part.description = Option::from(description.to_string()).filter(|s| !s.is_empty());
+    part.location = Option::from(location.to_string()).filter(|s| !s.is_empty());
+    part.mfr_no = Option::from(mfr_no.to_string()).filter(|s| !s.is_empty());
+    part.mouser_no = Option::from(mouser_no.to_string()).filter(|s| !s.is_empty());
+    part.digikey_no = Option::from(digikey_no.to_string()).filter(|s| !s.is_empty());
+    part.datasheet_url = Option::from(datasheet_url.to_string()).filter(|s| !s.is_empty());
+    part.product_url = Option::from(product_url.to_string()).filter(|s| !s.is_empty());
+    part.image_url = Option::from(image_url.to_string()).filter(|s| !s.is_empty());
+    part.suppliers = Option::from(suppliers.to_string()).filter(|s| !s.is_empty());
+
+    if cost < 0.0 {
+        part.cost = None;
+    } else {
+        part.cost = Some(cost);
+    }
 
     let _ = mgr.add(&part);
 }

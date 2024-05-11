@@ -30,22 +30,50 @@ let packages = reactive<Package>({});
 let manufacturers = reactive<Manufacturer>({});
 
 const favorite = ref()
-const partName = ref();
-const partQty = ref();
-const category = ref();
 
+const name = ref();
+const qty = ref();
+const category = ref();
 const pkg = ref();
 const mfr = ref();
-const val = ref();
 const cost = ref();
 const location = ref();
 const alias = ref();
 const description = ref();
+const mfr_no = ref();
+const mouser_no = ref();
+const digikey_no = ref();
+const datasheet_url = ref();
+const product_url = ref();
+const image_url = ref();
+const suppliers = ref();
 
 async function newPart() {
   console.log(mfr.value)
   console.log(pkg.value)
-  await invoke("new_part", { name: partName.value, qty: parseInt(partQty.value), category: category.value, package: pkg.value, mfr: mfr.value });
+
+  if (cost.value === undefined || cost.value === null || cost.value === "") {
+    cost.value = "-9999";
+  }
+
+  await invoke("new_part", {
+    name: name.value,
+    qty: parseInt(qty.value),
+    category: category.value,
+    package: pkg.value ?? "",
+    mfr: mfr.value ?? "",
+    alias: alias.value ?? "",
+    description: description.value ?? "",
+    cost: parseFloat(cost.value),
+    location: location.value ?? "",
+    mfrNo: mfr_no.value ?? "",
+    mouserNo: mouser_no.value ?? "",
+    digikeyNo: digikey_no.value ?? "",
+    datasheetUrl: datasheet_url.value ?? "",
+    productUrl: product_url.value ?? "",
+    imageUrl: image_url.value ?? "",
+    suppliers: suppliers.value ?? "",
+  });
 }
 
 async function getCategories() {
@@ -79,9 +107,9 @@ onMounted(() => {
         <v-switch true-icon="mdi-star" v-model="favorite" color="primary" label="Favorite" hide-details></v-switch>
       </v-row>
       <v-row class="ga-8">
-        <v-text-field label="Name" variant="outlined" v-model="partName" placeholder="RP2040"
+        <v-text-field label="Name" variant="outlined" v-model="name" placeholder="RP2040"
           :rules="[(v: any) => !!v || 'Required']" required></v-text-field>
-        <v-text-field label="Quantity" variant="outlined" v-model="partQty" placeholder="15"
+        <v-text-field label="Quantity" variant="outlined" v-model="qty" placeholder="15"
           :rules="[(v: any) => !!v || 'Required']" required type="number" min="0"></v-text-field>
         <v-select label="Category" :items="Object.values(categories).map(cat => cat.name)" variant="outlined"
           v-model="category" :rules="[(v: any) => !!v || 'Required']" required></v-select>
@@ -94,28 +122,30 @@ onMounted(() => {
           v-model="pkg"></v-select>
         <v-select label="Manufacturer" :items="Object.values(manufacturers).map(mfr => mfr.name)" variant="outlined"
           v-model="mfr"></v-select>
-        <v-text-field label="Cost" variant="outlined" v-model="cost"></v-text-field>
+        <v-text-field label="Cost" variant="outlined" v-model="cost" type="number" min="0"></v-text-field>
         <v-text-field label="Location" variant="outlined" v-model="location" placeholder="Box #1"></v-text-field>
       </v-row>
       <v-row class="ga-8">
         <v-text-field label="Alias" variant="outlined" v-model="alias" placeholder=""></v-text-field>
-        <v-text-field label="Mfr #" variant="outlined" v-model="val" placeholder="SC0914(7)"
+        <v-text-field label="Mfr #" variant="outlined" v-model="mfr_no" placeholder="SC0914(7)"
           title="Manufacturer #"></v-text-field>
-        <v-text-field label="Mouser #" variant="outlined" v-model="val" placeholder="358-SC09147"></v-text-field>
-        <v-text-field label="Digi-Key #" variant="outlined" v-model="val"
+        <v-text-field label="Mouser #" variant="outlined" v-model="mouser_no" placeholder="358-SC09147"></v-text-field>
+        <v-text-field label="Digi-Key #" variant="outlined" v-model="digikey_no"
           placeholder="2648-SC0914(7)CT-ND"></v-text-field>
       </v-row>
       <v-row class="ga-8">
-        <v-text-field label="Product Url" variant="outlined" v-model="val" placeholder="https://"></v-text-field>
-        <v-text-field label="Datasheet" variant="outlined" v-model="val" placeholder="https://"></v-text-field>
-        <v-text-field label="Image" variant="outlined" v-model="val" placeholder=""></v-text-field>
+        <v-text-field label="Product Url" variant="outlined" v-model="product_url"
+          placeholder="https://"></v-text-field>
+        <v-text-field label="Datasheet" variant="outlined" v-model="datasheet_url"
+          placeholder="https://"></v-text-field>
+        <v-text-field label="Image" variant="outlined" v-model="image_url" placeholder=""></v-text-field>
       </v-row>
       <v-row class="ga-8">
         <v-textarea label="Description" variant="outlined" v-model="description"
           placeholder="Write something ..."></v-textarea>
       </v-row>
       <v-row class="ga-8">
-        <v-textarea label="Suppliers" variant="outlined" v-model="val" placeholder=""></v-textarea>
+        <v-textarea label="Suppliers" variant="outlined" v-model="suppliers" placeholder=""></v-textarea>
       </v-row>
     </v-container>
   </v-form>
