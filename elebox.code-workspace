@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"name": "core",
+			"path": "./elebox-core"
+		},
+		{
+			"name": "tauri",
+			"path": "./elebox-tauri"
+		},
+		{
+			"name": "cli",
+			"path": "./elebox-cli"
+		},
+		{
+			"name": "root",
+			"path": "."
+		},
+	],
+	"settings": {}
+}

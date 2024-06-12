@@ -1,0 +1,20 @@
+repos:
+  # Basic, https://pre-commit.com/hooks.html
+  - repo: 'https://github.com/pre-commit/pre-commit-hooks'
+    rev: v4.5.0
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      # - id: check-xml
+      - id: end-of-file-fixer  # ensures that a file is either empty, or ends with one newline
+      - id: trailing-whitespace  # trims trailing whitespace
+      - id: mixed-line-ending  # replaces or checks mixed line ending
+      - id: detect-private-key  # detects the presence of private keys
+      - id: check-added-large-files  # prevents giant files from being committed
+        args: ['--maxkb=500']
+  # Git commit message lint
+  - repo: 'https://github.com/jorisroovers/gitlint'
+    rev: v0.19.1
+    hooks:
+      - id: gitlint
