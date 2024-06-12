@@ -60,7 +60,7 @@ struct DeletePartArgs {
     name: String,
 }
 
-pub fn part_cmd(db: &dyn elebox_core::Datebase, cmd: &PartCommand) {
+pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
     let manager = elebox_core::PartManager::new(db);
 
     match &cmd.command {

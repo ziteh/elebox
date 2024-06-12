@@ -46,11 +46,11 @@ impl Part {
 }
 
 pub struct PartManager<'a> {
-    db: &'a dyn Datebase,
+    db: &'a dyn Database,
 }
 
 impl<'a> PartManager<'a> {
-    pub fn new(db: &'a dyn Datebase) -> Self {
+    pub fn new(db: &'a dyn Database) -> Self {
         Self { db }
     }
 

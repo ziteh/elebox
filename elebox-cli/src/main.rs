@@ -33,7 +33,7 @@ fn main() {
     let cli = Cli::parse();
 
     println!("{}", cli.db_path);
-    let db = elebox_core::JammDatebase::new(&cli.db_path);
+    let db = elebox_core::JammDatabase::new(&cli.db_path);
 
     match &cli.entity_type {
         EntityType::Init => elebox_core::init(&db),

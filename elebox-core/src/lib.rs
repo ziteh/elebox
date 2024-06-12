@@ -6,8 +6,8 @@ mod package;
 mod part;
 
 pub use category::*;
-pub use db::Datebase;
-pub use db::JammDatebase;
+pub use db::Database;
+pub use db::JammDatabase;
 pub use errors::*;
 pub use manufacturer::*;
 pub use package::*;
@@ -17,6 +17,6 @@ pub use part::*;
 //     db::JammDatebase::new(db_path)
 // }
 
-pub fn init(db: &dyn db::Datebase) {
+pub fn init(db: &dyn db::Database) {
     db.init();
 }

@@ -83,7 +83,7 @@ const PACKAGES_BUCKET: &str = "packages";
 const MFR_BUCKET: &str = "manufacturers";
 const STAR_BUCKET: &str = "stars";
 
-pub trait Datebase {
+pub trait Database {
     fn init(&self);
 
     fn add_part(&self, part: &DbPart);
@@ -114,11 +114,11 @@ pub trait Datebase {
     fn update_part(&self, name: &str, part: &DbPart);
 }
 
-pub struct JammDatebase {
+pub struct JammDatabase {
     path: String,
 }
 
-impl JammDatebase {
+impl JammDatabase {
     pub fn new(path: &str) -> Self {
         Self {
             path: path.to_string(),
@@ -201,7 +201,7 @@ impl JammDatebase {
     }
 }
 
-impl Datebase for JammDatebase {
+impl Database for JammDatabase {
     fn init(&self) {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(true).unwrap();

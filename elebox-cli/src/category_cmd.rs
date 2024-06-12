@@ -38,7 +38,7 @@ struct DeleteCategoryArgs {
     name: String,
 }
 
-pub fn category_cmd(db: &dyn elebox_core::Datebase, cmd: &CategoryCommand) {
+pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
     let manager = elebox_core::CategoryManager::new(db);
 
     match &cmd.command {
