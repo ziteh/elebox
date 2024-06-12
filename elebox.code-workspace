@@ -17,5 +17,12 @@
 			"path": "."
 		},
 	],
-	"settings": {}
+	"settings": {
+		"cSpell.words": [
+			"datasheet",
+			"digikey",
+			"elebox",
+			"jammdb"
+		]
+	}
 }
