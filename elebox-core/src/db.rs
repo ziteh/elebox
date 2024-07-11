@@ -178,7 +178,7 @@ impl JammDatabase {
 
         let mut items: Vec<T> = Vec::new();
         for data in bkt.cursor() {
-            let item: T = rmp_serde::from_slice(data.kv().value()).unwrap();
+            let item: T = rmp_serde::from_slice::<T>(data.kv().value()).unwrap();
             items.push(item);
         }
 

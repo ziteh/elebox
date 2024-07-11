@@ -33,11 +33,11 @@ fn main() {
     let cli = Cli::parse();
 
     println!("{}", cli.db_path);
-    let db = elebox_core::JammDatabase::new(&cli.db_path);
+    let db = elebox_core::JammDatabase::new();
 
     match &cli.entity_type {
-        EntityType::Init => elebox_core::init(&db),
-        EntityType::Part(cmd) => part_cmd(&db, cmd),
-        EntityType::Category(cmd) => category_cmd(&db, cmd),
+        EntityType::Init => elebox_core::init(&db, &cli.db_path),
+        EntityType::Part(cmd) => part_cmd(&db, &cli.db_path, cmd),
+        EntityType::Category(cmd) => category_cmd(&db, &cli.db_path, cmd),
     };
 }
