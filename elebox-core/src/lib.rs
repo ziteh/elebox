@@ -17,6 +17,6 @@ pub use part::*;
 //     db::JammDatebase::new(db_path)
 // }
 
-pub fn init(db: &dyn db::Database) {
-    db.init();
+pub fn init(db: &dyn db::Database, path: &str) {
+    db.init(path);
 }

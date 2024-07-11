@@ -27,25 +27,26 @@ impl Manufacturer {
 
 pub struct ManufacturerManager<'a> {
     db: &'a dyn Database,
+    path: &'a str,
 }
 
 impl<'a> ManufacturerManager<'a> {
-    pub fn new(db: &'a dyn Database) -> Self {
-        Self { db }
+    pub fn new(db: &'a dyn Database, path: &'a str) -> Self {
+        Self { db, path }
     }
 
     pub fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_mfr_id(name);
+        let id = self.db.get_mfr_id(self.path, name);
         if id.is_none() {
             return Err(EleboxError::NotExists(name.to_string()));
         }
 
-        self.db.delete_mfr(&id.unwrap());
+        self.db.delete_mfr(self.path, &id.unwrap());
         return Ok(());
     }
 
     pub fn add(&self, item: &Manufacturer) -> Result<(), EleboxError> {
-        if self.db.get_mfr_id(&item.name).is_some() {
+        if self.db.get_mfr_id(self.path, &item.name).is_some() {
             return Err(EleboxError::AlreadyExists(item.name.to_string()));
         }
 
@@ -61,12 +62,12 @@ impl<'a> ManufacturerManager<'a> {
             },
         };
 
-        self.db.add_mfr(&db_mfr);
+        self.db.add_mfr(self.path, &db_mfr);
         return Ok(());
     }
 
     pub fn list(&self) -> Vec<Manufacturer> {
-        let db_mfrs = self.db.get_mfrs();
+        let db_mfrs = self.db.get_mfrs(self.path);
         let mut mfrs: Vec<Manufacturer> = Vec::new();
 
         for db_mfr in db_mfrs {

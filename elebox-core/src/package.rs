@@ -31,25 +31,26 @@ impl Package {
 
 pub struct PackageManager<'a> {
     db: &'a dyn Database,
+    path: &'a str,
 }
 
 impl<'a> PackageManager<'a> {
-    pub fn new(db: &'a dyn Database) -> Self {
-        Self { db }
+    pub fn new(db: &'a dyn Database, path: &'a str) -> Self {
+        Self { db, path }
     }
 
     pub fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_package_id(name);
+        let id = self.db.get_package_id(self.path, name);
         if id.is_none() {
             return Err(EleboxError::NotExists(name.to_string()));
         }
 
-        self.db.delete_package(&id.unwrap());
+        self.db.delete_package(self.path, &id.unwrap());
         return Ok(());
     }
 
     pub fn add(&self, item: &Package) -> Result<(), EleboxError> {
-        if self.db.get_package_id(&item.name).is_some() {
+        if self.db.get_package_id(self.path, &item.name).is_some() {
             return Err(EleboxError::AlreadyExists(item.name.to_string()));
         }
 
@@ -66,12 +67,12 @@ impl<'a> PackageManager<'a> {
             },
         };
 
-        self.db.add_package(&db_pkg);
+        self.db.add_package(self.path, &db_pkg);
         return Ok(());
     }
 
     pub fn list(&self) -> Vec<Package> {
-        let db_pkgs = self.db.get_packages();
+        let db_pkgs = self.db.get_packages(self.path);
         let mut pkgs: Vec<Package> = Vec::new();
 
         for db_pkg in db_pkgs {

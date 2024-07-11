@@ -84,52 +84,48 @@ const MFR_BUCKET: &str = "manufacturers";
 const STAR_BUCKET: &str = "stars";
 
 pub trait Database {
-    fn init(&self);
+    fn init(&self, path: &str);
 
-    fn add_part(&self, part: &DbPart);
-    fn add_category(&self, category: &DbCategory);
-    fn add_package(&self, package: &DbPackage);
-    fn add_mfr(&self, mfr: &DbManufacturer);
+    fn add_part(&self, path: &str, part: &DbPart);
+    fn add_category(&self, path: &str, category: &DbCategory);
+    fn add_package(&self, path: &str, package: &DbPackage);
+    fn add_mfr(&self, path: &str, mfr: &DbManufacturer);
 
-    fn get_part_id(&self, name: &str) -> Option<String>;
-    fn get_category_id(&self, name: &str) -> Option<String>;
-    fn get_package_id(&self, name: &str) -> Option<String>;
-    fn get_mfr_id(&self, name: &str) -> Option<String>;
+    fn get_part_id(&self, path: &str, name: &str) -> Option<String>;
+    fn get_category_id(&self, path: &str, name: &str) -> Option<String>;
+    fn get_package_id(&self, path: &str, name: &str) -> Option<String>;
+    fn get_mfr_id(&self, path: &str, name: &str) -> Option<String>;
 
-    fn get_part_from_id(&self, id: &str) -> Option<DbPart>;
-    fn get_category_from_id(&self, id: &str) -> Option<DbCategory>;
-    fn get_package_from_id(&self, id: &str) -> Option<DbPackage>;
-    fn get_mfr_from_id(&self, id: &str) -> Option<DbManufacturer>;
+    fn get_part_from_id(&self, path: &str, id: &str) -> Option<DbPart>;
+    fn get_category_from_id(&self, path: &str, id: &str) -> Option<DbCategory>;
+    fn get_package_from_id(&self, path: &str, id: &str) -> Option<DbPackage>;
+    fn get_mfr_from_id(&self, path: &str, id: &str) -> Option<DbManufacturer>;
 
-    fn get_parts(&self) -> Vec<DbPart>;
-    fn get_categories(&self) -> Vec<DbCategory>;
-    fn get_packages(&self) -> Vec<DbPackage>;
-    fn get_mfrs(&self) -> Vec<DbManufacturer>;
+    fn get_parts(&self, path: &str) -> Vec<DbPart>;
+    fn get_categories(&self, path: &str) -> Vec<DbCategory>;
+    fn get_packages(&self, path: &str) -> Vec<DbPackage>;
+    fn get_mfrs(&self, path: &str) -> Vec<DbManufacturer>;
 
-    fn delete_part(&self, id: &str) -> String;
-    fn delete_category(&self, id: &str) -> String;
-    fn delete_package(&self, id: &str) -> String;
-    fn delete_mfr(&self, id: &str) -> String;
+    fn delete_part(&self, path: &str, id: &str) -> String;
+    fn delete_category(&self, path: &str, id: &str) -> String;
+    fn delete_package(&self, path: &str, id: &str) -> String;
+    fn delete_mfr(&self, path: &str, id: &str) -> String;
 
-    fn update_part(&self, name: &str, part: &DbPart);
+    fn update_part(&self, path: &str, name: &str, part: &DbPart);
 }
 
-pub struct JammDatabase {
-    path: String,
-}
+pub struct JammDatabase {}
 
 impl JammDatabase {
-    pub fn new(path: &str) -> Self {
-        Self {
-            path: path.to_string(),
-        }
+    pub fn new() -> Self {
+        Self {}
     }
 
-    fn add_item<T>(&self, bucket: &str, item: &T)
+    fn add_item<T>(&self, path: &str, bucket: &str, item: &T)
     where
         T: Serialize,
     {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(path).unwrap();
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -139,11 +135,11 @@ impl JammDatabase {
         let _ = tx.commit();
     }
 
-    fn get_item_id<T>(&self, bucket: &str, name: &str) -> Option<String>
+    fn get_item_id<T>(&self, path: &str, bucket: &str, name: &str) -> Option<String>
     where
         T: for<'a> Deserialize<'a> + DbItem,
     {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(path).unwrap();
         let tx = db.tx(false).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -158,11 +154,11 @@ impl JammDatabase {
         return None;
     }
 
-    fn get_item<T>(&self, bucket: &str, id: &str) -> Option<T>
+    fn get_item<T>(&self, path: &str, bucket: &str, id: &str) -> Option<T>
     where
         T: for<'a> Deserialize<'a>,
     {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(path).unwrap();
         let tx = db.tx(false).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -172,11 +168,11 @@ impl JammDatabase {
         return None;
     }
 
-    fn get_items<T>(&self, bucket: &str) -> Vec<T>
+    fn get_items<T>(&self, path: &str, bucket: &str) -> Vec<T>
     where
         T: for<'a> Deserialize<'a>,
     {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(path).unwrap();
         let tx = db.tx(false).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -189,8 +185,8 @@ impl JammDatabase {
         return items;
     }
 
-    fn delete_item(&self, bucket: &str, id: &str) -> String {
-        let db = DB::open(&self.path).unwrap();
+    fn delete_item(&self, path: &str, bucket: &str, id: &str) -> String {
+        let db = DB::open(path).unwrap();
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -202,8 +198,8 @@ impl JammDatabase {
 }
 
 impl Database for JammDatabase {
-    fn init(&self) {
-        let db = DB::open(&self.path).unwrap();
+    fn init(&self, path: &str) {
+        let db = DB::open(path).unwrap();
         let tx = db.tx(true).unwrap();
 
         tx.get_or_create_bucket(PARTS_BUCKET).unwrap();
@@ -213,93 +209,93 @@ impl Database for JammDatabase {
         let _ = tx.commit();
     }
 
-    fn add_part(&self, part: &DbPart) {
-        self.add_item::<DbPart>(PARTS_BUCKET, part)
+    fn add_part(&self, path: &str, part: &DbPart) {
+        self.add_item::<DbPart>(path, PARTS_BUCKET, part)
     }
 
-    fn add_category(&self, category: &DbCategory) {
-        self.add_item::<DbCategory>(CATEGORIES_BUCKET, category);
+    fn add_category(&self, path: &str, category: &DbCategory) {
+        self.add_item::<DbCategory>(path, CATEGORIES_BUCKET, category);
     }
 
-    fn add_package(&self, package: &DbPackage) {
-        self.add_item::<DbPackage>(PACKAGES_BUCKET, package);
+    fn add_package(&self, path: &str, package: &DbPackage) {
+        self.add_item::<DbPackage>(path, PACKAGES_BUCKET, package);
     }
 
-    fn add_mfr(&self, mfr: &DbManufacturer) {
-        self.add_item::<DbManufacturer>(MFR_BUCKET, mfr);
+    fn add_mfr(&self, path: &str, mfr: &DbManufacturer) {
+        self.add_item::<DbManufacturer>(path, MFR_BUCKET, mfr);
     }
 
-    fn get_part_id(&self, name: &str) -> Option<String> {
-        self.get_item_id::<DbPart>(PARTS_BUCKET, name)
+    fn get_part_id(&self, path: &str, name: &str) -> Option<String> {
+        self.get_item_id::<DbPart>(path, PARTS_BUCKET, name)
     }
 
-    fn get_category_id(&self, name: &str) -> Option<String> {
-        self.get_item_id::<DbCategory>(CATEGORIES_BUCKET, name)
+    fn get_category_id(&self, path: &str, name: &str) -> Option<String> {
+        self.get_item_id::<DbCategory>(path, CATEGORIES_BUCKET, name)
     }
 
-    fn get_package_id(&self, name: &str) -> Option<String> {
-        self.get_item_id::<DbPackage>(PACKAGES_BUCKET, name)
+    fn get_package_id(&self, path: &str, name: &str) -> Option<String> {
+        self.get_item_id::<DbPackage>(path, PACKAGES_BUCKET, name)
     }
 
-    fn get_mfr_id(&self, name: &str) -> Option<String> {
-        self.get_item_id::<DbManufacturer>(MFR_BUCKET, name)
+    fn get_mfr_id(&self, path: &str, name: &str) -> Option<String> {
+        self.get_item_id::<DbManufacturer>(path, MFR_BUCKET, name)
     }
 
-    fn get_part_from_id(&self, id: &str) -> Option<DbPart> {
-        self.get_item::<DbPart>(PARTS_BUCKET, id)
+    fn get_part_from_id(&self, path: &str, id: &str) -> Option<DbPart> {
+        self.get_item::<DbPart>(path, PARTS_BUCKET, id)
     }
 
-    fn get_category_from_id(&self, id: &str) -> Option<DbCategory> {
-        self.get_item::<DbCategory>(CATEGORIES_BUCKET, id)
+    fn get_category_from_id(&self, path: &str, id: &str) -> Option<DbCategory> {
+        self.get_item::<DbCategory>(path, CATEGORIES_BUCKET, id)
     }
 
-    fn get_package_from_id(&self, id: &str) -> Option<DbPackage> {
-        self.get_item::<DbPackage>(PACKAGES_BUCKET, id)
+    fn get_package_from_id(&self, path: &str, id: &str) -> Option<DbPackage> {
+        self.get_item::<DbPackage>(path, PACKAGES_BUCKET, id)
     }
 
-    fn get_mfr_from_id(&self, id: &str) -> Option<DbManufacturer> {
-        self.get_item::<DbManufacturer>(MFR_BUCKET, id)
+    fn get_mfr_from_id(&self, path: &str, id: &str) -> Option<DbManufacturer> {
+        self.get_item::<DbManufacturer>(path, MFR_BUCKET, id)
     }
 
-    fn get_parts(&self) -> Vec<DbPart> {
-        self.get_items::<DbPart>(PARTS_BUCKET)
+    fn get_parts(&self, path: &str) -> Vec<DbPart> {
+        self.get_items::<DbPart>(path, PARTS_BUCKET)
     }
 
-    fn get_categories(&self) -> Vec<DbCategory> {
-        self.get_items::<DbCategory>(CATEGORIES_BUCKET)
+    fn get_categories(&self, path: &str) -> Vec<DbCategory> {
+        self.get_items::<DbCategory>(path, CATEGORIES_BUCKET)
     }
 
-    fn get_packages(&self) -> Vec<DbPackage> {
-        self.get_items::<DbPackage>(PACKAGES_BUCKET)
+    fn get_packages(&self, path: &str) -> Vec<DbPackage> {
+        self.get_items::<DbPackage>(path, PACKAGES_BUCKET)
     }
 
-    fn get_mfrs(&self) -> Vec<DbManufacturer> {
-        self.get_items::<DbManufacturer>(MFR_BUCKET)
+    fn get_mfrs(&self, path: &str) -> Vec<DbManufacturer> {
+        self.get_items::<DbManufacturer>(path, MFR_BUCKET)
     }
 
-    fn delete_part(&self, id: &str) -> String {
-        self.delete_item(PARTS_BUCKET, id)
+    fn delete_part(&self, path: &str, id: &str) -> String {
+        self.delete_item(path, PARTS_BUCKET, id)
     }
 
-    fn delete_category(&self, id: &str) -> String {
-        self.delete_item(CATEGORIES_BUCKET, id)
+    fn delete_category(&self, path: &str, id: &str) -> String {
+        self.delete_item(path, CATEGORIES_BUCKET, id)
     }
 
-    fn delete_package(&self, id: &str) -> String {
-        self.delete_item(PACKAGES_BUCKET, id)
+    fn delete_package(&self, path: &str, id: &str) -> String {
+        self.delete_item(path, PACKAGES_BUCKET, id)
     }
 
-    fn delete_mfr(&self, id: &str) -> String {
-        self.delete_item(MFR_BUCKET, id)
+    fn delete_mfr(&self, path: &str, id: &str) -> String {
+        self.delete_item(path, MFR_BUCKET, id)
     }
 
-    fn update_part(&self, name: &str, part: &DbPart) {
-        let id = self.get_part_id(name);
+    fn update_part(&self, path: &str, name: &str, part: &DbPart) {
+        let id = self.get_part_id(path, name);
         if id.is_none() {
             return;
         }
 
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(path).unwrap();
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
 
