@@ -78,7 +78,7 @@ impl DbItem for DbManufacturer {
 }
 
 const PARTS_BUCKET: &str = "parts";
-const CATEGORIES_BUCKET: &str = "catrgories";
+const CATEGORIES_BUCKET: &str = "categories";
 const PACKAGES_BUCKET: &str = "packages";
 const MFR_BUCKET: &str = "manufacturers";
 const STAR_BUCKET: &str = "stars";
