@@ -28,7 +28,7 @@ fn new_package(path: tauri::State<DbPath>, name: &str, ptype: &str, alias: &str)
 
     let pkg = Package {
         name: name.to_string(),
-        ptype: match ptype.to_uppercase().as_str() {
+        pkg_type: match ptype.to_uppercase().as_str() {
             "SMT" => PackageType::Smt,
             "THT" => PackageType::Tht,
             _ => PackageType::Others,

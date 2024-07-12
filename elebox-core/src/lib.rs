@@ -12,11 +12,3 @@ pub use errors::*;
 pub use manufacturer::*;
 pub use package::*;
 pub use part::*;
-
-// pub fn new(db_path: &str) -> db::Datebase {
-//     db::JammDatebase::new(db_path)
-// }
-
-pub fn init(db: &dyn db::Database, path: &str) {
-    db.init(path);
-}

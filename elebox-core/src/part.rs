@@ -47,21 +47,20 @@ impl Part {
 
 pub struct PartManager<'a> {
     db: &'a dyn Database,
-    path: &'a str,
 }
 
 impl<'a> PartManager<'a> {
-    pub fn new(db: &'a dyn Database, path: &'a str) -> Self {
-        Self { db, path }
+    pub fn new(db: &'a dyn Database) -> Self {
+        Self { db }
     }
 
     pub fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_part_id(self.path, name);
+        let id = self.db.get_part_id(name);
         if id.is_none() {
             return Err(EleboxError::NotExists(name.to_string()));
         }
 
-        self.db.delete_part(self.path, &id.unwrap());
+        self.db.delete_part(&id.unwrap());
         return Ok(());
     }
 
@@ -72,18 +71,15 @@ impl<'a> PartManager<'a> {
         new_quantity: Option<u16>,
         new_category: Option<&str>,
     ) -> Result<(), EleboxError> {
-        let id = self.db.get_part_id(self.path, old_name);
+        let id = self.db.get_part_id(old_name);
         if id.is_none() {
             return Err(EleboxError::NotExists(old_name.to_string()));
         }
 
-        let mut db_part = self
-            .db
-            .get_part_from_id(self.path, id.as_ref().unwrap())
-            .unwrap();
+        let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
 
-        let catrgory_id = match new_category {
-            Some(name) => match self.db.get_category_id(self.path, name) {
+        let category_id = match new_category {
+            Some(name) => match self.db.get_category_id(name) {
                 Some(id) => id,
                 None => return Err(EleboxError::NotExists(name.to_string())),
             },
@@ -98,22 +94,19 @@ impl<'a> PartManager<'a> {
             db_part.quantity = new_quantity.unwrap();
         }
 
-        db_part.category_id = catrgory_id;
+        db_part.category_id = category_id;
 
-        self.db.add_part(self.path, &db_part);
+        self.db.add_part(&db_part);
         return Ok(());
     }
 
     pub fn update_part_quantity(&self, name: &str, quantity: i16) -> Result<(), EleboxError> {
-        let id = self.db.get_part_id(self.path, name);
+        let id = self.db.get_part_id(name);
         if id.is_none() {
             return Err(EleboxError::NotExists(name.to_string()));
         }
 
-        let mut db_part = self
-            .db
-            .get_part_from_id(self.path, id.as_ref().unwrap())
-            .unwrap();
+        let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
         let new_q = db_part.quantity as i16 + quantity;
         if new_q < 0 {
             return Err(EleboxError::InventoryShortage(name.to_string()));
@@ -121,22 +114,22 @@ impl<'a> PartManager<'a> {
             db_part.quantity = new_q as u16;
         }
 
-        self.db.update_part(self.path, name, &db_part);
+        self.db.update_part(name, &db_part);
         return Ok(());
     }
 
     pub fn add(&self, part: &Part) -> Result<(), EleboxError> {
-        if self.db.get_part_id(self.path, &part.name).is_some() {
+        if self.db.get_part_id(&part.name).is_some() {
             return Err(EleboxError::AlreadyExists(part.name.to_string()));
         }
 
-        let category_id = match self.db.get_category_id(self.path, &part.category) {
+        let category_id = match self.db.get_category_id(&part.category) {
             Some(id) => id.to_string(),
             None => "none".to_string(),
         };
 
         let package_id = match &part.package {
-            Some(n) => match self.db.get_package_id(self.path, &n) {
+            Some(n) => match self.db.get_package_id(&n) {
                 Some(id) => id,
                 None => return Err(EleboxError::NotExists(n.to_string())),
             },
@@ -144,7 +137,7 @@ impl<'a> PartManager<'a> {
         };
 
         let mfr_id = match &part.mfr {
-            Some(n) => match self.db.get_mfr_id(self.path, &n) {
+            Some(n) => match self.db.get_mfr_id(&n) {
                 Some(id) => id,
                 None => return Err(EleboxError::NotExists(n.to_string())),
             },
@@ -184,31 +177,25 @@ impl<'a> PartManager<'a> {
             suppliers: suppliers.to_string(),
         };
 
-        self.db.add_part(self.path, &db_part);
+        self.db.add_part(&db_part);
         return Ok(());
     }
 
     pub fn list(&self) -> Vec<Part> {
-        let db_parts = self.db.get_parts(self.path);
+        let db_parts = self.db.get_parts();
         let mut parts: Vec<Part> = Vec::new();
 
         for db_part in db_parts {
-            let category = match self
-                .db
-                .get_category_from_id(self.path, &db_part.category_id)
-            {
+            let category = match self.db.get_category_from_id(&db_part.category_id) {
                 Some(pt) => pt.name,
                 None => "none".to_string(),
             };
 
             let package = self
                 .db
-                .get_package_from_id(self.path, &db_part.package_id)
+                .get_package_from_id(&db_part.package_id)
                 .map(|p| p.name);
-            let mfr = self
-                .db
-                .get_mfr_from_id(self.path, &db_part.mfr_id)
-                .map(|p| p.name);
+            let mfr = self.db.get_mfr_from_id(&db_part.mfr_id).map(|p| p.name);
 
             let mut part = Part::new(&db_part.name, &category, db_part.quantity);
             part.package = package;

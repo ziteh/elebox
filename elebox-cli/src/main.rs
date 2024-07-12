@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use elebox_core::{self};
+use elebox_core::{self, Database};
 
 mod category_cmd;
 mod part_cmd;
@@ -33,11 +33,11 @@ fn main() {
     let cli = Cli::parse();
 
     println!("{}", cli.db_path);
-    let db = elebox_core::JammDatabase::new();
+    let db = elebox_core::JammDatabase::new(&cli.db_path);
 
     match &cli.entity_type {
-        EntityType::Init => elebox_core::init(&db, &cli.db_path),
-        EntityType::Part(cmd) => part_cmd(&db, &cli.db_path, cmd),
-        EntityType::Category(cmd) => category_cmd(&db, &cli.db_path, cmd),
+        EntityType::Init => db.init(),
+        EntityType::Part(cmd) => part_cmd(&db, cmd),
+        EntityType::Category(cmd) => category_cmd(&db, cmd),
     };
 }
