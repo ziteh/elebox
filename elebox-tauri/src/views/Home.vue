@@ -4,15 +4,14 @@ import { invoke } from "@tauri-apps/api/tauri";
 import PartQty from "../components/PartQty.vue";
 import PartDel from "../components/PartDel.vue";
 
-
 interface Parts {
   [index: number]: {
     name: string;
     quantity: number;
     category: string;
-    package:string;
-    mfr:string;
-  }
+    package: string;
+    mfr: string;
+  };
 }
 
 let parts = reactive<Parts>({});
@@ -30,8 +29,11 @@ onMounted(getParts);
 <template>
   <v-container>
     <v-row class="ga-8" align="center">
-      <v-autocomplete label="Search" variant="outlined"
-        :items="Object.values(parts).map(part => part.name)"></v-autocomplete>
+      <v-autocomplete
+        label="Search"
+        variant="outlined"
+        :items="Object.values(parts).map((part) => part.name)"
+      ></v-autocomplete>
       <v-btn @click="getParts">Update</v-btn>
     </v-row>
 
@@ -50,7 +52,8 @@ onMounted(getParts);
       <tbody>
         <tr v-for="(p, index) in parts" :key="index">
           <td title="12">{{ p.name }}</td>
-          <td>{{ p.quantity }}
+          <td>
+            {{ p.quantity }}
             <PartQty :part="p.name" />
           </td>
           <td>{{ p.category }}</td>
