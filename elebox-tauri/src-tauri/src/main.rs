@@ -217,9 +217,16 @@ fn main() {
 
     tauri::Builder::default()
         .setup(|app| {
-            // https://github.com/tauri-apps/tauri/issues/1213#issuecomment-1700917797
-            app.get_window("main").unwrap().open_devtools();
-            Ok(())
+            #[cfg(debug_assertions)]
+            {
+                // https://github.com/tauri-apps/tauri/issues/1213#issuecomment-1700917797
+                app.get_window("main").unwrap().open_devtools();
+                Ok(())
+            }
+            #[cfg(not(debug_assertions))]
+            {
+                Ok(())
+            }
         })
         .manage(DbPath(Mutex::new(db_path)))
         .invoke_handler(tauri::generate_handler![

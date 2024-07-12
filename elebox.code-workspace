@@ -23,7 +23,8 @@
 			"digikey",
 			"elebox",
 			"Jamm",
-			"jammdb"
+			"jammdb",
+			"tauri",
 		]
 	}
 }
