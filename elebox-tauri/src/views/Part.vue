@@ -43,9 +43,9 @@ const description = ref();
 const mfr_no = ref();
 const mouser_no = ref();
 const digikey_no = ref();
-const datasheet_url = ref();
-const product_url = ref();
-const image_url = ref();
+const datasheet_link = ref();
+const product_link = ref();
+const image_link = ref();
 const suppliers = ref();
 
 async function newPart() {
@@ -69,9 +69,9 @@ async function newPart() {
     mfrNo: mfr_no.value ?? "",
     mouserNo: mouser_no.value ?? "",
     digikeyNo: digikey_no.value ?? "",
-    datasheetUrl: datasheet_url.value ?? "",
-    productUrl: product_url.value ?? "",
-    imageUrl: image_url.value ?? "",
+    datasheetLink: datasheet_link.value ?? "",
+    productLink: product_link.value ?? "",
+    imageLink: image_link.value ?? "",
     suppliers: suppliers.value ?? "",
   });
 }
@@ -128,17 +128,17 @@ onMounted(() => {
       <v-row class="ga-8">
         <v-text-field label="Alias" variant="outlined" v-model="alias" placeholder=""></v-text-field>
         <v-text-field label="Mfr #" variant="outlined" v-model="mfr_no" placeholder="SC0914(7)"
-          title="Manufacturer #"></v-text-field>
+          title="Manufacturer part number"></v-text-field>
         <v-text-field label="Mouser #" variant="outlined" v-model="mouser_no" placeholder="358-SC09147"></v-text-field>
         <v-text-field label="Digi-Key #" variant="outlined" v-model="digikey_no"
           placeholder="2648-SC0914(7)CT-ND"></v-text-field>
       </v-row>
       <v-row class="ga-8">
-        <v-text-field label="Product Url" variant="outlined" v-model="product_url"
-          placeholder="https://"></v-text-field>
-        <v-text-field label="Datasheet" variant="outlined" v-model="datasheet_url"
-          placeholder="https://"></v-text-field>
-        <v-text-field label="Image" variant="outlined" v-model="image_url" placeholder=""></v-text-field>
+        <v-text-field label="Product" variant="outlined" v-model="product_link"
+          placeholder="URL, full path or filename"></v-text-field>
+        <v-text-field label="Datasheet" variant="outlined" v-model="datasheet_link"
+          placeholder="URL, full path or filename"></v-text-field>
+        <v-text-field label="Image" variant="outlined" v-model="image_link" placeholder="URL, full path or filename"></v-text-field>
       </v-row>
       <v-row class="ga-8">
         <v-textarea label="Description" variant="outlined" v-model="description"

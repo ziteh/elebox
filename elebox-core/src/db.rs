@@ -27,9 +27,9 @@ pub struct DbPart {
     pub mfr_no: String,
     pub mouser_no: String,
     pub digikey_no: String,
-    pub datasheet_url: String,
-    pub product_url: String,
-    pub image_url: String,
+    pub datasheet_link: String,
+    pub product_link: String,
+    pub image_link: String,
     pub suppliers: String,
 }
 

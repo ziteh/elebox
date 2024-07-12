@@ -16,9 +16,9 @@ pub struct Part {
     pub mfr_no: Option<String>,
     pub mouser_no: Option<String>,
     pub digikey_no: Option<String>,
-    pub datasheet_url: Option<String>,
-    pub product_url: Option<String>,
-    pub image_url: Option<String>,
+    pub datasheet_link: Option<String>,
+    pub product_link: Option<String>,
+    pub image_link: Option<String>,
     pub suppliers: Option<String>,
 }
 
@@ -37,9 +37,9 @@ impl Part {
             mfr_no: None,
             mouser_no: None,
             digikey_no: None,
-            datasheet_url: None,
-            product_url: None,
-            image_url: None,
+            datasheet_link: None,
+            product_link: None,
+            image_link: None,
             suppliers: None,
         }
     }
@@ -152,9 +152,9 @@ impl<'a> PartManager<'a> {
         let mfr_no = part.mfr_no.as_ref().unwrap_or(empty);
         let mouser_no = part.mouser_no.as_ref().unwrap_or(empty);
         let digikey_no = part.digikey_no.as_ref().unwrap_or(empty);
-        let datasheet_url = part.datasheet_url.as_ref().unwrap_or(empty);
-        let product_url = part.product_url.as_ref().unwrap_or(empty);
-        let image_url = part.image_url.as_ref().unwrap_or(empty);
+        let datasheet_link = part.datasheet_link.as_ref().unwrap_or(empty);
+        let product_link = part.product_link.as_ref().unwrap_or(empty);
+        let image_link = part.image_link.as_ref().unwrap_or(empty);
         let suppliers = part.suppliers.as_ref().unwrap_or(empty);
         let cost = part.cost.as_ref().unwrap_or(&f32::NAN);
 
@@ -171,9 +171,9 @@ impl<'a> PartManager<'a> {
             mfr_no: mfr_no.to_string(),
             mouser_no: mouser_no.to_string(),
             digikey_no: digikey_no.to_string(),
-            datasheet_url: datasheet_url.to_string(),
-            product_url: product_url.to_string(),
-            image_url: image_url.to_string(),
+            datasheet_link: datasheet_link.to_string(),
+            product_link: product_link.to_string(),
+            image_link: image_link.to_string(),
             suppliers: suppliers.to_string(),
         };
 
@@ -208,9 +208,9 @@ impl<'a> PartManager<'a> {
             part.mfr_no = Some(db_part.mfr_no);
             part.mouser_no = Some(db_part.mouser_no);
             part.digikey_no = Some(db_part.digikey_no);
-            part.datasheet_url = Some(db_part.datasheet_url);
-            part.product_url = Some(db_part.product_url);
-            part.image_url = Some(db_part.image_url);
+            part.datasheet_link = Some(db_part.datasheet_link);
+            part.product_link = Some(db_part.product_link);
+            part.image_link = Some(db_part.image_link);
             part.suppliers = Some(db_part.suppliers);
             part.cost = Some(db_part.cost);
 

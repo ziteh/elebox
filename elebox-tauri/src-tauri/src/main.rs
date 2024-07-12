@@ -155,9 +155,9 @@ fn new_part(
     mfr_no: &str,
     mouser_no: &str,
     digikey_no: &str,
-    datasheet_url: &str,
-    product_url: &str,
-    image_url: &str,
+    datasheet_link: &str,
+    product_link: &str,
+    image_link: &str,
     suppliers: &str,
 ) {
     let p = GET!(path);
@@ -174,9 +174,9 @@ fn new_part(
     part.mfr_no = Option::from(mfr_no.to_string()).filter(|s| !s.is_empty());
     part.mouser_no = Option::from(mouser_no.to_string()).filter(|s| !s.is_empty());
     part.digikey_no = Option::from(digikey_no.to_string()).filter(|s| !s.is_empty());
-    part.datasheet_url = Option::from(datasheet_url.to_string()).filter(|s| !s.is_empty());
-    part.product_url = Option::from(product_url.to_string()).filter(|s| !s.is_empty());
-    part.image_url = Option::from(image_url.to_string()).filter(|s| !s.is_empty());
+    part.datasheet_link = Option::from(datasheet_link.to_string()).filter(|s| !s.is_empty());
+    part.product_link = Option::from(product_link.to_string()).filter(|s| !s.is_empty());
+    part.image_link = Option::from(image_link.to_string()).filter(|s| !s.is_empty());
     part.suppliers = Option::from(suppliers.to_string()).filter(|s| !s.is_empty());
 
     if cost < 0.0 {
