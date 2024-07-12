@@ -23,14 +23,14 @@ fn get_packages(path: tauri::State<DbPath>) -> Vec<Package> {
 }
 
 #[tauri::command]
-fn new_package(path: tauri::State<DbPath>, name: &str, ptype: &str, alias: &str) {
+fn new_package(path: tauri::State<DbPath>, name: &str, pkg_type: &str, alias: &str) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PackageManager::new(&db);
 
     let pkg = Package {
         name: name.to_string(),
-        pkg_type: match ptype.to_uppercase().as_str() {
+        pkg_type: match pkg_type.to_uppercase().as_str() {
             "SMT" => PackageType::Smt,
             "THT" => PackageType::Tht,
             _ => PackageType::Others,
