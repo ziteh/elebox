@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError, package};
+use crate::{db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 

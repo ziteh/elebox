@@ -16,14 +16,16 @@ struct DbPath(Mutex<String>);
 
 #[tauri::command]
 fn get_packages(path: tauri::State<DbPath>) -> Vec<Package> {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PackageManager::new(&db);
     mgr.list()
 }
 
 #[tauri::command]
 fn new_package(path: tauri::State<DbPath>, name: &str, ptype: &str, alias: &str) {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PackageManager::new(&db);
 
     let pkg = Package {
@@ -43,21 +45,24 @@ fn new_package(path: tauri::State<DbPath>, name: &str, ptype: &str, alias: &str)
 
 #[tauri::command]
 fn del_package(path: tauri::State<DbPath>, name: &str) {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PackageManager::new(&db);
     let _ = mgr.delete(name);
 }
 
 #[tauri::command]
 fn get_mfrs(path: tauri::State<DbPath>) -> Vec<Manufacturer> {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::ManufacturerManager::new(&db);
     mgr.list()
 }
 
 #[tauri::command]
 fn new_mfr(path: tauri::State<DbPath>, name: &str, alias: &str, url: &str) {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::ManufacturerManager::new(&db);
 
     let mfr = Manufacturer {
@@ -76,35 +81,40 @@ fn new_mfr(path: tauri::State<DbPath>, name: &str, alias: &str, url: &str) {
 
 #[tauri::command]
 fn del_mfr(path: tauri::State<DbPath>, name: &str) {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::ManufacturerManager::new(&db);
     let _ = mgr.delete(name);
 }
 
 #[tauri::command]
 fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
     mgr.list()
 }
 
 #[tauri::command]
 fn part_del(path: tauri::State<DbPath>, part: &str) {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
     let _ = mgr.delete(part);
 }
 
 #[tauri::command]
 fn part_add(path: tauri::State<DbPath>, part: &str, qty: i16) {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
     let _ = mgr.update_part_quantity(part, qty);
 }
 
 #[tauri::command]
 fn new_category(path: tauri::State<DbPath>, name: &str, parent: &str) {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&db);
 
     let cat = Category {
@@ -119,7 +129,8 @@ fn new_category(path: tauri::State<DbPath>, name: &str, parent: &str) {
 
 #[tauri::command]
 fn del_category(path: tauri::State<DbPath>, name: &str) -> String {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&db);
 
     let res = mgr.delete(name);
@@ -149,7 +160,8 @@ fn new_part(
     image_url: &str,
     suppliers: &str,
 ) {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
 
     let mut part = Part::new(name, category, qty);
@@ -178,7 +190,8 @@ fn new_part(
 
 #[tauri::command]
 fn get_categories(path: tauri::State<DbPath>) -> Vec<Category> {
-    let db = elebox_core::JammDatabase::new(&GET!(path));
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&db);
     mgr.list()
 }
