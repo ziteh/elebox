@@ -16,6 +16,9 @@ enum CategorySubCommand {
 
     /// Update a category
     Update(UpdateCategoryArgs),
+
+    /// Export CSV file
+    Export(ExportCategoryArgs),
 }
 
 #[derive(Debug, Args)]
@@ -38,7 +41,13 @@ struct DeleteCategoryArgs {
     name: String,
 }
 
-pub fn category_cmd(db: &dyn elebox_core::Datebase, cmd: &CategoryCommand) {
+#[derive(Debug, Args)]
+struct ExportCategoryArgs {
+    #[arg(default_value = "elebox_export_categories.tsv")]
+    path: String,
+}
+
+pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
     let manager = elebox_core::CategoryManager::new(db);
 
     match &cmd.command {
@@ -63,6 +72,9 @@ pub fn category_cmd(db: &dyn elebox_core::Datebase, cmd: &CategoryCommand) {
             ) {
                 println!("{err}");
             };
+        }
+        Some(CategorySubCommand::Export(args)) => {
+            let _ = manager.export_csv(&args.path);
         }
         None => {
             println!("List part category");

@@ -1,5 +1,7 @@
-use clap::{Parser, Subcommand};
-use elebox_core::{self};
+use std::sync::atomic;
+
+use clap::{Args, Parser, Subcommand};
+use elebox_core::{self, Database};
 
 mod category_cmd;
 mod part_cmd;
@@ -17,6 +19,12 @@ struct Cli {
     entity_type: EntityType,
 }
 
+#[derive(Debug, Args)]
+struct CsvArgs {
+    #[arg(default_value = "./")]
+    path: String,
+}
+
 #[derive(Debug, Subcommand)]
 enum EntityType {
     /// Create and init a new database
@@ -27,17 +35,27 @@ enum EntityType {
 
     /// Edit or list part category
     Category(CategoryCommand),
+
+    /// Export all data to CSVs
+    Export(CsvArgs),
+
+    /// Import all data from CSVs
+    Import(CsvArgs),
 }
 
 fn main() {
     let cli = Cli::parse();
 
     println!("{}", cli.db_path);
-    let db = elebox_core::JammDatebase::new(&cli.db_path);
+    let db = elebox_core::JammDatabase::new(&cli.db_path);
 
     match &cli.entity_type {
-        EntityType::Init => elebox_core::init(&db),
+        EntityType::Init => db.init(),
         EntityType::Part(cmd) => part_cmd(&db, cmd),
         EntityType::Category(cmd) => category_cmd(&db, cmd),
+        EntityType::Export(args) => elebox_core::export_csv(&db, &args.path),
+        EntityType::Import(args) => {
+            let _ = elebox_core::import_csv(&args.path);
+        }
     };
 }

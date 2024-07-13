@@ -6,7 +6,7 @@ interface Types {
   [index: number]: {
     name: string;
     parent: string;
-  }
+  };
 }
 
 const partName = ref("");
@@ -15,7 +15,11 @@ const partType = ref("");
 let types = reactive<Types>({});
 
 async function newPart() {
-  await invoke("part_new", { name: partName.value, qty: parseInt(partQty.value), ptype: partType.value });
+  await invoke("part_new", {
+    name: partName.value,
+    qty: parseInt(partQty.value),
+    ptype: partType.value,
+  });
 }
 
 async function getTypes() {
@@ -37,7 +41,13 @@ onMounted(async () => {
 
     <div class="form-group">
       <label for="part-qty-in">Quantity: </label>
-      <input id="part-qty-in" v-model="partQty" placeholder="15" type="number" pattern="[0-9]*" />
+      <input
+        id="part-qty-in"
+        v-model="partQty"
+        placeholder="15"
+        type="number"
+        pattern="[0-9]*"
+      />
     </div>
 
     <div class="form-group">
@@ -53,5 +63,3 @@ onMounted(async () => {
     <button type="submit">Add</button>
   </form>
 </template>
-
-

@@ -22,6 +22,12 @@ enum PartSubCommand {
 
     /// Consume
     Use(UsePartArgs),
+
+    /// Export as CSV file
+    Export(CsvPartArgs),
+
+    /// Import from CSV file
+    Import(CsvPartArgs),
 }
 
 #[derive(Debug, Args)]
@@ -60,11 +66,17 @@ struct DeletePartArgs {
     name: String,
 }
 
-pub fn part_cmd(db: &dyn elebox_core::Datebase, cmd: &PartCommand) {
+#[derive(Debug, Args)]
+struct CsvPartArgs {
+    #[arg(default_value = "elebox_export_parts.tsv")]
+    path: String,
+}
+
+pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
     let manager = elebox_core::PartManager::new(db);
 
     match &cmd.command {
-        Some(subcmd) => match subcmd {
+        Some(sub_cmd) => match sub_cmd {
             PartSubCommand::New(args) => {
                 let res = manager.add(&elebox_core::Part::new(
                     &args.name,
@@ -101,6 +113,12 @@ pub fn part_cmd(db: &dyn elebox_core::Datebase, cmd: &PartCommand) {
                 if let Err(err) = manager.update_part_quantity(&args.name, q) {
                     println!("{err}");
                 }
+            }
+            PartSubCommand::Export(args) => {
+                let _ = manager.export_csv(&args.path);
+            }
+            PartSubCommand::Import(args) => {
+                let _ = manager.import_csv(&args.path);
             }
         },
         None => {

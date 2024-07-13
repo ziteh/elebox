@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -23,11 +23,11 @@ impl Category {
 }
 
 pub struct CategoryManager<'a> {
-    db: &'a dyn Datebase,
+    db: &'a dyn Database,
 }
 
 impl<'a> CategoryManager<'a> {
-    pub fn new(db: &'a dyn Datebase) -> Self {
+    pub fn new(db: &'a dyn Database) -> Self {
         Self { db }
     }
 
@@ -60,14 +60,14 @@ impl<'a> CategoryManager<'a> {
             None => return Err(EleboxError::NotExists(id.to_string())),
         };
 
-        let cateogry = Category {
+        let category = Category {
             name: db_cat.name.to_string(),
             parent: match self.db.get_category_from_id(&db_cat.parent_id) {
                 Some(cat) => Some(cat.name),
                 None => None,
             },
         };
-        return Ok(cateogry);
+        return Ok(category);
     }
 
     pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
@@ -135,5 +135,25 @@ impl<'a> CategoryManager<'a> {
 
         self.db.add_category(&db_category);
         return Ok(());
+    }
+
+    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+        let cats = self.list();
+        let res = write_csv(filename, cats, None);
+        return res;
+    }
+
+    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_csv(filename, None);
+        if res_parts.is_err() {
+            return Err(());
+        }
+
+        let cats: Vec<Category> = res_parts.unwrap();
+        for cat in cats {
+            let _ = self.add(&cat);
+        }
+
+        Ok(())
     }
 }

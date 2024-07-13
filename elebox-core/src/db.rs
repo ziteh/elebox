@@ -7,7 +7,7 @@ use jammdb::DB;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-type Id = String;
+pub type Id = String;
 
 trait DbItem {
     fn get_name(&self) -> String;
@@ -27,9 +27,9 @@ pub struct DbPart {
     pub mfr_no: String,
     pub mouser_no: String,
     pub digikey_no: String,
-    pub datasheet_url: String,
-    pub product_url: String,
-    pub image_url: String,
+    pub datasheet_link: String,
+    pub product_link: String,
+    pub image_link: String,
     pub suppliers: String,
 }
 
@@ -78,12 +78,12 @@ impl DbItem for DbManufacturer {
 }
 
 const PARTS_BUCKET: &str = "parts";
-const CATEGORIES_BUCKET: &str = "catrgories";
+const CATEGORIES_BUCKET: &str = "categories";
 const PACKAGES_BUCKET: &str = "packages";
 const MFR_BUCKET: &str = "manufacturers";
 const STAR_BUCKET: &str = "stars";
 
-pub trait Datebase {
+pub trait Database {
     fn init(&self);
 
     fn add_part(&self, part: &DbPart);
@@ -114,22 +114,20 @@ pub trait Datebase {
     fn update_part(&self, name: &str, part: &DbPart);
 }
 
-pub struct JammDatebase {
-    path: String,
+pub struct JammDatabase<'a> {
+    path: &'a str,
 }
 
-impl JammDatebase {
-    pub fn new(path: &str) -> Self {
-        Self {
-            path: path.to_string(),
-        }
+impl<'a> JammDatabase<'a> {
+    pub fn new(path: &'a str) -> Self {
+        Self { path }
     }
 
     fn add_item<T>(&self, bucket: &str, item: &T)
     where
         T: Serialize,
     {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(self.path).unwrap();
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -141,9 +139,9 @@ impl JammDatebase {
 
     fn get_item_id<T>(&self, bucket: &str, name: &str) -> Option<String>
     where
-        T: for<'a> Deserialize<'a> + DbItem,
+        T: for<'b> Deserialize<'b> + DbItem,
     {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(self.path).unwrap();
         let tx = db.tx(false).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -160,9 +158,9 @@ impl JammDatebase {
 
     fn get_item<T>(&self, bucket: &str, id: &str) -> Option<T>
     where
-        T: for<'a> Deserialize<'a>,
+        T: for<'b> Deserialize<'b>,
     {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(self.path).unwrap();
         let tx = db.tx(false).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -174,15 +172,15 @@ impl JammDatebase {
 
     fn get_items<T>(&self, bucket: &str) -> Vec<T>
     where
-        T: for<'a> Deserialize<'a>,
+        T: for<'b> Deserialize<'b>,
     {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(self.path).unwrap();
         let tx = db.tx(false).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
         let mut items: Vec<T> = Vec::new();
         for data in bkt.cursor() {
-            let item: T = rmp_serde::from_slice(data.kv().value()).unwrap();
+            let item: T = rmp_serde::from_slice::<T>(data.kv().value()).unwrap();
             items.push(item);
         }
 
@@ -190,7 +188,7 @@ impl JammDatebase {
     }
 
     fn delete_item(&self, bucket: &str, id: &str) -> String {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(self.path).unwrap();
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(bucket).unwrap();
 
@@ -201,9 +199,9 @@ impl JammDatebase {
     }
 }
 
-impl Datebase for JammDatebase {
+impl<'a> Database for JammDatabase<'a> {
     fn init(&self) {
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(self.path).unwrap();
         let tx = db.tx(true).unwrap();
 
         tx.get_or_create_bucket(PARTS_BUCKET).unwrap();
@@ -299,7 +297,7 @@ impl Datebase for JammDatebase {
             return;
         }
 
-        let db = DB::open(&self.path).unwrap();
+        let db = DB::open(self.path).unwrap();
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
 

@@ -17,5 +17,19 @@
 			"path": "."
 		},
 	],
-	"settings": {}
+	"settings": {
+		"[vue]": {
+			"editor.tabSize": 2,
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"editor.tabSize": 4,
+		"cSpell.words": [
+			"datasheet",
+			"digikey",
+			"elebox",
+			"Jamm",
+			"jammdb",
+			"tauri",
+		],
+	}
 }

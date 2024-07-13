@@ -2,8 +2,8 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
 defineProps({
-  part: String
-})
+  part: String,
+});
 
 async function partDel(part: string) {
   console.debug(`Part delete: ${part}`);
@@ -12,5 +12,9 @@ async function partDel(part: string) {
 </script>
 
 <template>
-  <v-btn density="comfortable" icon="mdi-trash-can-outline" @click="partDel(part!)"></v-btn>
+  <v-btn
+    density="comfortable"
+    icon="mdi-trash-can-outline"
+    @click="partDel(part!)"
+  ></v-btn>
 </template>

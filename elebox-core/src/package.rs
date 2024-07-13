@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -11,15 +11,15 @@ pub enum PackageType {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Package {
-    pub ptype: PackageType,
+    pub pkg_type: PackageType,
     pub name: String,
     pub alias: Option<String>,
 }
 
 impl Package {
-    pub fn new(name: &str, ptype: PackageType, alias: Option<&str>) -> Self {
+    pub fn new(name: &str, pkg_type: PackageType, alias: Option<&str>) -> Self {
         Self {
-            ptype,
+            pkg_type,
             name: name.to_string(),
             alias: match alias {
                 Some(s) => Some(s.to_string()),
@@ -30,11 +30,11 @@ impl Package {
 }
 
 pub struct PackageManager<'a> {
-    db: &'a dyn Datebase,
+    db: &'a dyn Database,
 }
 
 impl<'a> PackageManager<'a> {
-    pub fn new(db: &'a dyn Datebase) -> Self {
+    pub fn new(db: &'a dyn Database) -> Self {
         Self { db }
     }
 
@@ -55,7 +55,7 @@ impl<'a> PackageManager<'a> {
 
         let db_pkg = DbPackage {
             name: item.name.to_string(),
-            pkg_type: match item.ptype {
+            pkg_type: match item.pkg_type {
                 PackageType::Smt => String::from("smt"),
                 PackageType::Tht => String::from("tht"),
                 PackageType::Others => String::from("others"),
@@ -88,5 +88,25 @@ impl<'a> PackageManager<'a> {
             pkgs.push(p)
         }
         return pkgs;
+    }
+
+    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+        let pkgs = self.list();
+        let res = write_csv(filename, pkgs, None);
+        return res;
+    }
+
+    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_csv(filename, None);
+        if res_parts.is_err() {
+            return Err(());
+        }
+
+        let pkgs: Vec<Package> = res_parts.unwrap();
+        for pkg in pkgs {
+            let _ = self.add(&pkg);
+        }
+
+        Ok(())
     }
 }

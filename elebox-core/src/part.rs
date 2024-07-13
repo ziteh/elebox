@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError, package};
+use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -10,15 +10,15 @@ pub struct Part {
     pub package: Option<String>,
     pub alias: Option<String>,
     pub description: Option<String>,
-    pub cost: Option<f32>,
+    pub cost: Option<f32>, // TODO: change to 'rust_decimal'
     pub location: Option<String>,
     pub mfr: Option<String>,
     pub mfr_no: Option<String>,
     pub mouser_no: Option<String>,
     pub digikey_no: Option<String>,
-    pub datasheet_url: Option<String>,
-    pub product_url: Option<String>,
-    pub image_url: Option<String>,
+    pub datasheet_link: Option<String>,
+    pub product_link: Option<String>,
+    pub image_link: Option<String>,
     pub suppliers: Option<String>,
 }
 
@@ -37,20 +37,20 @@ impl Part {
             mfr_no: None,
             mouser_no: None,
             digikey_no: None,
-            datasheet_url: None,
-            product_url: None,
-            image_url: None,
+            datasheet_link: None,
+            product_link: None,
+            image_link: None,
             suppliers: None,
         }
     }
 }
 
 pub struct PartManager<'a> {
-    db: &'a dyn Datebase,
+    db: &'a dyn Database,
 }
 
 impl<'a> PartManager<'a> {
-    pub fn new(db: &'a dyn Datebase) -> Self {
+    pub fn new(db: &'a dyn Database) -> Self {
         Self { db }
     }
 
@@ -78,7 +78,7 @@ impl<'a> PartManager<'a> {
 
         let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
 
-        let catrgory_id = match new_category {
+        let category_id = match new_category {
             Some(name) => match self.db.get_category_id(name) {
                 Some(id) => id,
                 None => return Err(EleboxError::NotExists(name.to_string())),
@@ -94,7 +94,7 @@ impl<'a> PartManager<'a> {
             db_part.quantity = new_quantity.unwrap();
         }
 
-        db_part.category_id = catrgory_id;
+        db_part.category_id = category_id;
 
         self.db.add_part(&db_part);
         return Ok(());
@@ -152,9 +152,9 @@ impl<'a> PartManager<'a> {
         let mfr_no = part.mfr_no.as_ref().unwrap_or(empty);
         let mouser_no = part.mouser_no.as_ref().unwrap_or(empty);
         let digikey_no = part.digikey_no.as_ref().unwrap_or(empty);
-        let datasheet_url = part.datasheet_url.as_ref().unwrap_or(empty);
-        let product_url = part.product_url.as_ref().unwrap_or(empty);
-        let image_url = part.image_url.as_ref().unwrap_or(empty);
+        let datasheet_link = part.datasheet_link.as_ref().unwrap_or(empty);
+        let product_link = part.product_link.as_ref().unwrap_or(empty);
+        let image_link = part.image_link.as_ref().unwrap_or(empty);
         let suppliers = part.suppliers.as_ref().unwrap_or(empty);
         let cost = part.cost.as_ref().unwrap_or(&f32::NAN);
 
@@ -171,9 +171,9 @@ impl<'a> PartManager<'a> {
             mfr_no: mfr_no.to_string(),
             mouser_no: mouser_no.to_string(),
             digikey_no: digikey_no.to_string(),
-            datasheet_url: datasheet_url.to_string(),
-            product_url: product_url.to_string(),
-            image_url: image_url.to_string(),
+            datasheet_link: datasheet_link.to_string(),
+            product_link: product_link.to_string(),
+            image_link: image_link.to_string(),
             suppliers: suppliers.to_string(),
         };
 
@@ -208,14 +208,34 @@ impl<'a> PartManager<'a> {
             part.mfr_no = Some(db_part.mfr_no);
             part.mouser_no = Some(db_part.mouser_no);
             part.digikey_no = Some(db_part.digikey_no);
-            part.datasheet_url = Some(db_part.datasheet_url);
-            part.product_url = Some(db_part.product_url);
-            part.image_url = Some(db_part.image_url);
+            part.datasheet_link = Some(db_part.datasheet_link);
+            part.product_link = Some(db_part.product_link);
+            part.image_link = Some(db_part.image_link);
             part.suppliers = Some(db_part.suppliers);
             part.cost = Some(db_part.cost);
 
             parts.push(part);
         }
         return parts;
+    }
+
+    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+        let parts = self.list();
+        let res = write_csv(filename, parts, None);
+        return res;
+    }
+
+    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_csv(filename, None);
+        if res_parts.is_err() {
+            return Err(());
+        }
+
+        let parts: Vec<Part> = res_parts.unwrap();
+        for part in parts {
+            let _ = self.add(&part);
+        }
+
+        Ok(())
     }
 }

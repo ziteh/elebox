@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -26,11 +26,11 @@ impl Manufacturer {
 }
 
 pub struct ManufacturerManager<'a> {
-    db: &'a dyn Datebase,
+    db: &'a dyn Database,
 }
 
 impl<'a> ManufacturerManager<'a> {
-    pub fn new(db: &'a dyn Datebase) -> Self {
+    pub fn new(db: &'a dyn Database) -> Self {
         Self { db }
     }
 
@@ -78,5 +78,25 @@ impl<'a> ManufacturerManager<'a> {
             mfrs.push(m);
         }
         return mfrs;
+    }
+
+    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+        let mfrs = self.list();
+        let res = write_csv(filename, mfrs, None);
+        return res;
+    }
+
+    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_csv(filename, None);
+        if res_parts.is_err() {
+            return Err(());
+        }
+
+        let mfrs: Vec<Manufacturer> = res_parts.unwrap();
+        for mfr in mfrs {
+            let _ = self.add(&mfr);
+        }
+
+        Ok(())
     }
 }
