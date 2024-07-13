@@ -110,14 +110,13 @@ onMounted(() => {
           type="number"
           min="0"
         ></v-text-field>
-        <v-select
+        <v-autocomplete
           label="Category"
-          :items="Object.values(categories).map((cat) => cat.name)"
           variant="outlined"
           v-model="category"
+          :items="Object.values(categories).map((cat) => cat.name)"
           :rules="[(v: any) => !!v || 'Required']"
-          required
-        ></v-select>
+        ></v-autocomplete>
       </v-row>
 
       <v-divider class="ma-8"></v-divider>
