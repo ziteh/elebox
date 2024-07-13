@@ -88,6 +88,18 @@ fn del_mfr(path: tauri::State<DbPath>, name: &str) {
 }
 
 #[tauri::command]
+fn get_part(path: tauri::State<DbPath>, part: &str) -> Option<Part> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PartManager::new(&db);
+    let part = mgr.get(part);
+    if part.is_err() {
+        return None;
+    }
+    return Some(part.unwrap());
+}
+
+#[tauri::command]
 fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -243,6 +255,7 @@ fn main() {
         .manage(DbPath(Mutex::new(db_path)))
         .invoke_handler(tauri::generate_handler![
             get_parts,
+            get_part,
             get_categories,
             part_add,
             new_part,

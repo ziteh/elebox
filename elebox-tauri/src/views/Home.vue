@@ -3,18 +3,9 @@ import { onMounted, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import PartQty from "../components/PartQty.vue";
 import PartDel from "../components/PartDel.vue";
+import { Parts } from "../interface";
 
-interface Parts {
-  [index: number]: {
-    name: string;
-    quantity: number;
-    category: string;
-    package: string;
-    mfr: string;
-  };
-}
-
-let parts = reactive<Parts>({});
+let parts = reactive<Parts>([]);
 
 async function getParts() {
   console.log("get parts");
@@ -32,7 +23,7 @@ onMounted(getParts);
       <v-autocomplete
         label="Search"
         variant="outlined"
-        :items="Object.values(parts).map((part) => part.name)"
+        :items="parts.map((part) => part.name)"
       ></v-autocomplete>
       <v-btn @click="getParts">Update</v-btn>
     </v-row>
@@ -51,7 +42,11 @@ onMounted(getParts);
 
       <tbody>
         <tr v-for="(p, index) in parts" :key="index">
-          <td title="12">{{ p.name }}</td>
+          <td>
+            <v-btn :to="{ name: 'part_detail', params: { name: p.name } }">
+              {{ p.name }}</v-btn
+            >
+          </td>
           <td>
             {{ p.quantity }}
             <PartQty :part="p.name" />
