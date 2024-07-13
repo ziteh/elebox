@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use elebox_core::{self, Database};
 
 mod category_cmd;
@@ -17,6 +17,12 @@ struct Cli {
     entity_type: EntityType,
 }
 
+#[derive(Debug, Args)]
+struct ExportArgs {
+    #[arg(default_value = "./")]
+    path: String,
+}
+
 #[derive(Debug, Subcommand)]
 enum EntityType {
     /// Create and init a new database
@@ -27,6 +33,9 @@ enum EntityType {
 
     /// Edit or list part category
     Category(CategoryCommand),
+
+    /// Export all data to CSVs
+    Export(ExportArgs),
 }
 
 fn main() {
@@ -39,5 +48,6 @@ fn main() {
         EntityType::Init => db.init(),
         EntityType::Part(cmd) => part_cmd(&db, cmd),
         EntityType::Category(cmd) => category_cmd(&db, cmd),
+        EntityType::Export(args) => elebox_core::export_csv(&db, &args.path),
     };
 }
