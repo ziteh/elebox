@@ -122,18 +122,18 @@ onMounted(() => {
       <v-divider class="ma-8"></v-divider>
 
       <v-row class="ga-8">
-        <v-select
+        <v-autocomplete
           label="Package"
-          :items="Object.values(packages).map((pck) => pck.name)"
           variant="outlined"
           v-model="pkg"
-        ></v-select>
-        <v-select
+          :items="Object.values(packages).map((pck) => pck.name)"
+        ></v-autocomplete>
+        <v-autocomplete
           label="Manufacturer"
-          :items="Object.values(manufacturers).map((mfr) => mfr.name)"
           variant="outlined"
           v-model="mfr"
-        ></v-select>
+          :items="Object.values(manufacturers).map((mfr) => mfr.name)"
+        ></v-autocomplete>
         <v-text-field
           label="Cost"
           variant="outlined"
