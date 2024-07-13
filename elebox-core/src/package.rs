@@ -1,6 +1,6 @@
-use crate::{db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::{fmt::Debug, vec};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum PackageType {
@@ -88,5 +88,30 @@ impl<'a> PackageManager<'a> {
             pkgs.push(p)
         }
         return pkgs;
+    }
+
+    pub fn save_csv(&self, filename: &str) -> Result<(), ()> {
+        let separator = Some("\t");
+        let header = vec!["id", "package_type", "name", "alias"];
+        let _ = create_csv(filename, header, separator);
+
+        let packages = self.list();
+        for pkg in packages {
+            let id = self.db.get_package_id(&pkg.name);
+            let pkg_type = match pkg.pkg_type {
+                PackageType::Smt => "SMT",
+                PackageType::Tht => "THT",
+                PackageType::Others => "Others",
+            };
+            let row = vec![
+                id.unwrap(),
+                pkg_type.to_string(),
+                pkg.name,
+                pkg.alias.unwrap_or("".to_string()),
+            ];
+            let _ = append_csv(filename, &row, separator);
+        }
+
+        Ok(())
     }
 }

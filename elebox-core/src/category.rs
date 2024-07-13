@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -135,5 +135,19 @@ impl<'a> CategoryManager<'a> {
 
         self.db.add_category(&db_category);
         return Ok(());
+    }
+
+    pub fn save_csv(&self, filename: &str) -> Result<(), ()> {
+        let separator = Some("\t");
+        let header = vec!["id", "name", "parent"];
+        let _ = create_csv(filename, header, separator);
+
+        let categories = self.list();
+        for cat in categories {
+            let id = self.db.get_category_id(&cat.name);
+            let row = vec![id.unwrap(), cat.name, cat.parent.unwrap_or("".to_string())];
+            let _ = append_csv(filename, &row, separator);
+        }
+        Ok(())
     }
 }

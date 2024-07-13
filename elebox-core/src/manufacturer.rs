@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -78,5 +78,24 @@ impl<'a> ManufacturerManager<'a> {
             mfrs.push(m);
         }
         return mfrs;
+    }
+
+    pub fn save_csv(&self, filename: &str) -> Result<(), ()> {
+        let separator = Some("\t");
+        let header = vec!["id", "name", "alias", "url"];
+        let _ = create_csv(filename, header, separator);
+
+        let mfrs = self.list();
+        for mfr in mfrs {
+            let id = self.db.get_mfr_id(&mfr.name);
+            let row = vec![
+                id.unwrap(),
+                mfr.name,
+                mfr.alias.unwrap_or("".to_string()),
+                mfr.url.unwrap_or("".to_string()),
+            ];
+            let _ = append_csv(filename, &row, separator);
+        }
+        Ok(())
     }
 }

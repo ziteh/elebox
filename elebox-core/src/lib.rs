@@ -4,6 +4,7 @@ mod errors;
 mod manufacturer;
 mod package;
 mod part;
+mod csv;
 
 pub use category::*;
 pub use db::Database;

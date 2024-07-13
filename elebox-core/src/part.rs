@@ -1,4 +1,4 @@
-use crate::{db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -217,5 +217,56 @@ impl<'a> PartManager<'a> {
             parts.push(part);
         }
         return parts;
+    }
+
+    pub fn save_csv(&self, filename: &str) -> Result<(), ()> {
+        let separator = Some("\t");
+        let header = vec![
+            "id",
+            "name",
+            "quantity",
+            "category",
+            "package",
+            "alias",
+            "description",
+            "cost",
+            "location",
+            "mfr",
+            "mfr_no",
+            "mouser_no",
+            "digikey_no",
+            "datasheet_link",
+            "product_link",
+            "image_link",
+            "suppliers",
+        ];
+        let _ = create_csv(filename, header, separator);
+
+        let parts = self.list();
+        for part in parts {
+            let id = self.db.get_part_id(&part.name);
+            let row = vec![
+                id.unwrap(),
+                part.name,
+                part.quantity.to_string(),
+                part.category,
+                part.package.unwrap_or("".to_string()),
+                part.alias.unwrap_or("".to_string()),
+                part.description.unwrap_or("".to_string()),
+                part.cost.map(|c| c.to_string()).unwrap(),
+                part.location.unwrap_or("".to_string()),
+                part.mfr.unwrap_or("".to_string()),
+                part.mfr_no.unwrap_or("".to_string()),
+                part.mouser_no.unwrap_or("".to_string()),
+                part.digikey_no.unwrap_or("".to_string()),
+                part.datasheet_link.unwrap_or("".to_string()),
+                part.product_link.unwrap_or("".to_string()),
+                part.image_link.unwrap_or("".to_string()),
+                part.suppliers.unwrap_or("".to_string()),
+            ];
+            let _ = append_csv(filename, &row, separator);
+        }
+
+        Ok(())
     }
 }
