@@ -8,6 +8,7 @@ const ROOT_CATEGORY: &str = "root";
 pub struct Category {
     pub name: String,
     pub parent: Option<String>,
+    pub alias: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -17,11 +18,15 @@ pub struct TreeNode {
 }
 
 impl Category {
-    pub fn new(name: &str, parent: Option<&str>) -> Self {
+    pub fn new(name: &str, parent: Option<&str>, alias: Option<&str>) -> Self {
         Self {
             name: name.to_string(),
             parent: match parent {
                 Some(p) => Some(p.to_string()),
+                None => None,
+            },
+            alias: match alias {
+                Some(a) => Some(a.to_string()),
                 None => None,
             },
         }
@@ -50,6 +55,10 @@ impl<'a> CategoryManager<'a> {
                     Some(p) => Some(p.name),
                     None => None,
                 },
+                alias: match db_cat.alias.as_str() {
+                    "" => None,
+                    other => Some(other.to_string()),
+                },
             });
         }
         return categories;
@@ -71,6 +80,10 @@ impl<'a> CategoryManager<'a> {
             parent: match self.db.get_category_from_id(&db_cat.parent_id) {
                 Some(cat) => Some(cat.name),
                 None => None,
+            },
+            alias: match db_cat.alias.as_str() {
+                "" => None,
+                other => Some(other.to_string()),
             },
         };
         return Ok(category);
@@ -113,6 +126,7 @@ impl<'a> CategoryManager<'a> {
                 None => old_db_pt.name,
             },
             parent_id: p_id,
+            alias: old_db_pt.alias,
         };
 
         self.db.add_category(&db_category);
@@ -137,6 +151,10 @@ impl<'a> CategoryManager<'a> {
         let db_category = DbCategory {
             name: category.name.to_string(),
             parent_id: p_id,
+            alias: match &category.alias {
+                Some(s) => s.to_string(),
+                None => "".to_string(),
+            },
         };
 
         self.db.add_category(&db_category);
