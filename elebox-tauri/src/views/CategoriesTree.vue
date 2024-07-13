@@ -7,9 +7,10 @@ import { TreeNode } from "../interface";
 const catNodes = ref<TreeNode[]>([]);
 
 async function getCategories() {
-  const cs = await invoke("get_tree", {});
-  console.log(cs);
-  catNodes.value = cs;
+  // const cs = await invoke("get_tree", {});
+  // console.log(cs);
+  // catNodes.value = cs;
+  catNodes.value = await invoke("get_tree", {});
 }
 
 onMounted(async () => {
