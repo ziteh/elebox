@@ -2,13 +2,15 @@
 
 ![](https://i.imgur.com/fqdDK1d.png)
 
+🌐[中文](https://github.com/ziteh/elebox/blob/main/README-zh.md)
+
 Lightweight personal electronic parts inventory management tool.
 
 It aims to remain simple, intuitive, zero configuration and works out-of-the-box. The embedded, single-file database is easy to backup.
 
 ## Usage
 
-Download executable from [Releases](./releases). (🚧WIP)
+Download executable from [Releases](https://github.com/ziteh/elebox/releases).
 
 ### GUI
 
@@ -34,25 +36,25 @@ Print help message:
 elebox-cli help
 ```
 
-Use and operate on the default database path `./elebox.db`:
+Use and operate on the default database path and filename `./elebox.db`:
 
 ```bash
 elebox-cli <COMMAND>
 ```
 
-or a specified path `./mybox.db`:
+or a specified `./my_box.db`:
 
 ```bash
-elebox-cli mybox.db <COMMAND>
+elebox-cli my_box.db <COMMAND>
 ```
 
-where `<COMMAND>` can be `init`, `part` or `category`.
+where `<COMMAND>` can be `init`, `part`, `category`, `export` or `import`.
 
 #### Init
 
 You need to initialize a database before you can proceed with the next steps.
 
-Create and initialize a new database with the default path `./elebox.db`:
+Create and initialize a new database with the default path:
 
 ```bash
 elebox-cli init
@@ -60,23 +62,23 @@ elebox-cli init
 
 #### Edit Part category
 
-List part categorys:
+List part categories:
 
 ```bash
 elebox-cli category
 ```
 
-Create a new part category named `SMD`:
+Create a new part category named `MCU`:
 
 ```bash
-elebox-cli category new SMD
+elebox-cli category new MCU
 ```
 
-Create new part category named `SOT-23` and `SMD 0603`, and designate them as a subcategory of `SMD`:
+Create new part category named `ARM` and `RISC-V`, and designate them as a subcategory of `MCU`:
 
 ```bash
-elebox-cli category new SOT-23 -p SMD
-elebox-cli category new "SMD 0603" -p SMD
+elebox-cli category new ARM -p MCU
+elebox-cli category new "RISC-V" -p MCU
 ```
 
 #### Edit Part
@@ -84,26 +86,26 @@ elebox-cli category new "SMD 0603" -p SMD
 List parts:
 
 ```bash
-elebox-cli part 
+elebox-cli part
 ```
 
-Create a new part named `AMS1117` with a part category of `SMD`, and a quantity of `100`:
+Create a new part named `RP2040` with a part category of `ARM`, and a quantity of `25`:
 
 ```bash
-elebox-cli part new AMS1117 100 SMD
+elebox-cli part new RP2040 25 ARM
 ```
 
-Consume or restock 10 `AMS1117`:
+Consume or restock 10 `RP2040`:
 
 ```bash
-elebox-cli part use AMS1117 10
-elebox-cli part add AMS1117 10
+elebox-cli part use RP2040 10
+elebox-cli part add RP2040 10
 ```
 
-Rename `AMS1117` to `ams1117-3.3v`:
+Rename `RP2040` to `rpi-RP2040`:
 
 ```bash
-elebox-cli part update AMS1117 ams1117-3.3v
+elebox-cli part update RP2040 "rpi-RP2040"
 ```
 
 ## License
