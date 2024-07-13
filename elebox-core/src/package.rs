@@ -1,6 +1,6 @@
 use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
-use std::{fmt::Debug, vec};
+use std::fmt::Debug;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum PackageType {
@@ -90,26 +90,21 @@ impl<'a> PackageManager<'a> {
         return pkgs;
     }
 
-    pub fn save_csv(&self, filename: &str) -> Result<(), ()> {
-        let separator = Some("\t");
-        let header = vec!["id", "package_type", "name", "alias"];
-        let _ = create_csv(filename, header, separator);
+    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+        let pkgs = self.list();
+        let res = write_csv(filename, pkgs, None);
+        return res;
+    }
 
-        let packages = self.list();
-        for pkg in packages {
-            let id = self.db.get_package_id(&pkg.name);
-            let pkg_type = match pkg.pkg_type {
-                PackageType::Smt => "SMT",
-                PackageType::Tht => "THT",
-                PackageType::Others => "Others",
-            };
-            let row = vec![
-                id.unwrap(),
-                pkg_type.to_string(),
-                pkg.name,
-                pkg.alias.unwrap_or("".to_string()),
-            ];
-            let _ = append_csv(filename, &row, separator);
+    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_csv(filename, None);
+        if res_parts.is_err() {
+            return Err(());
+        }
+
+        let pkgs: Vec<Package> = res_parts.unwrap();
+        for pkg in pkgs {
+            let _ = self.add(&pkg);
         }
 
         Ok(())

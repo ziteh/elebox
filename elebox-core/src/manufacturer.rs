@@ -80,22 +80,23 @@ impl<'a> ManufacturerManager<'a> {
         return mfrs;
     }
 
-    pub fn save_csv(&self, filename: &str) -> Result<(), ()> {
-        let separator = Some("\t");
-        let header = vec!["id", "name", "alias", "url"];
-        let _ = create_csv(filename, header, separator);
-
+    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
         let mfrs = self.list();
-        for mfr in mfrs {
-            let id = self.db.get_mfr_id(&mfr.name);
-            let row = vec![
-                id.unwrap(),
-                mfr.name,
-                mfr.alias.unwrap_or("".to_string()),
-                mfr.url.unwrap_or("".to_string()),
-            ];
-            let _ = append_csv(filename, &row, separator);
+        let res = write_csv(filename, mfrs, None);
+        return res;
+    }
+
+    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_csv(filename, None);
+        if res_parts.is_err() {
+            return Err(());
         }
+
+        let mfrs: Vec<Manufacturer> = res_parts.unwrap();
+        for mfr in mfrs {
+            let _ = self.add(&mfr);
+        }
+
         Ok(())
     }
 }

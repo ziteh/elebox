@@ -7,7 +7,7 @@ use jammdb::DB;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-type Id = String;
+pub type Id = String;
 
 trait DbItem {
     fn get_name(&self) -> String;

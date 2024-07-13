@@ -1,36 +1,53 @@
-use std::fs::{File, OpenOptions};
-use std::io::{self, Write};
+use std::fs::File;
 
-pub fn write_csv(filename: &str, data: &[Vec<String>], separator: Option<&str>) -> io::Result<()> {
-    let mut file = File::create(filename)?;
-    let sep = separator.unwrap_or(",");
+use csv::{ReaderBuilder, WriterBuilder};
+use serde::{Deserialize, Serialize};
 
-    for row in data {
-        let line = row.join(sep);
-        writeln!(file, "{}", line)?;
+pub fn write_csv<T>(filename: &str, items: Vec<T>, separator: Option<u8>) -> Result<(), ()>
+where
+    T: Serialize,
+{
+    let sep = separator.unwrap_or(b'\t');
+    let file = File::create(filename).unwrap();
+
+    let mut writer = WriterBuilder::new().delimiter(sep).from_writer(file);
+
+    for item in items {
+        let res = writer.serialize(item);
+        if res.is_err() {
+            return Err(());
+        }
+    }
+    let res = writer.flush();
+    if res.is_err() {
+        return Err(());
     }
 
     Ok(())
 }
 
-pub fn create_csv(filename: &str, header: Vec<&str>, separator: Option<&str>) -> io::Result<()> {
-    let mut file = File::create(filename)?;
-    let sep = separator.unwrap_or(",");
-    let line = header.join(sep);
-    writeln!(file, "{}", line)?;
-    Ok(())
-}
+pub fn read_csv<T>(filename: &str, separator: Option<u8>) -> Result<Vec<T>, ()>
+where
+    T: for<'a> Deserialize<'a>,
+{
+    let sep = separator.unwrap_or(b'\t');
+    let res_file = File::open(filename);
+    if res_file.is_err() {
+        return Err(());
+    }
 
-pub fn append_csv(filename: &str, data: &[String], separator: Option<&str>) -> io::Result<()> {
-    let mut file = OpenOptions::new()
-        .write(true)
-        .append(true)
-        .create(true)
-        .open(filename)?;
+    let mut reader = ReaderBuilder::new()
+        .delimiter(sep)
+        .from_reader(res_file.unwrap());
 
-    let sep = separator.unwrap_or(",");
-    let line = data.join(sep);
-    writeln!(file, "{}", line)?;
+    let mut items = Vec::new();
+    for res in reader.deserialize() {
+        if res.is_err() {
+            return Err(());
+        }
+        let item: T = res.unwrap();
+        items.push(item)
+    }
 
-    Ok(())
+    return Ok(items);
 }

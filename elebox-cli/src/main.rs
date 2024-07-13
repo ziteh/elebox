@@ -1,3 +1,5 @@
+use std::sync::atomic;
+
 use clap::{Args, Parser, Subcommand};
 use elebox_core::{self, Database};
 
@@ -18,7 +20,7 @@ struct Cli {
 }
 
 #[derive(Debug, Args)]
-struct ExportArgs {
+struct CsvArgs {
     #[arg(default_value = "./")]
     path: String,
 }
@@ -35,7 +37,10 @@ enum EntityType {
     Category(CategoryCommand),
 
     /// Export all data to CSVs
-    Export(ExportArgs),
+    Export(CsvArgs),
+
+    /// Import all data from CSVs
+    Import(CsvArgs),
 }
 
 fn main() {
@@ -49,5 +54,8 @@ fn main() {
         EntityType::Part(cmd) => part_cmd(&db, cmd),
         EntityType::Category(cmd) => category_cmd(&db, cmd),
         EntityType::Export(args) => elebox_core::export_csv(&db, &args.path),
+        EntityType::Import(args) => {
+            let _ = elebox_core::import_csv(&args.path);
+        }
     };
 }
