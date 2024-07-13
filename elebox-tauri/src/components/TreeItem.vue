@@ -7,7 +7,7 @@ defineProps({
 </script>
 
 <template>
-  <v-list selectable="true" select-strategy="classic" variant="plain">
+  <v-list selectable select-strategy="classic" variant="plain">
     <v-list-item
       color="primary"
       v-for="n in nodes!"
