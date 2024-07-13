@@ -1,33 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+import { Categories, Packages, Manufacturers } from "../interface";
 // import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
-interface Categories {
-  [index: number]: {
-    name: string;
-    parent: string;
-  };
-}
-
-interface Package {
-  [index: number]: {
-    pname: string;
-    type: string;
-    alias: string;
-  };
-}
-
-interface Manufacturer {
-  [index: number]: {
-    name: string;
-    alias: string;
-    url: string;
-  };
-}
 let categories = reactive<Categories>({});
-let packages = reactive<Package>({});
-let manufacturers = reactive<Manufacturer>({});
+let packages = reactive<Packages>({});
+let manufacturers = reactive<Manufacturers>({});
 
 const favorite = ref();
 
@@ -131,14 +110,13 @@ onMounted(() => {
           type="number"
           min="0"
         ></v-text-field>
-        <v-select
+        <v-autocomplete
           label="Category"
-          :items="Object.values(categories).map((cat) => cat.name)"
           variant="outlined"
           v-model="category"
+          :items="Object.values(categories).map((cat) => cat.name)"
           :rules="[(v: any) => !!v || 'Required']"
-          required
-        ></v-select>
+        ></v-autocomplete>
       </v-row>
 
       <v-divider class="ma-8"></v-divider>

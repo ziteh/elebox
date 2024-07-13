@@ -5,27 +5,43 @@ export default createRouter({
   routes: [
     {
       path: "/",
+      name: "home",
       component: () => import("./views/Home.vue"),
     },
     {
-      path: "/part",
+      path: "/parts",
+      name: "new_part",
       component: () => import("./views/Part.vue"),
     },
     {
-      path: "/category",
+      path: "/categories",
+      name: "categories",
       component: () => import("./views/Category.vue"),
     },
     {
-      path: "/mfr",
+      path: "/manufacturers",
+      name: "mfrs",
       component: () => import("./views/Manufacturer.vue"),
     },
     {
-      path: "/package",
+      path: "/packages",
+      name: "packages",
       component: () => import("./views/Package.vue"),
     },
     {
       path: "/settings",
+      name: "settings",
       component: () => import("./views/Settings.vue"),
+    },
+    {
+      path: "/part:name",
+      name: "part_detail",
+      component: () => import("./views/PartDetail.vue"),
+    },
+    {
+      path: "/tree",
+      name: "tree",
+      component: () => import("./views/CategoriesTree.vue"),
     },
   ],
 });

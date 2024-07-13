@@ -8,6 +8,14 @@ Lightweight personal electronic parts inventory management tool.
 
 It aims to remain simple, intuitive, zero configuration and works out-of-the-box. The embedded, single-file database is easy to backup.
 
+> 🚧 In development
+
+## Features
+
+- Category tree.
+    ![](https://i.imgur.com/RvYJg8k.png)
+- Export as CSV, import from CSV.
+
 ## Usage
 
 Download executable from [Releases](https://github.com/ziteh/elebox/releases).

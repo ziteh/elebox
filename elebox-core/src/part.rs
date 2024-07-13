@@ -181,6 +181,43 @@ impl<'a> PartManager<'a> {
         return Ok(());
     }
 
+    pub fn get(&self, name: &str) -> Result<Part, EleboxError> {
+        let id = self.db.get_part_id(name);
+        if id.is_none() {
+            return Err(EleboxError::NotExists(name.to_string()));
+        }
+
+        let db_part = self.db.get_part_from_id(&id.unwrap()).unwrap();
+        let category = match self.db.get_category_from_id(&db_part.category_id) {
+            Some(pt) => pt.name,
+            None => "none".to_string(),
+        };
+
+        let package = self
+            .db
+            .get_package_from_id(&db_part.package_id)
+            .map(|p| p.name);
+
+        let mfr = self.db.get_mfr_from_id(&db_part.mfr_id).map(|p| p.name);
+
+        let mut part = Part::new(&db_part.name, &category, db_part.quantity);
+        part.package = package;
+        part.mfr = mfr;
+        part.alias = Some(db_part.alias);
+        part.description = Some(db_part.description);
+        part.location = Some(db_part.location);
+        part.mfr_no = Some(db_part.mfr_no);
+        part.mouser_no = Some(db_part.mouser_no);
+        part.digikey_no = Some(db_part.digikey_no);
+        part.datasheet_link = Some(db_part.datasheet_link);
+        part.product_link = Some(db_part.product_link);
+        part.image_link = Some(db_part.image_link);
+        part.suppliers = Some(db_part.suppliers);
+        part.cost = Some(db_part.cost);
+
+        return Ok(part);
+    }
+
     pub fn list(&self) -> Vec<Part> {
         let db_parts = self.db.get_parts();
         let mut parts: Vec<Part> = Vec::new();
@@ -195,6 +232,7 @@ impl<'a> PartManager<'a> {
                 .db
                 .get_package_from_id(&db_part.package_id)
                 .map(|p| p.name);
+
             let mfr = self.db.get_mfr_from_id(&db_part.mfr_id).map(|p| p.name);
 
             let mut part = Part::new(&db_part.name, &category, db_part.quantity);

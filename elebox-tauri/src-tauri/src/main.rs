@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dirs;
-use elebox_core::{Category, Database, Manufacturer, Package, PackageType, Part};
+use elebox_core::{Category, Database, Manufacturer, Package, PackageType, Part, TreeNode};
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -88,11 +88,31 @@ fn del_mfr(path: tauri::State<DbPath>, name: &str) {
 }
 
 #[tauri::command]
+fn get_part(path: tauri::State<DbPath>, part: &str) -> Option<Part> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PartManager::new(&db);
+    let part = mgr.get(part);
+    if part.is_err() {
+        return None;
+    }
+    return Some(part.unwrap());
+}
+
+#[tauri::command]
 fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
     mgr.list()
+}
+
+#[tauri::command]
+fn get_tree(path: tauri::State<DbPath>) -> Vec<TreeNode> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::CategoryManager::new(&db);
+    mgr.get_tree()
 }
 
 #[tauri::command]
@@ -123,6 +143,7 @@ fn new_category(path: tauri::State<DbPath>, name: &str, parent: &str) {
             "" => None,
             _ => Some(parent.to_string()),
         },
+        alias: None, // TODO
     };
     let _ = mgr.add(&cat);
 }
@@ -243,6 +264,7 @@ fn main() {
         .manage(DbPath(Mutex::new(db_path)))
         .invoke_handler(tauri::generate_handler![
             get_parts,
+            get_part,
             get_categories,
             part_add,
             new_part,
@@ -259,6 +281,7 @@ fn main() {
             del_mfr,
             export_csv,
             import_csv,
+            get_tree,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -285,6 +308,7 @@ fn update_db_path(db: tauri::State<DbPath>, new_path: &str) {
 }
 
 fn init_db(path: &str) {
-    let db = elebox_core::JammDatabase::new(path);
-    db.init();
+    elebox_core::create_default_db(path);
+    // let db = elebox_core::JammDatabase::new(path);
+    // db.init();
 }

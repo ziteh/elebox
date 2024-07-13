@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DbPath from "../components/DbPath.vue";
-import { onMounted, ref, reactive } from "vue";
+import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 
 const csv_path = ref("");

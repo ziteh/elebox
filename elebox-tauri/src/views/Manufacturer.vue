@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+import { Manufacturers } from "../interface";
 
-interface Manufacturer {
-  [index: number]: {
-    name: string;
-    alias: string;
-    url: string;
-  };
-}
-
-let manufacturers = reactive<Manufacturer>({});
+let manufacturers = reactive<Manufacturers>({});
 
 const name = ref("");
 const alias = ref("");

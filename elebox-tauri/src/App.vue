@@ -10,28 +10,33 @@
 
         <v-list-item
           prepend-icon="mdi-archive-plus"
-          title="Parts"
-          to="/part"
+          title="New Part"
+          :to="{ name: 'new_part' }"
         ></v-list-item>
         <v-list-item
           prepend-icon="mdi-tag-multiple"
           title="Categories"
-          to="category"
+          :to="{ name: 'categories' }"
         ></v-list-item>
         <v-list-item
           prepend-icon="mdi-chip"
-          title="Package"
-          to="package"
+          title="Packages"
+          :to="{ name: 'packages' }"
         ></v-list-item>
         <v-list-item
           prepend-icon="mdi-factory"
-          title="Manufacturer"
-          to="mfr"
+          title="Manufacturers"
+          :to="{ name: 'mfrs' }"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-file-tree"
+          title="Tree"
+          :to="{ name: 'tree' }"
         ></v-list-item>
         <v-list-item
           prepend-icon="mdi-cog"
           title="Settings"
-          to="/settings"
+          :to="{ name: 'settings' }"
         ></v-list-item>
       </v-list>
     </v-navigation-drawer>

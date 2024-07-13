@@ -43,6 +43,7 @@ impl DbItem for DbPart {
 pub struct DbCategory {
     pub name: String,
     pub parent_id: Id,
+    pub alias: String,
 }
 
 impl DbItem for DbCategory {

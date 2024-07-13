@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+import { Packages } from "../interface";
 
-interface Package {
-  [index: number]: {
-    pkg_type: string;
-    name: string;
-    alias: string;
-  };
-}
-
-let packages = reactive<Package>({});
+let packages = reactive<Packages>({});
 
 const pkg_type = ref();
 const name = ref();
@@ -36,6 +29,7 @@ async function delPackage(name: string) {
 
 async function getPackages() {
   const cs = await invoke("get_packages", {});
+  console.log(cs);
   Object.assign(packages, cs);
 }
 

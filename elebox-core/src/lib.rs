@@ -1,6 +1,7 @@
 mod category;
 mod csv;
 mod db;
+mod default_db;
 mod errors;
 mod manufacturer;
 mod package;
@@ -13,6 +14,8 @@ pub use errors::*;
 pub use manufacturer::*;
 pub use package::*;
 pub use part::*;
+
+pub use default_db::create_default_db;
 
 pub fn export_csv(db: &dyn Database, path: &str) {
     let filename_part = format!("{}{}", path, "elebox_export_parts.tsv");
