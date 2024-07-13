@@ -38,5 +38,10 @@ export default createRouter({
       name: "part_detail",
       component: () => import("./views/PartDetail.vue"),
     },
+    {
+      path: "/tree",
+      name: "tree",
+      component: () => import("./views/CategoriesTree.vue"),
+    },
   ],
 });

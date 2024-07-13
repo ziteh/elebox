@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dirs;
-use elebox_core::{Category, Database, Manufacturer, Package, PackageType, Part};
+use elebox_core::{Category, Database, Manufacturer, Package, PackageType, Part, TreeNode};
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -105,6 +105,14 @@ fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
     mgr.list()
+}
+
+#[tauri::command]
+fn get_tree(path: tauri::State<DbPath>) -> Vec<TreeNode> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::CategoryManager::new(&db);
+    mgr.get_tree()
 }
 
 #[tauri::command]
@@ -272,6 +280,7 @@ fn main() {
             del_mfr,
             export_csv,
             import_csv,
+            get_tree,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

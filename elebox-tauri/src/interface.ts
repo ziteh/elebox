@@ -20,7 +20,6 @@ export interface PartData {
 
 export interface Parts extends Array<PartData> { }
 
-
 export interface Categories {
     [index: number]: {
         name: string;
@@ -42,4 +41,9 @@ export interface Manufacturers {
         alias: string;
         url: string;
     };
+}
+
+export interface TreeNode {
+    name: string;
+    children: TreeNode[];
 }

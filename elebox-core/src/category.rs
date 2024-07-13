@@ -1,6 +1,6 @@
 use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::{collections::HashMap, fmt::Debug};
 
 const ROOT_CATEGORY: &str = "root";
 
@@ -8,6 +8,12 @@ const ROOT_CATEGORY: &str = "root";
 pub struct Category {
     pub name: String,
     pub parent: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TreeNode {
+    pub name: String,
+    pub children: Vec<TreeNode>,
 }
 
 impl Category {
@@ -155,5 +161,81 @@ impl<'a> CategoryManager<'a> {
         }
 
         Ok(())
+    }
+
+    fn to_node(&self, name: String, map: &HashMap<String, Vec<String>>) -> TreeNode {
+        let mut children = vec![];
+
+        if let Some(ch_names) = map.get(&name) {
+            for ch_name in ch_names {
+                let ch_node = self.to_node(ch_name.to_string(), map);
+                children.push(ch_node);
+            }
+        }
+
+        TreeNode { name, children }
+    }
+
+    pub fn get_tree(&self) -> Vec<TreeNode> {
+        let cats = self.list();
+
+        // TODO: test data
+        // let cats = vec![
+        //     Category {
+        //         name: "a1".to_string(),
+        //         parent: Some("A".to_string()),
+        //     },
+        //     Category {
+        //         name: "aa1".to_string(),
+        //         parent: Some("a1".to_string()),
+        //     },
+        //     Category {
+        //         name: "aa2".to_string(),
+        //         parent: Some("a1".to_string()),
+        //     },
+        //     Category {
+        //         name: "aaa1".to_string(),
+        //         parent: Some("aa1".to_string()),
+        //     },
+        //     Category {
+        //         name: "aab2".to_string(),
+        //         parent: Some("a2".to_string()),
+        //     },
+        //     Category {
+        //         name: "a2".to_string(),
+        //         parent: Some("A".to_string()),
+        //     },
+        //     Category {
+        //         name: "b1".to_string(),
+        //         parent: Some("B".to_string()),
+        //     },
+        //     Category {
+        //         name: "A".to_string(),
+        //         parent: None,
+        //     },
+        //     Category {
+        //         name: "B".to_string(),
+        //         parent: None,
+        //     },
+        // ];
+        let mut cat_map: HashMap<String, Vec<String>> = HashMap::new();
+        let mut root: Vec<String> = Vec::new();
+
+        for c in cats {
+            if let Some(parent) = c.parent {
+                cat_map.entry(parent).or_default().push(c.name);
+            } else {
+                cat_map.entry(c.name.clone()).or_insert_with(Vec::new);
+                root.push(c.name);
+            }
+        }
+
+        let mut tree_nodes: Vec<TreeNode> = Vec::new();
+        for r in root {
+            let node = self.to_node(r.to_string(), &cat_map);
+            tree_nodes.push(node);
+        }
+
+        return tree_nodes;
     }
 }
