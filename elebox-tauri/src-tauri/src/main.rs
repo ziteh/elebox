@@ -143,6 +143,7 @@ fn new_category(path: tauri::State<DbPath>, name: &str, parent: &str) {
             "" => None,
             _ => Some(parent.to_string()),
         },
+        alias: None, // TODO
     };
     let _ = mgr.add(&cat);
 }
@@ -307,6 +308,7 @@ fn update_db_path(db: tauri::State<DbPath>, new_path: &str) {
 }
 
 fn init_db(path: &str) {
-    let db = elebox_core::JammDatabase::new(path);
-    db.init();
+    elebox_core::create_default_db(path);
+    // let db = elebox_core::JammDatabase::new(path);
+    // db.init();
 }
