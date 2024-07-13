@@ -207,6 +207,18 @@ fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
     init_db(new_path);
 }
 
+#[tauri::command]
+fn export_csv(path: tauri::State<DbPath>, csv_path: &str) {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    elebox_core::export_csv(&db, csv_path);
+}
+
+#[tauri::command]
+fn import_csv(path: tauri::State<DbPath>, csv_path: &str) {
+    let _ = elebox_core::import_csv(csv_path);
+}
+
 fn main() {
     let db_path = match get_default_path() {
         Ok(path) => path,
@@ -245,6 +257,8 @@ fn main() {
             get_mfrs,
             new_mfr,
             del_mfr,
+            export_csv,
+            import_csv,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -8,9 +8,14 @@ where
     T: Serialize,
 {
     let sep = separator.unwrap_or(b'\t');
-    let file = File::create(filename).unwrap();
+    let res_file = File::create(filename);
+    if res_file.is_err() {
+        return Err(());
+    }
 
-    let mut writer = WriterBuilder::new().delimiter(sep).from_writer(file);
+    let mut writer = WriterBuilder::new()
+        .delimiter(sep)
+        .from_writer(res_file.unwrap());
 
     for item in items {
         let res = writer.serialize(item);
