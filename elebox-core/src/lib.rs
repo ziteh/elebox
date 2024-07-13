@@ -6,8 +6,6 @@ mod manufacturer;
 mod package;
 mod part;
 
-use std::f32::consts::E;
-
 pub use category::*;
 pub use db::Database;
 pub use db::JammDatabase;
