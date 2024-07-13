@@ -22,6 +22,7 @@ onMounted(() => {
 
 <template>
   <v-container>
+    <v-btn :to="{ name: 'home' }">Back</v-btn>
     <v-table>
       <thead>
         <tr>
