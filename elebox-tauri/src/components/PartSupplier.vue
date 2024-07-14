@@ -25,6 +25,7 @@ watch(
       price: new_price,
       note: new_note,
     });
+    console.log(typeof new_price)
   }
 );
 
@@ -60,7 +61,7 @@ function emitAdd() {
   <v-text-field
     label="Price"
     variant="outlined"
-    v-model="l_price"
+    v-model.number="l_price"
     type="number"
     min="0"
   ></v-text-field>

@@ -3,9 +3,26 @@ import { onMounted, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import PartQty from "../components/PartQty.vue";
 import PartDel from "../components/PartDel.vue";
-import { Parts } from "../interface";
+import { PartData } from "../interface";
+import { useRouter, useRoute } from "vue-router";
 
-let parts = reactive<Parts>([]);
+let parts = reactive<PartData[]>([]);
+
+const router = useRouter();
+const route = useRoute();
+
+function reload() {
+  // window.location.reload();
+
+  const currentPath = route.path;
+  router.replace("/redirect").then(() => {
+    router.replace(currentPath);
+  });
+}
+
+async function updatePage() {
+  reload();
+}
 
 async function getParts() {
   const ps = await invoke("get_parts", {});
@@ -25,7 +42,7 @@ onMounted(getParts);
         variant="outlined"
         :items="parts.map((part) => part.name)"
       ></v-autocomplete>
-      <v-btn @click="getParts">Update</v-btn>
+      <v-btn @click="updatePage">Update</v-btn>
     </v-row>
 
     <v-table>
