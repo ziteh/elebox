@@ -1,4 +1,4 @@
-use crate::{csv::*, db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError, TreeNode};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -11,16 +11,14 @@ pub struct Part {
     pub package_detail: Option<String>,
     pub alias: Option<String>,
     pub description: Option<String>,
-    pub cost: Option<f32>, // TODO: change to 'rust_decimal'
     pub location: Option<String>,
     pub mfr: Option<String>,
     pub mfr_no: Option<String>,
-    pub mouser_no: Option<String>,
-    pub digikey_no: Option<String>,
     pub datasheet_link: Option<String>,
     pub product_link: Option<String>,
     pub image_link: Option<String>,
-    pub suppliers: Option<String>,
+    pub custom_fields: Vec<CustomField>,
+    pub suppliers: Vec<Supplier>,
 }
 
 impl Part {
@@ -34,15 +32,13 @@ impl Part {
             mfr: None,
             alias: None,
             description: None,
-            cost: None,
             location: None,
             mfr_no: None,
-            mouser_no: None,
-            digikey_no: None,
             datasheet_link: None,
             product_link: None,
             image_link: None,
-            suppliers: None,
+            custom_fields: vec![],
+            suppliers: vec![],
         }
     }
 }
@@ -127,7 +123,7 @@ impl<'a> PartManager<'a> {
 
         let category_id = match self.db.get_category_id(&part.category) {
             Some(id) => id.to_string(),
-            None => "none".to_string(),
+            None => "none".to_string(), // TODO: empty value
         };
 
         let package_id = match &part.package {
@@ -153,13 +149,9 @@ impl<'a> PartManager<'a> {
         let description = part.description.as_ref().unwrap_or(empty);
         let location = part.location.as_ref().unwrap_or(empty);
         let mfr_no = part.mfr_no.as_ref().unwrap_or(empty);
-        let mouser_no = part.mouser_no.as_ref().unwrap_or(empty);
-        let digikey_no = part.digikey_no.as_ref().unwrap_or(empty);
         let datasheet_link = part.datasheet_link.as_ref().unwrap_or(empty);
         let product_link = part.product_link.as_ref().unwrap_or(empty);
         let image_link = part.image_link.as_ref().unwrap_or(empty);
-        let suppliers = part.suppliers.as_ref().unwrap_or(empty);
-        let cost = part.cost.as_ref().unwrap_or(&f32::NAN);
 
         let db_part = DbPart {
             name: part.name.to_string(),
@@ -170,15 +162,13 @@ impl<'a> PartManager<'a> {
             mfr_id,
             alias: alias.to_string(),
             description: description.to_string(),
-            cost: *cost,
             location: location.to_string(),
             mfr_no: mfr_no.to_string(),
-            mouser_no: mouser_no.to_string(),
-            digikey_no: digikey_no.to_string(),
             datasheet_link: datasheet_link.to_string(),
             product_link: product_link.to_string(),
             image_link: image_link.to_string(),
-            suppliers: suppliers.to_string(),
+            custom_fields: part.custom_fields.clone(),
+            suppliers: part.suppliers.clone(),
         };
 
         self.db.add_part(&db_part);
@@ -212,13 +202,11 @@ impl<'a> PartManager<'a> {
         part.description = Some(db_part.description);
         part.location = Some(db_part.location);
         part.mfr_no = Some(db_part.mfr_no);
-        part.mouser_no = Some(db_part.mouser_no);
-        part.digikey_no = Some(db_part.digikey_no);
         part.datasheet_link = Some(db_part.datasheet_link);
         part.product_link = Some(db_part.product_link);
         part.image_link = Some(db_part.image_link);
-        part.suppliers = Some(db_part.suppliers);
-        part.cost = Some(db_part.cost);
+        part.custom_fields = db_part.custom_fields;
+        part.suppliers = db_part.suppliers;
 
         return Ok(part);
     }
@@ -250,13 +238,11 @@ impl<'a> PartManager<'a> {
             part.description = Some(db_part.description);
             part.location = Some(db_part.location);
             part.mfr_no = Some(db_part.mfr_no);
-            part.mouser_no = Some(db_part.mouser_no);
-            part.digikey_no = Some(db_part.digikey_no);
             part.datasheet_link = Some(db_part.datasheet_link);
             part.product_link = Some(db_part.product_link);
             part.image_link = Some(db_part.image_link);
-            part.suppliers = Some(db_part.suppliers);
-            part.cost = Some(db_part.cost);
+            part.custom_fields = db_part.custom_fields;
+            part.suppliers = db_part.suppliers;
 
             parts.push(part);
         }

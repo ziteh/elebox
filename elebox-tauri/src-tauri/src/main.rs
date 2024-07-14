@@ -2,7 +2,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dirs;
-use elebox_core::{Category, Database, Manufacturer, Package, PackageType, Part, TreeNode};
+use elebox_core::{
+    Category, CustomField, Manufacturer, Package, PackageType, Part, Supplier, TreeNode,
+};
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -172,15 +174,13 @@ fn new_part(
     mfr: &str,
     alias: &str,
     description: &str,
-    cost: f32,
     location: &str,
     mfr_no: &str,
-    mouser_no: &str,
-    digikey_no: &str,
     datasheet_link: &str,
     product_link: &str,
     image_link: &str,
-    suppliers: &str,
+    custom_field: Vec<CustomField>,
+    suppliers: Vec<Supplier>,
 ) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -195,18 +195,11 @@ fn new_part(
     part.description = Option::from(description.to_string()).filter(|s| !s.is_empty());
     part.location = Option::from(location.to_string()).filter(|s| !s.is_empty());
     part.mfr_no = Option::from(mfr_no.to_string()).filter(|s| !s.is_empty());
-    part.mouser_no = Option::from(mouser_no.to_string()).filter(|s| !s.is_empty());
-    part.digikey_no = Option::from(digikey_no.to_string()).filter(|s| !s.is_empty());
     part.datasheet_link = Option::from(datasheet_link.to_string()).filter(|s| !s.is_empty());
     part.product_link = Option::from(product_link.to_string()).filter(|s| !s.is_empty());
     part.image_link = Option::from(image_link.to_string()).filter(|s| !s.is_empty());
-    part.suppliers = Option::from(suppliers.to_string()).filter(|s| !s.is_empty());
-
-    if cost < 0.0 {
-        part.cost = None;
-    } else {
-        part.cost = Some(cost);
-    }
+    part.custom_fields = custom_field;
+    part.suppliers = suppliers;
 
     let _ = mgr.add(&part);
 }

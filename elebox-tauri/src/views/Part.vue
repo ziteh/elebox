@@ -1,12 +1,31 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import { Categories, Packages, Manufacturers } from "../interface";
+import { Categories, Packages, Manufacturers, CustomField } from "../interface";
+import PartCustomField from "../components/PartCustomField.vue";
+
 // import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
 let categories = reactive<Categories>({});
 let packages = reactive<Packages>({});
 let manufacturers = reactive<Manufacturers>({});
+
+let custom_fields = reactive<CustomField[]>([
+  {
+    field_type: "Link",
+    name: "AA",
+    value: "123",
+  },
+  {
+    field_type: "Normal",
+    name: "BB",
+    value: "123lasdkfj",
+  },
+]);
+
+const new_cf_type = ref();
+const new_cf_name = ref();
+const new_cf_value = ref();
 
 const favorite = ref();
 
@@ -71,6 +90,31 @@ async function getMfrs() {
 async function getPackages() {
   const cs = await invoke("get_packages", {});
   Object.assign(packages, cs);
+}
+
+function handleUpdate(data: {
+  field_type: string;
+  name: string;
+  value: string;
+}) {
+  new_cf_type.value = data.field_type;
+  new_cf_name.value = data.name;
+  new_cf_value.value = data.value;
+}
+
+function handleDel(data: { name: String }) {
+  // Find by name
+  const index = custom_fields.findIndex((f) => f.name === data.name);
+  if (index !== -1) {
+    custom_fields.splice(index, 1); // Remove
+  }
+}
+
+function handleAdd(data: { field_type: string; name: string; value: string }) {
+  custom_fields.push(data);
+  new_cf_type.value = "";
+  new_cf_name.value = "";
+  new_cf_value.value = "";
 }
 
 onMounted(() => {
@@ -143,13 +187,6 @@ onMounted(() => {
           :items="Object.values(manufacturers).map((mfr) => mfr.name)"
         ></v-autocomplete>
         <v-text-field
-          label="Cost"
-          variant="outlined"
-          v-model="cost"
-          type="number"
-          min="0"
-        ></v-text-field>
-        <v-text-field
           label="Location"
           variant="outlined"
           v-model="location"
@@ -169,18 +206,6 @@ onMounted(() => {
           v-model="mfr_no"
           placeholder="SC0914(7)"
           title="Manufacturer part number"
-        ></v-text-field>
-        <v-text-field
-          label="Mouser #"
-          variant="outlined"
-          v-model="mouser_no"
-          placeholder="358-SC09147"
-        ></v-text-field>
-        <v-text-field
-          label="Digi-Key #"
-          variant="outlined"
-          v-model="digikey_no"
-          placeholder="2648-SC0914(7)CT-ND"
         ></v-text-field>
       </v-row>
       <v-row class="ga-8">
@@ -211,13 +236,24 @@ onMounted(() => {
           placeholder="Write something ..."
         ></v-textarea>
       </v-row>
+      <v-row class="ga-8" v-for="cf in custom_fields">
+        <PartCustomField
+          :field_type="cf.field_type"
+          :name="cf.name"
+          :value="cf.value"
+          :create="false"
+          @del="handleDel"
+        />
+      </v-row>
       <v-row class="ga-8">
-        <v-textarea
-          label="Suppliers"
-          variant="outlined"
-          v-model="suppliers"
-          placeholder=""
-        ></v-textarea>
+        <PartCustomField
+          :field_type="new_cf_type"
+          :name="new_cf_name"
+          :value="new_cf_type"
+          :create="true"
+          @update="handleUpdate"
+          @add="handleAdd"
+        />
       </v-row>
     </v-container>
   </v-form>

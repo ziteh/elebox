@@ -13,7 +13,28 @@ trait DbItem {
     fn get_name(&self) -> String;
 }
 
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
+pub enum CustomFieldType {
+    Normal,
+    Link,
+}
+
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
+pub struct CustomField {
+    pub name: String,
+    pub field_type: CustomFieldType,
+    pub value: String,
+}
+
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
+pub struct Supplier {
+    pub name: String,
+    pub link: String,
+    pub price: f32, // TODO: change to 'rust_decimal'?
+    pub note: String,
+}
+
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct DbPart {
     pub name: String,
     pub quantity: u16,
@@ -23,15 +44,13 @@ pub struct DbPart {
     pub mfr_id: Id,
     pub alias: String,
     pub description: String,
-    pub cost: f32,
     pub location: String,
     pub mfr_no: String,
-    pub mouser_no: String,
-    pub digikey_no: String,
     pub datasheet_link: String,
     pub product_link: String,
     pub image_link: String,
-    pub suppliers: String,
+    pub custom_fields: Vec<CustomField>,
+    pub suppliers: Vec<Supplier>,
 }
 
 impl DbItem for DbPart {
