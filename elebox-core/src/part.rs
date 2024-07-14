@@ -8,6 +8,7 @@ pub struct Part {
     pub quantity: u16,
     pub category: String,
     pub package: Option<String>,
+    pub package_detail: Option<String>,
     pub alias: Option<String>,
     pub description: Option<String>,
     pub cost: Option<f32>, // TODO: change to 'rust_decimal'
@@ -29,6 +30,7 @@ impl Part {
             category: category.to_string(),
             quantity,
             package: None,
+            package_detail: None,
             mfr: None,
             alias: None,
             description: None,
@@ -147,6 +149,7 @@ impl<'a> PartManager<'a> {
         let empty = &"".to_string();
 
         let alias = part.alias.as_ref().unwrap_or(empty);
+        let package_detail = part.package_detail.as_ref().unwrap_or(empty);
         let description = part.description.as_ref().unwrap_or(empty);
         let location = part.location.as_ref().unwrap_or(empty);
         let mfr_no = part.mfr_no.as_ref().unwrap_or(empty);
@@ -163,6 +166,7 @@ impl<'a> PartManager<'a> {
             quantity: part.quantity,
             category_id,
             package_id,
+            package_detail: package_detail.to_string(),
             mfr_id,
             alias: alias.to_string(),
             description: description.to_string(),
@@ -202,6 +206,7 @@ impl<'a> PartManager<'a> {
 
         let mut part = Part::new(&db_part.name, &category, db_part.quantity);
         part.package = package;
+        part.package_detail = Some(db_part.package_detail);
         part.mfr = mfr;
         part.alias = Some(db_part.alias);
         part.description = Some(db_part.description);
@@ -240,6 +245,7 @@ impl<'a> PartManager<'a> {
             part.mfr = mfr;
 
             // TODO None if empty
+            part.package_detail = Some(db_part.package_detail);
             part.alias = Some(db_part.alias);
             part.description = Some(db_part.description);
             part.location = Some(db_part.location);

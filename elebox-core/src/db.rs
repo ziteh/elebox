@@ -19,6 +19,7 @@ pub struct DbPart {
     pub quantity: u16,
     pub category_id: Id,
     pub package_id: Id,
+    pub package_detail: String,
     pub mfr_id: Id,
     pub alias: String,
     pub description: String,

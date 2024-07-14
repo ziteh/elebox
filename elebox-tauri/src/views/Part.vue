@@ -14,6 +14,7 @@ const name = ref();
 const qty = ref();
 const category = ref();
 const pkg = ref();
+const pkg_detail = ref();
 const mfr = ref();
 const cost = ref();
 const location = ref();
@@ -40,6 +41,7 @@ async function newPart() {
     qty: parseInt(qty.value),
     category: category.value,
     package: pkg.value ?? "",
+    package_detail: pkg_detail.value ?? "",
     mfr: mfr.value ?? "",
     alias: alias.value ?? "",
     description: description.value ?? "",
@@ -128,6 +130,12 @@ onMounted(() => {
           v-model="pkg"
           :items="Object.values(packages).map((pck) => pck.name)"
         ></v-autocomplete>
+        <v-text-field
+          label="Package Detail"
+          variant="outlined"
+          v-model="pkg_detail"
+          placeholder="7x7mm P0.4mm 1EP3.2x32.mm"
+        ></v-text-field>
         <v-autocomplete
           label="Manufacturer"
           variant="outlined"

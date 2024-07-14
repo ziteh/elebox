@@ -13,6 +13,7 @@ export interface PartData {
     mouser_no?: string;
     name?: string;
     package?: string;
+    package_detail?: string;
     product_link?: string;
     quantity?: number;
     suppliers?: string;

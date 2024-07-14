@@ -1,4 +1,4 @@
-use crate::{category::*, db::*, manufacturer::*, package::*};
+use crate::{category::*, db::*, manufacturer::*, package::*, Part, PartManager};
 
 pub fn create_default_db(path: &str) {
     let db = JammDatabase::new(path);
@@ -174,6 +174,11 @@ pub fn create_default_db(path: &str) {
             alias: None,
         },
         Package {
+            name: "QFN-56".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: None,
+        },
+        Package {
             name: "TO-92".to_string(),
             pkg_type: PackageType::Tht,
             alias: None,
@@ -191,6 +196,11 @@ pub fn create_default_db(path: &str) {
     }
 
     let mfrs: Vec<Manufacturer> = vec![
+        Manufacturer {
+            name: "Raspberry Pi".to_string(),
+            alias: None,
+            url: Some("https://www.raspberrypi.com/".to_string()),
+        },
         Manufacturer {
             name: "Texas Instruments".to_string(),
             alias: Some("TI".to_string()),
@@ -232,4 +242,33 @@ pub fn create_default_db(path: &str) {
     for m in mfrs {
         let _ = mfr_mgr.add(&m);
     }
+
+    let rp2040 = Part {
+        name: "RP2040".to_string(),
+        quantity: 15,
+        category: "MCU".to_string(),
+        alias: Some("RPi RP2040".to_string()),
+        package: Some("QFN-56".to_string()),
+        package_detail: Some("7x7mm P0.4mm 1EP3.2x32.mm".to_string()),
+        mfr: Some("Raspberry Pi".to_string()),
+        mfr_no: Some("SC0914(7)".to_string()),
+        mouser_no: Some("358-SC09147".to_string()),
+        digikey_no: Some("2648-SC0914(7)CT-ND".to_string()),
+        datasheet_link: Some(
+            "https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf".to_string(),
+        ),
+        product_link: Some(
+            "https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html".to_string(),
+        ),
+        image_link: Some(
+            "https://www.raspberrypi.com/documentation/microcontrollers/images/rp2040.jpg"
+                .to_string(),
+        ),
+        cost: Some(0.8),
+        description: Some("Dual ARM Cortex-M0+ 133MHz, 264KB SRAM".to_string()),
+        location: Some("Box #1".to_string()),
+        suppliers: Some("Adafruit: https://www.adafruit.com/product/5041".to_string()),
+    };
+    let part_mgr = PartManager::new(&db);
+    let _ = part_mgr.add(&rp2040);
 }

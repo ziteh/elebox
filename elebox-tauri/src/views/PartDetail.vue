@@ -57,6 +57,10 @@ onMounted(() => {
           <td>{{ part.package }}</td>
         </tr>
         <tr>
+          <td>Package Detail</td>
+          <td>{{ part.package_detail }}</td>
+        </tr>
+        <tr>
           <td>Datasheet</td>
           <td>{{ part.datasheet_link }}</td>
         </tr>

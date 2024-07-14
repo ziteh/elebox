@@ -168,6 +168,7 @@ fn new_part(
     qty: u16,
     category: &str,
     package: &str,
+    package_detail: &str,
     mfr: &str,
     alias: &str,
     description: &str,
@@ -188,6 +189,7 @@ fn new_part(
     let mut part = Part::new(name, category, qty);
 
     part.package = Option::from(package.to_string()).filter(|s| !s.is_empty());
+    part.package_detail = Option::from(package_detail.to_string()).filter(|s| !s.is_empty());
     part.mfr = Option::from(mfr.to_string()).filter(|s| !s.is_empty());
     part.alias = Option::from(alias.to_string()).filter(|s| !s.is_empty());
     part.description = Option::from(description.to_string()).filter(|s| !s.is_empty());
