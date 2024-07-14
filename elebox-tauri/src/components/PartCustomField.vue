@@ -32,16 +32,12 @@ function emitDel() {
 }
 
 function emitAdd() {
+  // Required value
   if (!l_field_type.value || !l_name.value) {
-    // Required value
     return;
   }
 
-  emit("add", {
-    field_type: l_field_type,
-    name: l_name,
-    value: l_value,
-  });
+  emit("add");
 }
 </script>
 
@@ -51,16 +47,12 @@ function emitAdd() {
     :items="['Normal', 'Link']"
     variant="outlined"
     v-model="l_field_type"
-    :rules="[(v: any) => !!v || 'Required']"
-    required
   ></v-select>
   <v-text-field
     label="Name"
     variant="outlined"
     v-model="l_name"
     placeholder=""
-    :rules="[(v: any) => !!v || 'Required']"
-    required
   ></v-text-field>
   <v-text-field
     label="Value"

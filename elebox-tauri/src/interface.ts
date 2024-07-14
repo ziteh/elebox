@@ -8,7 +8,7 @@ export interface CustomField {
 export interface Supplier {
     name: string;
     link: string;
-    price: number;
+    price?: number;
     note: string;
 }
 

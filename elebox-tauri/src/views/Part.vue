@@ -10,27 +10,11 @@ import {
 } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
-import { da } from "vuetify/locale";
-
-// import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
 let categories = reactive<Categories>({});
 let packages = reactive<Packages>({});
 let manufacturers = reactive<Manufacturers>({});
-
-let custom_fields = reactive<CustomField[]>([
-  {
-    field_type: "Link",
-    name: "AA",
-    value: "123",
-  },
-  {
-    field_type: "Normal",
-    name: "BB",
-    value: "123lasdkfj",
-  },
-]);
-
+let custom_fields = reactive<CustomField[]>([]);
 let suppliers = reactive<Supplier[]>([]);
 
 const new_cf_type = ref();
@@ -50,43 +34,34 @@ const category = ref();
 const pkg = ref();
 const pkg_detail = ref();
 const mfr = ref();
-const cost = ref();
 const location = ref();
 const alias = ref();
 const description = ref();
 const mfr_no = ref();
-const mouser_no = ref();
-const digikey_no = ref();
 const datasheet_link = ref();
 const product_link = ref();
 const image_link = ref();
 
 async function newPart() {
-  console.log(mfr.value);
-  console.log(pkg.value);
-
-  if (cost.value === undefined || cost.value === null || cost.value === "") {
-    cost.value = "-9999";
-  }
+  // console.log(mfr.value);
+  // console.log(pkg.value);
 
   await invoke("new_part", {
     name: name.value,
     qty: parseInt(qty.value),
     category: category.value,
     package: pkg.value ?? "",
-    package_detail: pkg_detail.value ?? "",
+    packageDetail: pkg_detail.value ?? "",
     mfr: mfr.value ?? "",
     alias: alias.value ?? "",
     description: description.value ?? "",
-    cost: parseFloat(cost.value),
     location: location.value ?? "",
     mfrNo: mfr_no.value ?? "",
-    mouserNo: mouser_no.value ?? "",
-    digikeyNo: digikey_no.value ?? "",
     datasheetLink: datasheet_link.value ?? "",
     productLink: product_link.value ?? "",
     imageLink: image_link.value ?? "",
-    // suppliers: suppliers.value ?? "",
+    customFields: custom_fields,
+    suppliers: suppliers,
   });
 }
 
@@ -116,7 +91,7 @@ function handleCustomFieldUpdate(data: {
   new_cf_value.value = data.value;
 }
 
-function handleCustomFieldDel(data: { name: String }) {
+function handleCustomFieldDel(data: { name: string }) {
   // Find by name
   const index = custom_fields.findIndex((f) => f.name === data.name);
   if (index !== -1) {
@@ -124,12 +99,14 @@ function handleCustomFieldDel(data: { name: String }) {
   }
 }
 
-function handleCustomFieldAdd(data: {
-  field_type: string;
-  name: string;
-  value: string;
-}) {
-  custom_fields.push(data);
+function handleCustomFieldAdd() {
+  const cf: CustomField = {
+    field_type: new_cf_type.value,
+    name: new_cf_name.value,
+    value: new_cf_value.value || "",
+  };
+  custom_fields.push(cf);
+
   new_cf_type.value = "";
   new_cf_name.value = "";
   new_cf_value.value = "";
@@ -147,7 +124,7 @@ function handleSupplierUpdate(data: {
   new_s_note.value = data.note;
 }
 
-function handleSupplierDel(data: { name: String }) {
+function handleSupplierDel(data: { name: string }) {
   // Find by name
   const index = suppliers.findIndex((s) => s.name === data.name);
   if (index !== -1) {
@@ -155,16 +132,18 @@ function handleSupplierDel(data: { name: String }) {
   }
 }
 
-function handleSupplierAdd(data: {
-  name: string;
-  link: string;
-  price: number;
-  note: string;
-}) {
-  suppliers.push(data);
+function handleSupplierAdd() {
+  const sup: Supplier = {
+    name: new_s_name.value,
+    link: new_s_link.value || "",
+    note: new_s_note.value || "",
+    price: new_s_price?.value ? parseFloat(new_s_price.value) : undefined,
+  };
+  suppliers.push(sup);
+
   new_s_name.value = "";
   new_s_link.value = "";
-  new_s_price.value = "";
+  new_s_price.value = 0.0;
   new_s_note.value = "";
 }
 

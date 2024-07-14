@@ -179,7 +179,7 @@ fn new_part(
     datasheet_link: &str,
     product_link: &str,
     image_link: &str,
-    custom_field: Vec<CustomField>,
+    custom_fields: Vec<CustomField>,
     suppliers: Vec<Supplier>,
 ) {
     let p = GET!(path);
@@ -198,7 +198,7 @@ fn new_part(
     part.datasheet_link = Option::from(datasheet_link.to_string()).filter(|s| !s.is_empty());
     part.product_link = Option::from(product_link.to_string()).filter(|s| !s.is_empty());
     part.image_link = Option::from(image_link.to_string()).filter(|s| !s.is_empty());
-    part.custom_fields = custom_field;
+    part.custom_fields = custom_fields;
     part.suppliers = suppliers;
 
     let _ = mgr.add(&part);

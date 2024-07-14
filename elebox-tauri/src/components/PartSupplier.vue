@@ -4,7 +4,7 @@ import { ref, watch } from "vue";
 const props = defineProps<{
   name: string;
   link: string;
-  price: number;
+  price?: number;
   note: string;
   create: Boolean;
 }>();
@@ -35,16 +35,12 @@ function emitDel() {
 }
 
 function emitAdd() {
+  // Required value
   if (!l_name.value) {
-    // Required value
     return;
   }
-  emit("add", {
-    name: l_name,
-    link: l_link,
-    price: l_price,
-    note: l_note,
-  });
+
+  emit("add");
 }
 </script>
 
@@ -54,8 +50,6 @@ function emitAdd() {
     variant="outlined"
     v-model="l_name"
     placeholder=""
-    :rules="[(v: any) => !!v || 'Required']"
-    required
   ></v-text-field>
   <v-text-field
     label="Link"

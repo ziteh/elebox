@@ -30,7 +30,7 @@ pub struct CustomField {
 pub struct Supplier {
     pub name: String,
     pub link: String,
-    pub price: f32, // TODO: change to 'rust_decimal'?
+    pub price: Option<f32>, // TODO: change to 'rust_decimal'?
     pub note: String,
 }
 

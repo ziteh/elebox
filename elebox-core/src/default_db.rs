@@ -265,31 +265,31 @@ pub fn create_default_db(path: &str) {
         description: Some("Dual ARM Cortex-M0+ 133MHz, 264KB SRAM".to_string()),
         location: Some("Box #1".to_string()),
         custom_fields: vec![
-            CustomField{
+            CustomField {
                 name: "Mouser #".to_string(),
-                field_type:CustomFieldType::Normal,
-                value:"358-SC09147".to_string(),
+                field_type: CustomFieldType::Normal,
+                value: "358-SC09147".to_string(),
             },
-            CustomField{
+            CustomField {
                 name: "DigiKey #".to_string(),
-                field_type:CustomFieldType::Normal,
-                value:"2648-SC0914(7)CT-ND".to_string(),
+                field_type: CustomFieldType::Normal,
+                value: "2648-SC0914(7)CT-ND".to_string(),
             },
         ],
-        suppliers:vec![
+        suppliers: vec![
             Supplier{
                name:"Mouser".to_string(),
                link:"https://www.mouser.com/ProductDetail/Raspberry-Pi/SC09147?qs=T%252BzbugeAwjhSpdbCB4ve%252Bg%3D%3D".to_string(),
-               price:0.8
-               ,note:"7' reel".to_string(),
+               price:Some(0.8),
+               note:"7' reel".to_string(),
             },
             Supplier{
                name:"DigiKey".to_string(),
                link:"https://www.digikey.com/en/products/detail/raspberry-pi/SC0914-7/14306009?s=N4IgTCBcDa4GwBYAcBaAygYQAwE4CMCAFAOwCUGAKigHIAiIAugL5A".to_string(),
-               price:0.8
-               ,note:"7' reel".to_string(),
+               price:Some(0.8),
+               note:"7' reel".to_string(),
             },
-        ]
+        ],
     };
     let part_mgr = PartManager::new(&db);
     let _ = part_mgr.add(&rp2040);
