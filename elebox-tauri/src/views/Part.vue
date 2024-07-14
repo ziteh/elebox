@@ -7,9 +7,11 @@ import {
   Manufacturers,
   CustomField,
   Supplier,
+  PartData,
 } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
+import { useRoute } from "vue-router";
 
 let categories = reactive<Categories>({});
 let packages = reactive<Packages>({});
@@ -42,11 +44,33 @@ const datasheet_link = ref();
 const product_link = ref();
 const image_link = ref();
 
+const ori_name = ref();
+
 async function newPart() {
   // console.log(mfr.value);
   // console.log(pkg.value);
 
   await invoke("new_part", {
+    name: name.value,
+    qty: parseInt(qty.value),
+    category: category.value,
+    package: pkg.value ?? "",
+    packageDetail: pkg_detail.value ?? "",
+    mfr: mfr.value ?? "",
+    alias: alias.value ?? "",
+    description: description.value ?? "",
+    location: location.value ?? "",
+    mfrNo: mfr_no.value ?? "",
+    datasheetLink: datasheet_link.value ?? "",
+    productLink: product_link.value ?? "",
+    imageLink: image_link.value ?? "",
+    customFields: custom_fields,
+    suppliers: suppliers,
+  });
+}
+async function updatePart() {
+  await invoke("update_part", {
+    originName: ori_name.value,
     name: name.value,
     qty: parseInt(qty.value),
     category: category.value,
@@ -79,6 +103,26 @@ async function getMfrs() {
 async function getPackages() {
   const cs = await invoke("get_packages", {});
   Object.assign(packages, cs);
+}
+
+async function getPart(ori_name: string) {
+  const cs = await invoke("get_part", { part: ori_name });
+  const ori_part = cs as PartData;
+
+  name.value = ori_part.name;
+  qty.value = ori_part.quantity;
+  category.value = ori_part.category;
+  pkg.value = ori_part.package;
+  pkg_detail.value = ori_part.package_detail;
+  mfr.value = ori_part.mfr;
+  mfr_no.value = ori_part.mfr_no;
+  alias.value = ori_part.alias;
+  product_link.value = ori_part.product_link;
+  datasheet_link.value = ori_part.datasheet_link;
+  image_link.value = ori_part.image_link;
+  description.value = ori_part.description;
+  Object.assign(suppliers, ori_part.suppliers);
+  Object.assign(custom_fields, ori_part.custom_fields);
 }
 
 function handleCustomFieldUpdate(data: {
@@ -147,7 +191,13 @@ function handleSupplierAdd() {
   new_s_note.value = "";
 }
 
+const route = useRoute();
+
 onMounted(() => {
+  ori_name.value = route.params.ori_name || "";
+  if (ori_name.value !== "") {
+    getPart(ori_name.value);
+  }
   getCategories();
   getMfrs();
   getPackages();
@@ -158,7 +208,8 @@ onMounted(() => {
   <v-form fast-fail @submit.prevent>
     <v-container>
       <v-row class="mb-3 ga-8" align="center">
-        <v-btn type="submit" @click="newPart">ADD</v-btn>
+        <v-btn v-if="ori_name == ''" type="submit" @click="newPart">ADD</v-btn>
+        <v-btn v-else @click="updatePart">Update</v-btn>
         <v-switch
           true-icon="mdi-star"
           v-model="favorite"

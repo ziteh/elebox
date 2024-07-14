@@ -73,6 +73,11 @@ onMounted(getParts);
           <td>{{ p.mfr }}</td>
           <td>
             <PartDel :part="p.name" />
+            <v-btn
+              density="comfortable"
+              icon="mdi-square-edit-outline"
+              :to="{ name: 'update_part', params: { ori_name: p.name } }"
+            ></v-btn>
           </td>
         </tr>
       </tbody>

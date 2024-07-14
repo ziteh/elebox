@@ -39,6 +39,11 @@ export default createRouter({
       component: () => import("./views/PartDetail.vue"),
     },
     {
+      path: "/update-part:ori_name",
+      name: "update_part",
+      component: () => import("./views/Part.vue"),
+    },
+    {
       path: "/tree",
       name: "tree",
       component: () => import("./views/CategoriesTree.vue"),
