@@ -288,51 +288,55 @@ onMounted(() => {
         ></v-textarea>
       </v-row>
 
-      <v-divider class="ma-8"></v-divider>
+      <v-card title="Custom Fields" variant="flat">
+        <v-container>
+          <v-row class="ga-8" v-for="cf in custom_fields">
+            <PartCustomField
+              :field_type="cf.field_type"
+              :name="cf.name"
+              :value="cf.value"
+              :create="false"
+              @del="handleCustomFieldDel"
+            />
+          </v-row>
+          <v-row class="ga-8">
+            <PartCustomField
+              :field_type="new_cf_type"
+              :name="new_cf_name"
+              :value="new_cf_type"
+              :create="true"
+              @update="handleCustomFieldUpdate"
+              @add="handleCustomFieldAdd"
+            />
+          </v-row>
+        </v-container>
+      </v-card>
 
-      <v-row class="ga-8" v-for="cf in custom_fields">
-        <PartCustomField
-          :field_type="cf.field_type"
-          :name="cf.name"
-          :value="cf.value"
-          :create="false"
-          @del="handleCustomFieldDel"
-        />
-      </v-row>
-      <v-row class="ga-8">
-        <PartCustomField
-          :field_type="new_cf_type"
-          :name="new_cf_name"
-          :value="new_cf_type"
-          :create="true"
-          @update="handleCustomFieldUpdate"
-          @add="handleCustomFieldAdd"
-        />
-      </v-row>
-
-      <v-divider class="ma-8"></v-divider>
-
-      <v-row class="ga-8" v-for="s in suppliers">
-        <PartSupplier
-          :name="s.name"
-          :link="s.link"
-          :price="s.price"
-          :note="s.note"
-          :create="false"
-          @del="handleSupplierDel"
-        />
-      </v-row>
-      <v-row class="ga-8">
-        <PartSupplier
-          :name="new_s_name"
-          :link="new_s_link"
-          :price="new_s_price"
-          :note="new_s_note"
-          :create="true"
-          @update="handleSupplierUpdate"
-          @add="handleSupplierAdd"
-        />
-      </v-row>
+      <v-card title="Suppliers" variant="flat">
+        <v-container>
+          <v-row class="ga-8" v-for="s in suppliers">
+            <PartSupplier
+              :name="s.name"
+              :link="s.link"
+              :price="s.price"
+              :note="s.note"
+              :create="false"
+              @del="handleSupplierDel"
+            />
+          </v-row>
+          <v-row class="ga-8">
+            <PartSupplier
+              :name="new_s_name"
+              :link="new_s_link"
+              :price="new_s_price"
+              :note="new_s_note"
+              :create="true"
+              @update="handleSupplierUpdate"
+              @add="handleSupplierAdd"
+            />
+          </v-row>
+        </v-container>
+      </v-card>
     </v-container>
   </v-form>
 </template>
