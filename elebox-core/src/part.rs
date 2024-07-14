@@ -68,6 +68,10 @@ impl<'a> PartManager<'a> {
             return Err(EleboxError::NotExists(name.to_string()));
         }
 
+        if self.db.get_part_id(&new_part.name).is_some() {
+            return Err(EleboxError::AlreadyExists(new_part.name.to_string()));
+        }
+
         let category_id = match self.db.get_category_id(&new_part.category) {
             Some(id) => id.to_string(),
             None => "none".to_string(), // TODO: empty value
