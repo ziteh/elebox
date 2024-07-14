@@ -8,9 +8,9 @@ import { Parts } from "../interface";
 let parts = reactive<Parts>([]);
 
 async function getParts() {
-  console.log("get parts");
   const ps = await invoke("get_parts", {});
   Object.assign(parts, ps);
+  console.log(`get parts ${parts.length}`);
   console.debug(parts);
 }
 

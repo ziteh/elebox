@@ -1,8 +1,15 @@
 use crate::{category::*, db::*, manufacturer::*, package::*, Part, PartManager};
+use std::path::Path;
 
 pub fn create_default_db(path: &str) {
+    let exists = Path::new(&path).exists();
+
     let db = JammDatabase::new(path);
     db.init();
+
+    if exists {
+        return;
+    }
 
     let cats: Vec<Category> = vec![
         Category {
