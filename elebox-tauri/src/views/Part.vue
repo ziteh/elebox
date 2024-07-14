@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import { Categories, Packages, Manufacturers, CustomField } from "../interface";
+import {
+  Categories,
+  Packages,
+  Manufacturers,
+  CustomField,
+  Supplier,
+} from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
+import PartSupplier from "../components/PartSupplier.vue";
+import { da } from "vuetify/locale";
 
 // import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
@@ -23,9 +31,16 @@ let custom_fields = reactive<CustomField[]>([
   },
 ]);
 
+let suppliers = reactive<Supplier[]>([]);
+
 const new_cf_type = ref();
 const new_cf_name = ref();
 const new_cf_value = ref();
+
+const new_s_name = ref();
+const new_s_link = ref();
+const new_s_price = ref();
+const new_s_note = ref();
 
 const favorite = ref();
 
@@ -45,7 +60,6 @@ const digikey_no = ref();
 const datasheet_link = ref();
 const product_link = ref();
 const image_link = ref();
-const suppliers = ref();
 
 async function newPart() {
   console.log(mfr.value);
@@ -72,7 +86,7 @@ async function newPart() {
     datasheetLink: datasheet_link.value ?? "",
     productLink: product_link.value ?? "",
     imageLink: image_link.value ?? "",
-    suppliers: suppliers.value ?? "",
+    // suppliers: suppliers.value ?? "",
   });
 }
 
@@ -92,7 +106,7 @@ async function getPackages() {
   Object.assign(packages, cs);
 }
 
-function handleUpdate(data: {
+function handleCustomFieldUpdate(data: {
   field_type: string;
   name: string;
   value: string;
@@ -102,7 +116,7 @@ function handleUpdate(data: {
   new_cf_value.value = data.value;
 }
 
-function handleDel(data: { name: String }) {
+function handleCustomFieldDel(data: { name: String }) {
   // Find by name
   const index = custom_fields.findIndex((f) => f.name === data.name);
   if (index !== -1) {
@@ -110,11 +124,48 @@ function handleDel(data: { name: String }) {
   }
 }
 
-function handleAdd(data: { field_type: string; name: string; value: string }) {
+function handleCustomFieldAdd(data: {
+  field_type: string;
+  name: string;
+  value: string;
+}) {
   custom_fields.push(data);
   new_cf_type.value = "";
   new_cf_name.value = "";
   new_cf_value.value = "";
+}
+
+function handleSupplierUpdate(data: {
+  name: string;
+  link: string;
+  price: number;
+  note: string;
+}) {
+  new_s_name.value = data.name;
+  new_s_link.value = data.link;
+  new_s_price.value = data.price;
+  new_s_note.value = data.note;
+}
+
+function handleSupplierDel(data: { name: String }) {
+  // Find by name
+  const index = suppliers.findIndex((s) => s.name === data.name);
+  if (index !== -1) {
+    suppliers.splice(index, 1); // Remove
+  }
+}
+
+function handleSupplierAdd(data: {
+  name: string;
+  link: string;
+  price: number;
+  note: string;
+}) {
+  suppliers.push(data);
+  new_s_name.value = "";
+  new_s_link.value = "";
+  new_s_price.value = "";
+  new_s_note.value = "";
 }
 
 onMounted(() => {
@@ -236,13 +287,16 @@ onMounted(() => {
           placeholder="Write something ..."
         ></v-textarea>
       </v-row>
+
+      <v-divider class="ma-8"></v-divider>
+
       <v-row class="ga-8" v-for="cf in custom_fields">
         <PartCustomField
           :field_type="cf.field_type"
           :name="cf.name"
           :value="cf.value"
           :create="false"
-          @del="handleDel"
+          @del="handleCustomFieldDel"
         />
       </v-row>
       <v-row class="ga-8">
@@ -251,8 +305,32 @@ onMounted(() => {
           :name="new_cf_name"
           :value="new_cf_type"
           :create="true"
-          @update="handleUpdate"
-          @add="handleAdd"
+          @update="handleCustomFieldUpdate"
+          @add="handleCustomFieldAdd"
+        />
+      </v-row>
+
+      <v-divider class="ma-8"></v-divider>
+
+      <v-row class="ga-8" v-for="s in suppliers">
+        <PartSupplier
+          :name="s.name"
+          :link="s.link"
+          :price="s.price"
+          :note="s.note"
+          :create="false"
+          @del="handleSupplierDel"
+        />
+      </v-row>
+      <v-row class="ga-8">
+        <PartSupplier
+          :name="new_s_name"
+          :link="new_s_link"
+          :price="new_s_price"
+          :note="new_s_note"
+          :create="true"
+          @update="handleSupplierUpdate"
+          @add="handleSupplierAdd"
         />
       </v-row>
     </v-container>
