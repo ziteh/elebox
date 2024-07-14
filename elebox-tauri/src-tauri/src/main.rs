@@ -2,7 +2,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use dirs;
-use elebox_core::{Category, Database, Manufacturer, Package, PackageType, Part, TreeNode};
+use elebox_core::{
+    Category, CustomField, Manufacturer, Package, PackageType, Part, Supplier, TreeNode,
+};
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -168,18 +170,17 @@ fn new_part(
     qty: u16,
     category: &str,
     package: &str,
+    package_detail: &str,
     mfr: &str,
     alias: &str,
     description: &str,
-    cost: f32,
     location: &str,
     mfr_no: &str,
-    mouser_no: &str,
-    digikey_no: &str,
     datasheet_link: &str,
     product_link: &str,
     image_link: &str,
-    suppliers: &str,
+    custom_fields: Vec<CustomField>,
+    suppliers: Vec<Supplier>,
 ) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -188,25 +189,61 @@ fn new_part(
     let mut part = Part::new(name, category, qty);
 
     part.package = Option::from(package.to_string()).filter(|s| !s.is_empty());
+    part.package_detail = Option::from(package_detail.to_string()).filter(|s| !s.is_empty());
     part.mfr = Option::from(mfr.to_string()).filter(|s| !s.is_empty());
     part.alias = Option::from(alias.to_string()).filter(|s| !s.is_empty());
     part.description = Option::from(description.to_string()).filter(|s| !s.is_empty());
     part.location = Option::from(location.to_string()).filter(|s| !s.is_empty());
     part.mfr_no = Option::from(mfr_no.to_string()).filter(|s| !s.is_empty());
-    part.mouser_no = Option::from(mouser_no.to_string()).filter(|s| !s.is_empty());
-    part.digikey_no = Option::from(digikey_no.to_string()).filter(|s| !s.is_empty());
     part.datasheet_link = Option::from(datasheet_link.to_string()).filter(|s| !s.is_empty());
     part.product_link = Option::from(product_link.to_string()).filter(|s| !s.is_empty());
     part.image_link = Option::from(image_link.to_string()).filter(|s| !s.is_empty());
-    part.suppliers = Option::from(suppliers.to_string()).filter(|s| !s.is_empty());
-
-    if cost < 0.0 {
-        part.cost = None;
-    } else {
-        part.cost = Some(cost);
-    }
+    part.custom_fields = custom_fields;
+    part.suppliers = suppliers;
 
     let _ = mgr.add(&part);
+}
+
+#[tauri::command]
+fn update_part(
+    path: tauri::State<DbPath>,
+    origin_name: &str,
+    name: &str,
+    qty: u16,
+    category: &str,
+    package: &str,
+    package_detail: &str,
+    mfr: &str,
+    alias: &str,
+    description: &str,
+    location: &str,
+    mfr_no: &str,
+    datasheet_link: &str,
+    product_link: &str,
+    image_link: &str,
+    custom_fields: Vec<CustomField>,
+    suppliers: Vec<Supplier>,
+) {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PartManager::new(&db);
+
+    let mut part = Part::new(name, category, qty);
+
+    part.package = Option::from(package.to_string()).filter(|s| !s.is_empty());
+    part.package_detail = Option::from(package_detail.to_string()).filter(|s| !s.is_empty());
+    part.mfr = Option::from(mfr.to_string()).filter(|s| !s.is_empty());
+    part.alias = Option::from(alias.to_string()).filter(|s| !s.is_empty());
+    part.description = Option::from(description.to_string()).filter(|s| !s.is_empty());
+    part.location = Option::from(location.to_string()).filter(|s| !s.is_empty());
+    part.mfr_no = Option::from(mfr_no.to_string()).filter(|s| !s.is_empty());
+    part.datasheet_link = Option::from(datasheet_link.to_string()).filter(|s| !s.is_empty());
+    part.product_link = Option::from(product_link.to_string()).filter(|s| !s.is_empty());
+    part.image_link = Option::from(image_link.to_string()).filter(|s| !s.is_empty());
+    part.custom_fields = custom_fields;
+    part.suppliers = suppliers;
+
+    let _ = mgr.update(origin_name, &part);
 }
 
 #[tauri::command]
@@ -282,6 +319,7 @@ fn main() {
             export_csv,
             import_csv,
             get_tree,
+            update_part,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

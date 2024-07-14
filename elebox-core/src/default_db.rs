@@ -1,8 +1,15 @@
-use crate::{category::*, db::*, manufacturer::*, package::*};
+use crate::{category::*, db::*, manufacturer::*, package::*, Part, PartManager};
+use std::path::Path;
 
 pub fn create_default_db(path: &str) {
+    let exists = Path::new(&path).exists();
+
     let db = JammDatabase::new(path);
     db.init();
+
+    if exists {
+        return;
+    }
 
     let cats: Vec<Category> = vec![
         Category {
@@ -174,6 +181,11 @@ pub fn create_default_db(path: &str) {
             alias: None,
         },
         Package {
+            name: "QFN-56".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: None,
+        },
+        Package {
             name: "TO-92".to_string(),
             pkg_type: PackageType::Tht,
             alias: None,
@@ -191,6 +203,11 @@ pub fn create_default_db(path: &str) {
     }
 
     let mfrs: Vec<Manufacturer> = vec![
+        Manufacturer {
+            name: "Raspberry Pi".to_string(),
+            alias: None,
+            url: Some("https://www.raspberrypi.com/".to_string()),
+        },
         Manufacturer {
             name: "Texas Instruments".to_string(),
             alias: Some("TI".to_string()),
@@ -232,4 +249,55 @@ pub fn create_default_db(path: &str) {
     for m in mfrs {
         let _ = mfr_mgr.add(&m);
     }
+
+    let rp2040 = Part {
+        name: "RP2040".to_string(),
+        quantity: 15,
+        category: "MCU".to_string(),
+        alias: Some("RPi RP2040".to_string()),
+        package: Some("QFN-56".to_string()),
+        package_detail: Some("7x7mm P0.4mm 1EP3.2x32.mm".to_string()),
+        mfr: Some("Raspberry Pi".to_string()),
+        mfr_no: Some("SC0914(7)".to_string()),
+        datasheet_link: Some(
+            "https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf".to_string(),
+        ),
+        product_link: Some(
+            "https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html".to_string(),
+        ),
+        image_link: Some(
+            "https://www.raspberrypi.com/documentation/microcontrollers/images/rp2040.jpg"
+                .to_string(),
+        ),
+        description: Some("Dual ARM Cortex-M0+ 133MHz, 264KB SRAM".to_string()),
+        location: Some("Box #1".to_string()),
+        custom_fields: vec![
+            CustomField {
+                name: "Mouser #".to_string(),
+                field_type: CustomFieldType::Normal,
+                value: "358-SC09147".to_string(),
+            },
+            CustomField {
+                name: "DigiKey #".to_string(),
+                field_type: CustomFieldType::Normal,
+                value: "2648-SC0914(7)CT-ND".to_string(),
+            },
+        ],
+        suppliers: vec![
+            Supplier{
+               name:"Mouser".to_string(),
+               link:"https://www.mouser.com/ProductDetail/Raspberry-Pi/SC09147?qs=T%252BzbugeAwjhSpdbCB4ve%252Bg%3D%3D".to_string(),
+               price:Some(0.8),
+               note:"7' reel".to_string(),
+            },
+            Supplier{
+               name:"DigiKey".to_string(),
+               link:"https://www.digikey.com/en/products/detail/raspberry-pi/SC0914-7/14306009?s=N4IgTCBcDa4GwBYAcBaAygYQAwE4CMCAFAOwCUGAKigHIAiIAugL5A".to_string(),
+               price:Some(0.8),
+               note:"7' reel".to_string(),
+            },
+        ],
+    };
+    let part_mgr = PartManager::new(&db);
+    let _ = part_mgr.add(&rp2040);
 }

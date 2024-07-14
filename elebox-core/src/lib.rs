@@ -8,8 +8,10 @@ mod package;
 mod part;
 
 pub use category::*;
+pub use db::CustomField;
 pub use db::Database;
 pub use db::JammDatabase;
+pub use db::Supplier;
 pub use errors::*;
 pub use manufacturer::*;
 pub use package::*;
