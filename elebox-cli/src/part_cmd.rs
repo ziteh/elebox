@@ -94,14 +94,15 @@ pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
                 }
             }
             PartSubCommand::Update(args) => {
-                if let Err(err) = manager.update(
-                    &args.old_name,
-                    args.new_name.as_deref(),
-                    args.new_quantity,
-                    args.new_part_cat.as_deref(),
-                ) {
-                    println!("{err}");
-                }
+                // TODO
+                // if let Err(err) = manager.update(
+                //     &args.old_name,
+                //     args.new_name.as_deref(),
+                //     args.new_quantity,
+                //     args.new_part_cat.as_deref(),
+                // ) {
+                //     println!("{err}");
+                // }
             }
             PartSubCommand::Add(args) => {
                 if let Err(err) = manager.update_part_quantity(&args.name, args.quantity as i16) {
