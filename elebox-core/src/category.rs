@@ -57,15 +57,15 @@ impl<'a> CategoryManager<'a> {
     }
 
     pub fn get(&self, name: &str) -> Result<Category, EleboxError> {
-        let id = match self.db.get_category_id(name) {
-            Some(id) => id,
-            None => return Err(EleboxError::NotExists(name.to_string())),
-        };
+        let id = self
+            .db
+            .get_category_id(name)
+            .ok_or(EleboxError::NotExists(name.to_string()))?;
 
-        let db_cat = match self.db.get_category_from_id(&id) {
-            Some(pt) => pt,
-            None => return Err(EleboxError::NotExists(id.to_string())),
-        };
+        let db_cat = self
+            .db
+            .get_category_from_id(&id)
+            .ok_or(EleboxError::NotExists(id.to_string()))?;
 
         Ok(self.to_category(db_cat))
     }

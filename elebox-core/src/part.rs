@@ -185,7 +185,11 @@ impl<'a> PartManager<'a> {
             .get_part_id(name)
             .ok_or(EleboxError::NotExists(name.to_string()))?;
 
-        let db_part = self.db.get_part_from_id(&id).unwrap();
+        let db_part = self
+            .db
+            .get_part_from_id(&id)
+            .ok_or(EleboxError::NotExists(id.to_string()))?;
+
         self.from_db_part(db_part)
     }
 

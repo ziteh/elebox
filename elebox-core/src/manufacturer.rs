@@ -13,14 +13,8 @@ impl Manufacturer {
     pub fn new(name: &str, alias: Option<&str>, url: Option<&str>) -> Self {
         Self {
             name: name.to_string(),
-            alias: match alias {
-                Some(s) => Some(s.to_string()),
-                _ => None,
-            },
-            url: match url {
-                Some(s) => Some(s.to_string()),
-                _ => None,
-            },
+            alias: alias.map(|s| s.to_string()),
+            url: url.map(|s| s.to_string()),
         }
     }
 }
@@ -34,50 +28,78 @@ impl<'a> ManufacturerManager<'a> {
         Self { db }
     }
 
-    pub fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_mfr_id(name);
-        if id.is_none() {
-            return Err(EleboxError::NotExists(name.to_string()));
-        }
+    pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
+        let id = self
+            .db
+            .get_mfr_id(name)
+            .ok_or(EleboxError::NotExists(name.to_string()))?;
 
-        self.db.delete_mfr(&id.unwrap());
-        return Ok(());
+        Ok(self.db.delete_mfr(&id))
     }
 
-    pub fn add(&self, item: &Manufacturer) -> Result<(), EleboxError> {
-        if self.db.get_mfr_id(&item.name).is_some() {
-            return Err(EleboxError::AlreadyExists(item.name.to_string()));
+    fn to_db_mfr(&self, mfr: &Manufacturer) -> Result<DbManufacturer, EleboxError> {
+        if self.db.get_mfr_id(&mfr.name).is_some() {
+            return Err(EleboxError::AlreadyExists(mfr.name.to_string()));
         }
 
         let db_mfr = DbManufacturer {
-            name: item.name.to_string(),
-            alias: match &item.alias {
+            name: mfr.name.to_string(),
+            alias: match &mfr.alias {
                 Some(s) => s.to_string(),
-                _ => String::from(""),
+                None => "".to_string(),
             },
-            url: match &item.url {
+            url: match &mfr.url {
                 Some(s) => s.to_string(),
-                _ => String::from(""),
+                None => "".to_string(),
             },
         };
+        Ok(db_mfr)
+    }
 
+    pub fn add(&self, mfr: &Manufacturer) -> Result<(), EleboxError> {
+        let db_mfr = self.to_db_mfr(mfr)?;
         self.db.add_mfr(&db_mfr);
-        return Ok(());
+        Ok(())
+    }
+
+    pub fn update(&self, ori_name: &str, new_mfr: &Manufacturer) -> Result<(), EleboxError> {
+        if self.db.get_mfr_id(ori_name).is_none() {
+            return Err(EleboxError::NotExists(ori_name.to_string()));
+        }
+
+        let db_mfr = self.to_db_mfr(new_mfr)?;
+        self.db.update_mfr(ori_name, &db_mfr);
+        Ok(())
+    }
+
+    fn to_mfr(&self, db_mfr: &DbManufacturer) -> Manufacturer {
+        Manufacturer::new(
+            &db_mfr.name,
+            Some(db_mfr.alias.as_str()).filter(|s| !s.is_empty()),
+            Some(db_mfr.url.as_str()).filter(|s| !s.is_empty()),
+        )
+    }
+
+    pub fn get(&self, name: &str) -> Result<Manufacturer, EleboxError> {
+        let id = self
+            .db
+            .get_mfr_id(name)
+            .ok_or(EleboxError::NotExists(name.to_string()))?;
+
+        let db_mfr = self
+            .db
+            .get_mfr_from_id(&id)
+            .ok_or(EleboxError::NotExists(id.to_string()))?;
+
+        Ok(self.to_mfr(&db_mfr))
     }
 
     pub fn list(&self) -> Vec<Manufacturer> {
-        let db_mfrs = self.db.get_mfrs();
-        let mut mfrs: Vec<Manufacturer> = Vec::new();
-
-        for db_mfr in db_mfrs {
-            let m = Manufacturer::new(
-                &db_mfr.name,
-                Some(db_mfr.alias.as_str()).filter(|s| !s.is_empty()),
-                Some(db_mfr.url.as_str()).filter(|s| !s.is_empty()),
-            );
-            mfrs.push(m);
-        }
-        return mfrs;
+        self.db
+            .get_mfrs()
+            .into_iter()
+            .filter_map(|db_m| Some(self.to_mfr(&db_m)))
+            .collect()
     }
 
     pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
