@@ -1,15 +1,9 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+import { Category } from "../interface";
 
-interface Categories {
-  [index: number]: {
-    name: string;
-    parent: string;
-  };
-}
-
-let categories = reactive<Categories>({});
+let categories = reactive<Category[]>([]);
 
 async function getCategories() {
   const cs = await invoke("get_categories", {});
@@ -45,6 +39,14 @@ onMounted(getCategories);
             icon="mdi-trash-can-outline"
             @click="delCategory(cat.name)"
             title="Delete"
+          ></v-btn>
+          <v-btn
+            density="comfortable"
+            icon="mdi-square-edit-outline"
+            :to="{
+              name: 'update_category',
+              params: { origin_name: cat.name },
+            }"
           ></v-btn>
         </td>
       </tr>

@@ -44,6 +44,11 @@ export default createRouter({
       component: () => import("./views/Part.vue"),
     },
     {
+      path: "/update-category:origin_name",
+      name: "update_category",
+      component: () => import("./views/CategoryEdit.vue"),
+    },
+    {
       path: "/tree",
       name: "tree",
       component: () => import("./views/CategoriesTree.vue"),

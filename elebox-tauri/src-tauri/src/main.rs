@@ -134,7 +134,24 @@ fn part_add(path: tauri::State<DbPath>, part: &str, qty: i16) {
 }
 
 #[tauri::command]
-fn new_category(path: tauri::State<DbPath>, name: &str, parent: &str) {
+fn update_category(path: tauri::State<DbPath>, origin_name: &str, name: &str, parent: &str, alias: &str) {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::CategoryManager::new(&db);
+
+    let cat = Category {
+        name: name.to_string(),
+        parent: match parent {
+            "" => None,
+            _ => Some(parent.to_string()),
+        },
+        alias: None, // TODO
+    };
+    let _ = mgr.add(&cat);
+}
+
+#[tauri::command]
+fn new_category(path: tauri::State<DbPath>, name: &str, parent: &str, alias: &str) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&db);
@@ -312,6 +329,7 @@ fn main() {
             set_db_path,
             get_packages,
             new_package,
+            update_category,
             del_package,
             get_mfrs,
             new_mfr,

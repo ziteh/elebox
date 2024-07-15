@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import NewCategory from "../components/NewCategory.vue";
+import CategoryField from "../components/CategoryField.vue";
 import CategoryList from "../components/CategoryList.vue";
 </script>
 
 <template>
   <v-container>
-    <NewCategory />
+    <CategoryField />
     <CategoryList />
   </v-container>
 </template>

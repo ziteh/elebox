@@ -32,6 +32,12 @@ export interface PartData {
 
 export interface Parts extends Array<PartData> { }
 
+export interface Category {
+    name: string;
+    parent?: string;
+    alias?: string;
+}
+
 export interface Categories {
     [index: number]: {
         name: string;
