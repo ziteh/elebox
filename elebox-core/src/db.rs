@@ -133,6 +133,7 @@ pub trait Database {
     fn delete_mfr(&self, id: &str) -> String;
 
     fn update_part(&self, name: &str, part: &DbPart);
+    fn update_category(&self, name: &str, category: &DbCategory);
 }
 
 pub struct JammDatabase<'a> {
@@ -323,6 +324,21 @@ impl<'a> Database for JammDatabase<'a> {
         let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
 
         let value = rmp_serde::to_vec(&part).unwrap();
+        bkt.put(id.unwrap(), value).unwrap();
+        let _ = tx.commit();
+    }
+
+    fn update_category(&self, name: &str, category: &DbCategory) {
+        let id = self.get_category_id(name);
+        if id.is_none() {
+            return;
+        }
+
+        let db = DB::open(self.path).unwrap();
+        let tx = db.tx(true).unwrap();
+        let bkt = tx.get_bucket(CATEGORIES_BUCKET).unwrap();
+
+        let value = rmp_serde::to_vec(&category).unwrap();
         bkt.put(id.unwrap(), value).unwrap();
         let _ = tx.commit();
     }

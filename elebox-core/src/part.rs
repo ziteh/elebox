@@ -52,14 +52,13 @@ impl<'a> PartManager<'a> {
         Self { db }
     }
 
-    pub fn delete(&self, name: &str) -> Result<(), EleboxError> {
+    pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
         let id = self
             .db
             .get_part_id(name)
             .ok_or(EleboxError::NotExists(name.to_string()))?;
 
-        self.db.delete_part(&id);
-        return Ok(());
+        return Ok(self.db.delete_part(&id));
     }
 
     fn to_db_part(&self, part: &Part) -> Result<DbPart, EleboxError> {
@@ -111,13 +110,13 @@ impl<'a> PartManager<'a> {
         Ok(db_part)
     }
 
-    pub fn update(&self, name: &str, new_part: &Part) -> Result<(), EleboxError> {
-        if self.db.get_part_id(name).is_none() {
-            return Err(EleboxError::NotExists(name.to_string()));
+    pub fn update(&self, ori_name: &str, new_part: &Part) -> Result<(), EleboxError> {
+        if self.db.get_part_id(ori_name).is_none() {
+            return Err(EleboxError::NotExists(ori_name.to_string()));
         }
 
         let db_part = self.to_db_part(new_part)?;
-        self.db.update_part(name, &db_part);
+        self.db.update_part(ori_name, &db_part);
         Ok(())
     }
 

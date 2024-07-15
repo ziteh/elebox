@@ -21,14 +21,8 @@ impl Category {
     pub fn new(name: &str, parent: Option<&str>, alias: Option<&str>) -> Self {
         Self {
             name: name.to_string(),
-            parent: match parent {
-                Some(p) => Some(p.to_string()),
-                None => None,
-            },
-            alias: match alias {
-                Some(a) => Some(a.to_string()),
-                None => None,
-            },
+            parent: parent.map(|p| p.to_string()),
+            alias: alias.map(|a| a.to_string()),
         }
     }
 }
@@ -42,26 +36,24 @@ impl<'a> CategoryManager<'a> {
         Self { db }
     }
 
-    pub fn list(&self) -> Vec<Category> {
-        let db_categories = self.db.get_categories();
-        let mut categories: Vec<Category> = Vec::new();
-
-        for db_cat in db_categories {
-            let db_parent = self.db.get_category_from_id(&db_cat.parent_id);
-
-            categories.push(Category {
-                name: db_cat.name,
-                parent: match db_parent {
-                    Some(p) => Some(p.name),
-                    None => None,
-                },
-                alias: match db_cat.alias.as_str() {
-                    "" => None,
-                    other => Some(other.to_string()),
-                },
-            });
+    fn to_category(&self, db_category: DbCategory) -> Category {
+        let db_parent = self.db.get_category_from_id(&db_category.parent_id);
+        Category {
+            name: db_category.name,
+            parent: db_parent.map(|p_cat| p_cat.name),
+            alias: match db_category.alias.as_str() {
+                "" => None,
+                other => Some(other.to_string()),
+            },
         }
-        return categories;
+    }
+
+    pub fn list(&self) -> Vec<Category> {
+        self.db
+            .get_categories()
+            .into_iter()
+            .filter_map(|db_c| Some(self.to_category(db_c)))
+            .collect()
     }
 
     pub fn get(&self, name: &str) -> Result<Category, EleboxError> {
@@ -75,65 +67,29 @@ impl<'a> CategoryManager<'a> {
             None => return Err(EleboxError::NotExists(id.to_string())),
         };
 
-        let category = Category {
-            name: db_cat.name.to_string(),
-            parent: match self.db.get_category_from_id(&db_cat.parent_id) {
-                Some(cat) => Some(cat.name),
-                None => None,
-            },
-            alias: match db_cat.alias.as_str() {
-                "" => None,
-                other => Some(other.to_string()),
-            },
-        };
-        return Ok(category);
+        Ok(self.to_category(db_cat))
     }
 
     pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
-        let id = self.db.get_category_id(name);
-        if id.is_none() {
-            return Err(EleboxError::NotExists(name.to_string()));
-        }
+        let id = self
+            .db
+            .get_category_id(name)
+            .ok_or(EleboxError::NotExists(name.to_string()))?;
 
-        let res = self.db.delete_category(&id.unwrap());
-        return Ok(res);
+        Ok(self.db.delete_category(&id))
     }
 
-    pub fn update(
-        &self,
-        old_name: &str,
-        new_name: Option<&str>,
-        new_parent: Option<&str>,
-    ) -> Result<(), EleboxError> {
-        let id = self.db.get_category_id(old_name);
-        if id.is_none() {
-            return Err(EleboxError::NotExists(old_name.to_string()));
+    pub fn update(&self, ori_name: &str, new_category: &Category) -> Result<(), EleboxError> {
+        if self.db.get_category_id(ori_name).is_none() {
+            return Err(EleboxError::NotExists(ori_name.to_string()));
         }
 
-        let old_db_pt = self.db.get_category_from_id(id.as_ref().unwrap()).unwrap();
-
-        let p_id = match new_parent {
-            Some(name) => match self.db.get_category_id(name) {
-                Some(id) => id,
-                None => return Err(EleboxError::NotExists(name.to_string())),
-            },
-            None => old_db_pt.parent_id,
-        };
-
-        let db_category = DbCategory {
-            name: match new_name {
-                Some(name) => name.to_string(),
-                None => old_db_pt.name,
-            },
-            parent_id: p_id,
-            alias: old_db_pt.alias,
-        };
-
-        self.db.add_category(&db_category);
-        return Ok(());
+        let db_category = self.to_db_category(new_category)?;
+        self.db.update_category(ori_name, &db_category);
+        Ok(())
     }
 
-    pub fn add(&self, category: &Category) -> Result<(), EleboxError> {
+    fn to_db_category(&self, category: &Category) -> Result<DbCategory, EleboxError> {
         // Part category name is unique
         if self.db.get_category_id(&category.name).is_some() {
             return Err(EleboxError::AlreadyExists(category.name.to_string()));
@@ -156,9 +112,13 @@ impl<'a> CategoryManager<'a> {
                 None => "".to_string(),
             },
         };
+        Ok(db_category)
+    }
 
+    pub fn add(&self, category: &Category) -> Result<(), EleboxError> {
+        let db_category = self.to_db_category(category)?;
         self.db.add_category(&db_category);
-        return Ok(());
+        Ok(())
     }
 
     pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
@@ -197,45 +157,6 @@ impl<'a> CategoryManager<'a> {
     pub fn get_tree(&self) -> Vec<TreeNode> {
         let cats = self.list();
 
-        // TODO: test data
-        // let cats = vec![
-        //     Category {
-        //         name: "a1".to_string(),
-        //         parent: Some("A".to_string()),
-        //     },
-        //     Category {
-        //         name: "aa1".to_string(),
-        //         parent: Some("a1".to_string()),
-        //     },
-        //     Category {
-        //         name: "aa2".to_string(),
-        //         parent: Some("a1".to_string()),
-        //     },
-        //     Category {
-        //         name: "aaa1".to_string(),
-        //         parent: Some("aa1".to_string()),
-        //     },
-        //     Category {
-        //         name: "aab2".to_string(),
-        //         parent: Some("a2".to_string()),
-        //     },
-        //     Category {
-        //         name: "a2".to_string(),
-        //         parent: Some("A".to_string()),
-        //     },
-        //     Category {
-        //         name: "b1".to_string(),
-        //         parent: Some("B".to_string()),
-        //     },
-        //     Category {
-        //         name: "A".to_string(),
-        //         parent: None,
-        //     },
-        //     Category {
-        //         name: "B".to_string(),
-        //         parent: None,
-        //     },
-        // ];
         let mut cat_map: HashMap<String, Vec<String>> = HashMap::new();
         let mut root: Vec<String> = Vec::new();
 
