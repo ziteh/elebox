@@ -49,24 +49,27 @@ const ori_name = ref();
 async function newPart() {
   // console.log(mfr.value);
   // console.log(pkg.value);
-
-  await invoke("new_part", {
+  const p: PartData = {
     name: name.value,
-    qty: parseInt(qty.value),
+    quantity: parseInt(qty.value),
     category: category.value,
     package: pkg.value ?? "",
-    packageDetail: pkg_detail.value ?? "",
+    package_detail: pkg_detail.value ?? "",
     mfr: mfr.value ?? "",
     alias: alias.value ?? "",
     description: description.value ?? "",
     location: location.value ?? "",
-    mfrNo: mfr_no.value ?? "",
-    datasheetLink: datasheet_link.value ?? "",
-    productLink: product_link.value ?? "",
-    imageLink: image_link.value ?? "",
-    customFields: custom_fields,
+    mfr_no: mfr_no.value ?? "",
+    datasheet_link: datasheet_link.value ?? "",
+    product_link: product_link.value ?? "",
+    image_link: image_link.value ?? "",
+    custom_fields: custom_fields,
     suppliers: suppliers,
-  });
+  };
+
+  await invoke("add_part", { part: p })
+    .then((msg) => console.log(msg))
+    .catch((err) => console.error(err));
 }
 async function updatePart() {
   await invoke("update_part", {

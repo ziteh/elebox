@@ -126,7 +126,7 @@ fn part_del(path: tauri::State<DbPath>, part: &str) {
 }
 
 #[tauri::command]
-fn part_add(path: tauri::State<DbPath>, part: &str, qty: i16) {
+fn part_inc(path: tauri::State<DbPath>, part: &str, qty: i16) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
@@ -134,7 +134,13 @@ fn part_add(path: tauri::State<DbPath>, part: &str, qty: i16) {
 }
 
 #[tauri::command]
-fn update_category(path: tauri::State<DbPath>, origin_name: &str, name: &str, parent: &str, alias: &str) {
+fn update_category(
+    path: tauri::State<DbPath>,
+    origin_name: &str,
+    name: &str,
+    parent: &str,
+    alias: &str,
+) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&db);
@@ -181,44 +187,12 @@ fn del_category(path: tauri::State<DbPath>, name: &str) -> String {
 }
 
 #[tauri::command]
-fn new_part(
-    path: tauri::State<DbPath>,
-    name: &str,
-    qty: u16,
-    category: &str,
-    package: &str,
-    package_detail: &str,
-    mfr: &str,
-    alias: &str,
-    description: &str,
-    location: &str,
-    mfr_no: &str,
-    datasheet_link: &str,
-    product_link: &str,
-    image_link: &str,
-    custom_fields: Vec<CustomField>,
-    suppliers: Vec<Supplier>,
-) {
+fn add_part(path: tauri::State<DbPath>, part: Part) -> Result<(), String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
 
-    let mut part = Part::new(name, category, qty);
-
-    part.package = Option::from(package.to_string()).filter(|s| !s.is_empty());
-    part.package_detail = Option::from(package_detail.to_string()).filter(|s| !s.is_empty());
-    part.mfr = Option::from(mfr.to_string()).filter(|s| !s.is_empty());
-    part.alias = Option::from(alias.to_string()).filter(|s| !s.is_empty());
-    part.description = Option::from(description.to_string()).filter(|s| !s.is_empty());
-    part.location = Option::from(location.to_string()).filter(|s| !s.is_empty());
-    part.mfr_no = Option::from(mfr_no.to_string()).filter(|s| !s.is_empty());
-    part.datasheet_link = Option::from(datasheet_link.to_string()).filter(|s| !s.is_empty());
-    part.product_link = Option::from(product_link.to_string()).filter(|s| !s.is_empty());
-    part.image_link = Option::from(image_link.to_string()).filter(|s| !s.is_empty());
-    part.custom_fields = custom_fields;
-    part.suppliers = suppliers;
-
-    let _ = mgr.add(&part);
+    mgr.add(&part).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -320,8 +294,8 @@ fn main() {
             get_parts,
             get_part,
             get_categories,
-            part_add,
-            new_part,
+            part_inc,
+            add_part,
             part_del,
             new_category,
             del_category,
