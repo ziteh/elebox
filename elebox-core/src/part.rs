@@ -62,13 +62,6 @@ impl<'a> PartManager<'a> {
     }
 
     fn to_db_part(&self, part: &Part) -> Result<DbPart, EleboxError> {
-        if self.db.get_part_id(&part.name).is_some() {
-            return Err(EleboxError::AlreadyExists(
-                "Part".to_string(),
-                part.name.clone(),
-            ));
-        }
-
         let category_id = match self.db.get_category_id(&part.category) {
             Some(id) => id.to_string(),
             None => {
@@ -155,6 +148,13 @@ impl<'a> PartManager<'a> {
     }
 
     pub fn add(&self, part: &Part) -> Result<(), EleboxError> {
+        if self.db.get_part_id(&part.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                "Part".to_string(),
+                part.name.clone(),
+            ));
+        }
+
         let db_part = self.to_db_part(part)?;
         self.db.add_part(&db_part);
         Ok(())

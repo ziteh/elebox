@@ -38,13 +38,6 @@ impl<'a> ManufacturerManager<'a> {
     }
 
     fn to_db_mfr(&self, mfr: &Manufacturer) -> Result<DbManufacturer, EleboxError> {
-        if self.db.get_mfr_id(&mfr.name).is_some() {
-            return Err(EleboxError::AlreadyExists(
-                "Mfr".to_string(),
-                mfr.name.clone(),
-            ));
-        }
-
         let db_mfr = DbManufacturer {
             name: mfr.name.to_string(),
             alias: match &mfr.alias {
@@ -60,6 +53,13 @@ impl<'a> ManufacturerManager<'a> {
     }
 
     pub fn add(&self, mfr: &Manufacturer) -> Result<(), EleboxError> {
+        if self.db.get_mfr_id(&mfr.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                "Mfr".to_string(),
+                mfr.name.clone(),
+            ));
+        }
+
         let db_mfr = self.to_db_mfr(mfr)?;
         self.db.add_mfr(&db_mfr);
         Ok(())

@@ -93,14 +93,6 @@ impl<'a> CategoryManager<'a> {
     }
 
     fn to_db_category(&self, category: &Category) -> Result<DbCategory, EleboxError> {
-        // Part category name is unique
-        if self.db.get_category_id(&category.name).is_some() {
-            return Err(EleboxError::AlreadyExists(
-                "Category".to_string(),
-                category.name.clone(),
-            ));
-        }
-
         // Get the ID of parent category
         let p_id = match &category.parent {
             Some(p_name) => match self.db.get_category_id(&p_name) {
@@ -127,6 +119,14 @@ impl<'a> CategoryManager<'a> {
     }
 
     pub fn add(&self, category: &Category) -> Result<(), EleboxError> {
+        // Part category name is unique
+        if self.db.get_category_id(&category.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                "Category".to_string(),
+                category.name.clone(),
+            ));
+        }
+
         let db_category = self.to_db_category(category)?;
         self.db.add_category(&db_category);
         Ok(())
