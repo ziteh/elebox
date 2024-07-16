@@ -36,10 +36,10 @@ impl<'a> PackageManager<'a> {
     }
 
     pub fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self
-            .db
-            .get_package_id(name)
-            .ok_or(EleboxError::NotExists(name.to_string()))?;
+        let id = self.db.get_package_id(name).ok_or(EleboxError::NotExists(
+            "Package".to_string(),
+            name.to_string(),
+        ))?;
 
         self.db.delete_package(&id);
         Ok(())
@@ -47,7 +47,10 @@ impl<'a> PackageManager<'a> {
 
     fn to_db_package(&self, package: &Package) -> Result<DbPackage, EleboxError> {
         if self.db.get_package_id(&package.name).is_some() {
-            return Err(EleboxError::AlreadyExists(package.name.to_string()));
+            return Err(EleboxError::AlreadyExists(
+                "Package".to_string(),
+                package.name.clone(),
+            ));
         }
 
         let db_pkg = DbPackage {
@@ -73,7 +76,10 @@ impl<'a> PackageManager<'a> {
 
     pub fn update(&self, ori_name: &str, new_package: &Package) -> Result<(), EleboxError> {
         if self.db.get_package_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(ori_name.to_string()));
+            return Err(EleboxError::NotExists(
+                "Origin package".to_string(),
+                ori_name.to_string(),
+            ));
         }
 
         let db_pkg = self.to_db_package(new_package)?;
@@ -97,15 +103,15 @@ impl<'a> PackageManager<'a> {
     }
 
     pub fn get(&self, name: &str) -> Result<Package, EleboxError> {
-        let id = self
-            .db
-            .get_package_id(name)
-            .ok_or(EleboxError::NotExists(name.to_string()))?;
+        let id = self.db.get_package_id(name).ok_or(EleboxError::NotExists(
+            "Package".to_string(),
+            name.to_string(),
+        ))?;
 
         let db_pkg = self
             .db
             .get_package_from_id(&id)
-            .ok_or(EleboxError::NotExists(id.to_string()))?;
+            .ok_or(EleboxError::NotExists("Package".to_string(), id))?;
 
         Ok(self.to_package(db_pkg))
     }

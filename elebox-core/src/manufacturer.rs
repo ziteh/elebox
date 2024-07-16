@@ -32,14 +32,17 @@ impl<'a> ManufacturerManager<'a> {
         let id = self
             .db
             .get_mfr_id(name)
-            .ok_or(EleboxError::NotExists(name.to_string()))?;
+            .ok_or(EleboxError::NotExists("Mfr".to_string(), name.to_string()))?;
 
         Ok(self.db.delete_mfr(&id))
     }
 
     fn to_db_mfr(&self, mfr: &Manufacturer) -> Result<DbManufacturer, EleboxError> {
         if self.db.get_mfr_id(&mfr.name).is_some() {
-            return Err(EleboxError::AlreadyExists(mfr.name.to_string()));
+            return Err(EleboxError::AlreadyExists(
+                "Mfr".to_string(),
+                mfr.name.clone(),
+            ));
         }
 
         let db_mfr = DbManufacturer {
@@ -64,7 +67,10 @@ impl<'a> ManufacturerManager<'a> {
 
     pub fn update(&self, ori_name: &str, new_mfr: &Manufacturer) -> Result<(), EleboxError> {
         if self.db.get_mfr_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(ori_name.to_string()));
+            return Err(EleboxError::NotExists(
+                "Origin mfr".to_string(),
+                ori_name.to_string(),
+            ));
         }
 
         let db_mfr = self.to_db_mfr(new_mfr)?;
@@ -84,12 +90,12 @@ impl<'a> ManufacturerManager<'a> {
         let id = self
             .db
             .get_mfr_id(name)
-            .ok_or(EleboxError::NotExists(name.to_string()))?;
+            .ok_or(EleboxError::NotExists("Mfr".to_string(), name.to_string()))?;
 
         let db_mfr = self
             .db
             .get_mfr_from_id(&id)
-            .ok_or(EleboxError::NotExists(id.to_string()))?;
+            .ok_or(EleboxError::NotExists("Mfr".to_string(), id))?;
 
         Ok(self.to_mfr(&db_mfr))
     }

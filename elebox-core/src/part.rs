@@ -1,6 +1,6 @@
 use crate::{csv::*, db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::fmt::{format, Debug};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
@@ -56,25 +56,38 @@ impl<'a> PartManager<'a> {
         let id = self
             .db
             .get_part_id(name)
-            .ok_or(EleboxError::NotExists(name.to_string()))?;
+            .ok_or(EleboxError::NotExists("Part".to_string(), name.to_string()))?;
 
         return Ok(self.db.delete_part(&id));
     }
 
     fn to_db_part(&self, part: &Part) -> Result<DbPart, EleboxError> {
         if self.db.get_part_id(&part.name).is_some() {
-            return Err(EleboxError::AlreadyExists(part.name.to_string()));
+            return Err(EleboxError::AlreadyExists(
+                "Part".to_string(),
+                part.name.clone(),
+            ));
         }
 
         let category_id = match self.db.get_category_id(&part.category) {
             Some(id) => id.to_string(),
-            None => return Err(EleboxError::NotExists("category".to_string())),
+            None => {
+                return Err(EleboxError::NotExists(
+                    "Category".to_string(),
+                    part.category.clone(),
+                ))
+            }
         };
 
         let package_id = match &part.package {
             Some(name) => match self.db.get_package_id(&name) {
                 Some(id) => id,
-                None => return Err(EleboxError::NotExists(name.to_string())),
+                None => {
+                    return Err(EleboxError::NotExists(
+                        "Package".to_string(),
+                        name.to_string(),
+                    ))
+                }
             },
             None => "".to_string(),
         };
@@ -82,7 +95,7 @@ impl<'a> PartManager<'a> {
         let mfr_id = match &part.mfr {
             Some(name) => match self.db.get_mfr_id(&name) {
                 Some(id) => id,
-                None => return Err(EleboxError::NotExists(name.to_string())),
+                None => return Err(EleboxError::NotExists("Mfr".to_string(), name.to_string())),
             },
             None => "".to_string(),
         };
@@ -112,7 +125,10 @@ impl<'a> PartManager<'a> {
 
     pub fn update(&self, ori_name: &str, new_part: &Part) -> Result<(), EleboxError> {
         if self.db.get_part_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(ori_name.to_string()));
+            return Err(EleboxError::NotExists(
+                "Origin part".to_string(),
+                ori_name.to_string(),
+            ));
         }
 
         let db_part = self.to_db_part(new_part)?;
@@ -123,7 +139,7 @@ impl<'a> PartManager<'a> {
     pub fn update_part_quantity(&self, name: &str, quantity: i16) -> Result<(), EleboxError> {
         let id = self.db.get_part_id(name);
         if id.is_none() {
-            return Err(EleboxError::NotExists(name.to_string()));
+            return Err(EleboxError::NotExists("Part".to_string(), name.to_string()));
         }
 
         let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
@@ -148,7 +164,10 @@ impl<'a> PartManager<'a> {
         let category = self
             .db
             .get_category_from_id(&db_part.category_id)
-            .ok_or(EleboxError::NotExists("category".to_string()))?
+            .ok_or(EleboxError::NotExists(
+                "Category".to_string(),
+                db_part.category_id,
+            ))?
             .name;
 
         let package = self
@@ -183,12 +202,12 @@ impl<'a> PartManager<'a> {
         let id = self
             .db
             .get_part_id(name)
-            .ok_or(EleboxError::NotExists(name.to_string()))?;
+            .ok_or(EleboxError::NotExists("Part".to_string(), name.to_string()))?;
 
         let db_part = self
             .db
             .get_part_from_id(&id)
-            .ok_or(EleboxError::NotExists(id.to_string()))?;
+            .ok_or(EleboxError::NotExists("Part".to_string(), id))?;
 
         self.from_db_part(db_part)
     }

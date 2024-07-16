@@ -57,31 +57,34 @@ impl<'a> CategoryManager<'a> {
     }
 
     pub fn get(&self, name: &str) -> Result<Category, EleboxError> {
-        let id = self
-            .db
-            .get_category_id(name)
-            .ok_or(EleboxError::NotExists(name.to_string()))?;
+        let id = self.db.get_category_id(name).ok_or(EleboxError::NotExists(
+            "Category".to_string(),
+            name.to_string(),
+        ))?;
 
         let db_cat = self
             .db
             .get_category_from_id(&id)
-            .ok_or(EleboxError::NotExists(id.to_string()))?;
+            .ok_or(EleboxError::NotExists("Category".to_string(), id))?;
 
         Ok(self.to_category(db_cat))
     }
 
     pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
-        let id = self
-            .db
-            .get_category_id(name)
-            .ok_or(EleboxError::NotExists(name.to_string()))?;
+        let id = self.db.get_category_id(name).ok_or(EleboxError::NotExists(
+            "Category".to_string(),
+            name.to_string(),
+        ))?;
 
         Ok(self.db.delete_category(&id))
     }
 
     pub fn update(&self, ori_name: &str, new_category: &Category) -> Result<(), EleboxError> {
         if self.db.get_category_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(ori_name.to_string()));
+            return Err(EleboxError::NotExists(
+                "Origin category".to_string(),
+                ori_name.to_string(),
+            ));
         }
 
         let db_category = self.to_db_category(new_category)?;
@@ -92,14 +95,22 @@ impl<'a> CategoryManager<'a> {
     fn to_db_category(&self, category: &Category) -> Result<DbCategory, EleboxError> {
         // Part category name is unique
         if self.db.get_category_id(&category.name).is_some() {
-            return Err(EleboxError::AlreadyExists(category.name.to_string()));
+            return Err(EleboxError::AlreadyExists(
+                "Category".to_string(),
+                category.name.clone(),
+            ));
         }
 
         // Get the ID of parent category
         let p_id = match &category.parent {
             Some(p_name) => match self.db.get_category_id(&p_name) {
                 Some(id) => id,
-                None => return Err(EleboxError::NotExists(p_name.to_string())),
+                None => {
+                    return Err(EleboxError::NotExists(
+                        "Parent category".to_string(),
+                        p_name.to_string(),
+                    ))
+                }
             },
             None => ROOT_CATEGORY.to_string(),
         };
