@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
 import { useRoute } from "vue-router";
-import { PartData } from "../interface";
+import { DbPart } from "../db_cmd_part";
 
 const route = useRoute();
 const name = ref();
-const part = ref<PartData>({});
+const part = ref<DbPart.Part>({
+  name: "",
+  quantity: 0,
+  category: "",
+  custom_fields: [],
+  suppliers: [],
+});
 
 async function getPart(name: string) {
-  const cs = await invoke("get_part", { part: name });
-  console.log(cs);
-  part.value = cs as PartData;
+  const partData = await DbPart.get(name);
+  part.value = partData as DbPart.Part;
+  console.log(partData);
 }
 
 onMounted(() => {
