@@ -136,14 +136,14 @@ impl<'a> PartManager<'a> {
         Ok(())
     }
 
-    pub fn update_part_quantity(&self, name: &str, quantity: i16) -> Result<(), EleboxError> {
+    pub fn update_part_quantity(&self, name: &str, increment: i16) -> Result<(), EleboxError> {
         let id = self.db.get_part_id(name);
         if id.is_none() {
             return Err(EleboxError::NotExists("Part".to_string(), name.to_string()));
         }
 
         let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
-        let new_q = db_part.quantity as i16 + quantity;
+        let new_q = db_part.quantity as i16 + increment;
         if new_q < 0 {
             return Err(EleboxError::InventoryShortage(name.to_string()));
         } else {
