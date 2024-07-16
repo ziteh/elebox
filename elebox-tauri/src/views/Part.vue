@@ -40,15 +40,6 @@ let mfrs = reactive<DbMfr.Manufacturer[]>([]);
 let custom_fields = reactive<CustomField[]>([]);
 let suppliers = reactive<Supplier[]>([]);
 
-const new_cf_type = ref();
-const new_cf_name = ref();
-const new_cf_value = ref();
-
-const new_s_name = ref();
-const new_s_link = ref();
-const new_s_price = ref();
-const new_s_note = ref();
-
 async function newPart() {
   if (
     part.value.name === "" ||
@@ -98,14 +89,8 @@ async function getPart(name: string) {
   part.value = data as DbPart.Part;
 }
 
-function handleCustomFieldUpdate(data: {
-  field_type: string;
-  name: string;
-  value: string;
-}) {
-  new_cf_type.value = data.field_type;
-  new_cf_name.value = data.name;
-  new_cf_value.value = data.value;
+function handleCustomFieldUpdate(data: { new: CustomField }) {
+  new_custom_field.value = data.new;
 }
 
 function handleCustomFieldDel(data: { name: string }) {
@@ -116,29 +101,17 @@ function handleCustomFieldDel(data: { name: string }) {
   }
 }
 
-function handleCustomFieldAdd() {
-  const cf: CustomField = {
-    field_type: new_cf_type.value,
-    name: new_cf_name.value,
-    value: new_cf_value.value || "",
+function handleCustomFieldAdd(data: { new: CustomField }) {
+  new_custom_field.value = {
+    field_type: "",
+    name: "",
+    value: "",
   };
-  custom_fields.push(cf);
-
-  new_cf_type.value = "";
-  new_cf_name.value = "";
-  new_cf_value.value = "";
+  custom_fields.push(data.new);
 }
 
-function handleSupplierUpdate(data: {
-  name: string;
-  link: string;
-  price: number;
-  note: string;
-}) {
-  new_s_name.value = data.name;
-  new_s_link.value = data.link;
-  new_s_price.value = data.price;
-  new_s_note.value = data.note;
+function handleSupplierUpdate(data: { new: Supplier }) {
+  new_supplier.value = data.new;
 }
 
 function handleSupplierDel(data: { name: string }) {
@@ -149,25 +122,20 @@ function handleSupplierDel(data: { name: string }) {
   }
 }
 
-function handleSupplierAdd() {
-  const sup: Supplier = {
-    name: new_s_name.value,
-    link: new_s_link.value || "",
-    note: new_s_note.value || "",
-    price: new_s_price?.value ? parseFloat(new_s_price.value) : undefined,
+function handleSupplierAdd(data: { new: Supplier }) {
+  suppliers.push(data.new);
+  new_supplier.value = {
+    name: "",
+    link: "",
+    note: "",
+    price: undefined,
   };
-  suppliers.push(sup);
-
-  new_s_name.value = "";
-  new_s_link.value = "";
-  new_s_price.value = 0.0;
-  new_s_note.value = "";
 }
 
 const route = useRoute();
 
 onMounted(() => {
-  origin_name.value = route.params.ori_name || "";
+  origin_name.value = route.params.ori_name;
   if (origin_name.value !== "") {
     getPart(origin_name.value);
   }
@@ -306,9 +274,9 @@ onMounted(() => {
           </v-row>
           <v-row class="ga-8">
             <PartCustomField
-              :field_type="new_cf_type"
-              :name="new_cf_name"
-              :value="new_cf_type"
+              :field_type="new_custom_field.field_type"
+              :name="new_custom_field.name"
+              :value="new_custom_field.value"
               :create="true"
               @update="handleCustomFieldUpdate"
               @add="handleCustomFieldAdd"
@@ -331,10 +299,10 @@ onMounted(() => {
           </v-row>
           <v-row class="ga-8">
             <PartSupplier
-              :name="new_s_name"
-              :link="new_s_link"
-              :price="new_s_price"
-              :note="new_s_note"
+              :name="new_supplier.name"
+              :link="new_supplier.link"
+              :price="new_supplier.price"
+              :note="new_supplier.note"
               :create="true"
               @update="handleSupplierUpdate"
               @add="handleSupplierAdd"
