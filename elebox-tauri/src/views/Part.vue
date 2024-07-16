@@ -87,6 +87,8 @@ async function getPackages() {
 async function getPart(name: string) {
   const data = await DbPart.get(name);
   part.value = data as DbPart.Part;
+  Object.assign(custom_fields, part.value.custom_fields);
+  Object.assign(suppliers, part.value.suppliers);
 }
 
 function handleCustomFieldUpdate(data: { new: CustomField }) {
