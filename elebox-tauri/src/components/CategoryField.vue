@@ -1,50 +1,46 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
-import { Category } from "../interface";
+import { DbCategory as Db } from "../db_cmd_category";
 
-const props = defineProps<{
-  category?: Category;
-  origin_name?: string;
-}>();
-
-const category = ref<Category>(
-  props.category || { name: "", alias: "", parent: "" }
-);
-
-let categories = reactive<Category[]>([]);
+const props = defineProps<{ origin_name?: string }>();
+const category = ref<Db.Category>({ name: "", parent: "", alias: "" });
+let categories = reactive<Db.Category[]>([]);
 
 async function newCategory() {
-  await invoke("new_category", {
-    name: category.value.name,
-    parent: category.value.parent,
-    alias: category.value.alias,
-  });
+  if (category.value === undefined) {
+    console.warn("undefined");
+    return;
+  }
 
+  await Db.add(category.value);
   await getCategories();
 }
 
 async function updateCategory() {
-  if (props.origin_name === undefined) {
+  if (props.origin_name === undefined || category.value === undefined) {
     return;
   }
-  await invoke("update_category", {
-    originName: props.origin_name,
-    name: category.value.name,
-    parent: category.value.parent,
-    alias: category.value.alias,
-  });
 
+  await Db.update(props.origin_name, category.value);
   await getCategories();
 }
 
 async function getCategories() {
-  const p_cat = await invoke("get_categories", {});
-  Object.assign(categories, p_cat);
-  console.debug(`get categories: ${categories}`);
+  const catData = await Db.list();
+  Object.assign(categories, catData);
+  console.debug(`get categories: ${categories.length}`);
+}
+
+async function getCategory(name: string) {
+  const data = await Db.get(name);
+  category.value = data as Db.Category;
 }
 
 onMounted(() => {
+  if (props.origin_name !== undefined) {
+    getCategory(props.origin_name);
+  }
+
   getCategories();
 });
 </script>

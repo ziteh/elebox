@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import CategoryField from "../components/CategoryField.vue";
-import { Category } from "../interface";
-import { onMounted, ref, reactive } from "vue";
+import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-
-const category = ref<Category>({
-  name: "aa",
-  alias: "ali",
-  parent: "none",
-});
 const name = ref();
 
 onMounted(() => {
@@ -19,8 +12,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container>
+  <v-container v-if="name !== undefined">
     <h1>Edit Category</h1>
-    <CategoryField :category="category" :origin_name="name" />
+    <CategoryField :origin_name="name" />
   </v-container>
 </template>
