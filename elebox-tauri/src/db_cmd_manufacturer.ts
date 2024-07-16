@@ -21,10 +21,10 @@ export namespace DbManufacturer {
   }
 
   export async function update(
-    ori_name: string,
-    new_item: ManufacturerInterface
+    oriName: string,
+    newItem: ManufacturerInterface
   ) {
-    await invoke("update_mfr", { ori_name, new_item })
+    await invoke("update_mfr", { oriName, newItem })
       .then((msg) => console.log(`Update manufacturer, ${msg}`))
       .catch((err) => console.error(`Update manufacturer, ${err}`));
   }

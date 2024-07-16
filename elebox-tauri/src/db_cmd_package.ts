@@ -20,8 +20,8 @@ export namespace DbPackage {
       .catch((err) => console.error(`Add package, ${err}`));
   }
 
-  export async function update(ori_name: string, new_item: PackageInterface) {
-    await invoke("update_package", { ori_name, new_item })
+  export async function update(oriName: string, newItem: PackageInterface) {
+    await invoke("update_package", { oriName, newItem })
       .then((msg) => console.log(`Update package, ${msg}`))
       .catch((err) => console.error(`Update package, ${err}`));
   }

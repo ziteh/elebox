@@ -20,8 +20,8 @@ export namespace DbPart {
       .catch((err) => console.error(`Add part, ${err}`));
   }
 
-  export async function update(ori_name: string, new_item: PartInterface) {
-    await invoke("update_part", { ori_name, new_item })
+  export async function update(oriName: string, newItem: PartInterface) {
+    await invoke("update_part", { oriName, newItem })
       .then((msg) => console.log(`Update part, ${msg}`))
       .catch((err) => console.error(`Update part, ${err}`));
   }
