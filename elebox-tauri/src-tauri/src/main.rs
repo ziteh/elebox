@@ -16,7 +16,7 @@ macro_rules! GET {
 
 struct DbPath(Mutex<String>);
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_part(path: tauri::State<DbPath>, name: &str) -> Option<Part> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -25,7 +25,7 @@ fn get_part(path: tauri::State<DbPath>, name: &str) -> Option<Part> {
     Some(part)
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -33,7 +33,7 @@ fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
     mgr.list()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn add_part(path: tauri::State<DbPath>, item: Part) -> Result<(), String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -41,7 +41,7 @@ fn add_part(path: tauri::State<DbPath>, item: Part) -> Result<(), String> {
     mgr.add(&item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn update_part(path: tauri::State<DbPath>, ori_name: &str, new_item: Part) -> Result<(), String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -49,7 +49,7 @@ fn update_part(path: tauri::State<DbPath>, ori_name: &str, new_item: Part) -> Re
     mgr.update(ori_name, &new_item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn del_part(path: tauri::State<DbPath>, item: &str) -> Result<String, String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -57,7 +57,7 @@ fn del_part(path: tauri::State<DbPath>, item: &str) -> Result<String, String> {
     mgr.delete(item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn increment_part(path: tauri::State<DbPath>, name: &str, increment: i16) -> Result<(), String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -66,7 +66,7 @@ fn increment_part(path: tauri::State<DbPath>, name: &str, increment: i16) -> Res
         .map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_category(path: tauri::State<DbPath>, name: &str) -> Option<Category> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -75,7 +75,7 @@ fn get_category(path: tauri::State<DbPath>, name: &str) -> Option<Category> {
     Some(cat)
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_categories(path: tauri::State<DbPath>) -> Vec<Category> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -83,7 +83,7 @@ fn get_categories(path: tauri::State<DbPath>) -> Vec<Category> {
     mgr.list()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn add_category(path: tauri::State<DbPath>, item: Category) -> Result<(), String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -91,7 +91,7 @@ fn add_category(path: tauri::State<DbPath>, item: Category) -> Result<(), String
     mgr.add(&item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn update_category(
     path: tauri::State<DbPath>,
     ori_name: &str,
@@ -103,7 +103,7 @@ fn update_category(
     mgr.update(ori_name, &new_item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn del_category(path: tauri::State<DbPath>, name: &str) -> Result<String, String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -111,7 +111,7 @@ fn del_category(path: tauri::State<DbPath>, name: &str) -> Result<String, String
     mgr.delete(name).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_tree(path: tauri::State<DbPath>) -> Vec<TreeNode> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -119,7 +119,7 @@ fn get_tree(path: tauri::State<DbPath>) -> Vec<TreeNode> {
     mgr.get_tree()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_package(path: tauri::State<DbPath>, name: &str) -> Option<Package> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -128,7 +128,7 @@ fn get_package(path: tauri::State<DbPath>, name: &str) -> Option<Package> {
     Some(pkg)
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_packages(path: tauri::State<DbPath>) -> Vec<Package> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -136,7 +136,7 @@ fn get_packages(path: tauri::State<DbPath>) -> Vec<Package> {
     mgr.list()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn add_package(path: tauri::State<DbPath>, item: Package) -> Result<(), String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -144,7 +144,7 @@ fn add_package(path: tauri::State<DbPath>, item: Package) -> Result<(), String> 
     mgr.add(&item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn update_package(
     path: tauri::State<DbPath>,
     ori_name: &str,
@@ -156,7 +156,7 @@ fn update_package(
     mgr.update(ori_name, &new_item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn del_package(path: tauri::State<DbPath>, name: &str) -> Result<(), String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -164,7 +164,7 @@ fn del_package(path: tauri::State<DbPath>, name: &str) -> Result<(), String> {
     mgr.delete(name).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_mfr(path: tauri::State<DbPath>, name: &str) -> Option<Manufacturer> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -173,7 +173,7 @@ fn get_mfr(path: tauri::State<DbPath>, name: &str) -> Option<Manufacturer> {
     Some(mfr)
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_mfrs(path: tauri::State<DbPath>) -> Vec<Manufacturer> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -181,7 +181,7 @@ fn get_mfrs(path: tauri::State<DbPath>) -> Vec<Manufacturer> {
     mgr.list()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn add_mfr(path: tauri::State<DbPath>, item: Manufacturer) -> Result<(), String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -189,7 +189,7 @@ fn add_mfr(path: tauri::State<DbPath>, item: Manufacturer) -> Result<(), String>
     mgr.add(&item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn update_mfr(
     path: tauri::State<DbPath>,
     ori_name: &str,
@@ -201,7 +201,7 @@ fn update_mfr(
     mgr.update(ori_name, &new_item).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn del_mfr(path: tauri::State<DbPath>, name: &str) -> Result<String, String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -209,25 +209,25 @@ fn del_mfr(path: tauri::State<DbPath>, name: &str) -> Result<String, String> {
     mgr.delete(name).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_db_path(path: tauri::State<DbPath>) -> String {
     GET!(path).to_string()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
     update_db_path(path, new_path);
     init_db(new_path);
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn export_csv(path: tauri::State<DbPath>, csv_path: &str) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     elebox_core::export_csv(&db, csv_path);
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn import_csv(csv_path: &str) -> Result<(), String> {
     elebox_core::import_csv(csv_path)
 }

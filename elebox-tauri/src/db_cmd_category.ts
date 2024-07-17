@@ -24,8 +24,8 @@ export namespace DbCategory {
       .catch((err) => console.error(`Add category, ${err}`));
   }
 
-  export async function update(oriName: string, newItem: CategoryInterface) {
-    await invoke("update_category", { oriName, newItem })
+  export async function update(ori_name: string, new_item: CategoryInterface) {
+    await invoke("update_category", { ori_name, new_item })
       .then((msg) => console.log(`Update category, ${msg}`))
       .catch((err) => console.error(`Update category, ${err}`));
   }
