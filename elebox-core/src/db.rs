@@ -347,7 +347,7 @@ impl<'a> Database for JammDatabase<'a> {
     }
 
     fn update_mfr(&self, ori_name: &str, new: &DbManufacturer) {
-        if let Some(id) = self.get_package_id(ori_name) {
+        if let Some(id) = self.get_mfr_id(ori_name) {
             self.update_item(MFR_BUCKET, &id, new);
         }
     }
