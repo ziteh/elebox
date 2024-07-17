@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { readonly, ref, watch } from "vue";
 import { Supplier } from "../interface";
 
 const props = defineProps<{
@@ -45,12 +45,14 @@ function emitAdd() {
     placeholder=""
     :rules="[(v: any) => !!v || 'Required']"
     required
+    :readonly="!props.create"
   ></v-text-field>
   <v-text-field
     label="Link"
     variant="outlined"
     v-model.trim="supplier.link"
     placeholder="https://"
+    :readonly="!props.create"
   ></v-text-field>
   <v-text-field
     label="Price"
@@ -58,12 +60,14 @@ function emitAdd() {
     v-model.number="supplier.price"
     type="number"
     min="0"
+    :readonly="!props.create"
   ></v-text-field>
   <v-text-field
     label="Note"
     variant="outlined"
     v-model.trim="supplier.note"
     placeholder=""
+    :readonly="!props.create"
   ></v-text-field>
 
   <v-btn

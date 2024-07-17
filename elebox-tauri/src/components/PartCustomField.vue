@@ -46,6 +46,7 @@ function emitAdd() {
     v-model="custom_field.field_type"
     :rules="[(v: any) => !!v || 'Required']"
     required
+    :readonly="!props.create"
   ></v-select>
   <v-text-field
     label="Name"
@@ -54,12 +55,14 @@ function emitAdd() {
     placeholder=""
     :rules="[(v: any) => !!v || 'Required']"
     required
+    :readonly="!props.create"
   ></v-text-field>
   <v-text-field
     label="Value"
     variant="outlined"
     v-model.trim="custom_field.value"
     placeholder=""
+    :readonly="!props.create"
   ></v-text-field>
 
   <v-btn
