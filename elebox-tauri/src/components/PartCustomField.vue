@@ -15,6 +15,8 @@ const custom_field = ref<CustomField>({
   value: props.value,
 });
 
+const empty = ref(false);
+
 const emit = defineEmits(["update", "add", "del"]);
 
 watch([custom_field], ([new_custom_field]) => {
@@ -28,6 +30,7 @@ function emitDel() {
 function emitAdd() {
   // Required value
   if (!custom_field.value.field_type || !custom_field.value.name) {
+    empty.value = true;
     return;
   }
 
@@ -41,12 +44,16 @@ function emitAdd() {
     :items="['Normal', 'Link']"
     variant="outlined"
     v-model="custom_field.field_type"
+    :rules="[(v: any) => !!v || 'Required']"
+    required
   ></v-select>
   <v-text-field
     label="Name"
     variant="outlined"
     v-model.trim="custom_field.name"
     placeholder=""
+    :rules="[(v: any) => !!v || 'Required']"
+    required
   ></v-text-field>
   <v-text-field
     label="Value"

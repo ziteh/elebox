@@ -43,6 +43,8 @@ function emitAdd() {
     variant="outlined"
     v-model.trim="supplier.name"
     placeholder=""
+    :rules="[(v: any) => !!v || 'Required']"
+    required
   ></v-text-field>
   <v-text-field
     label="Link"
