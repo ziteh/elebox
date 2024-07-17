@@ -4,7 +4,7 @@ import { DbCategory as Db } from "../db_cmd_category";
 
 let categories = reactive<Db.Category[]>([]);
 
-async function get() {
+async function list() {
   const data = await Db.list();
   Object.assign(categories, data);
 }
@@ -13,7 +13,7 @@ async function remove(name: string) {
   await Db.remove(name);
 }
 
-onMounted(get);
+onMounted(list);
 </script>
 
 <template>
