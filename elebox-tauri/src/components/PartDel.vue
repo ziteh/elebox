@@ -15,6 +15,7 @@ async function partDel(part: string) {
   <v-btn
     density="comfortable"
     icon="mdi-trash-can-outline"
+    :title="`Delete: ${part}`"
     @click="partDel(part!)"
   ></v-btn>
 </template>

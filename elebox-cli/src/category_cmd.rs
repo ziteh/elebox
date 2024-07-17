@@ -55,6 +55,7 @@ pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
             if let Err(err) = manager.add(&elebox_core::Category::new(
                 &args.name,
                 args.parent_cat.as_deref(),
+                None, // TODO
             )) {
                 println!("{err}");
             };
@@ -65,13 +66,14 @@ pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
             };
         }
         Some(CategorySubCommand::Update(args)) => {
-            if let Err(err) = manager.update(
-                &args.old_name,
-                args.new_name.as_deref(),
-                args.parent_cat.as_deref(),
-            ) {
-                println!("{err}");
-            };
+            // TODO
+            // if let Err(err) = manager.update(
+            //     &args.old_name,
+            //     args.new_name.as_deref(),
+            //     args.parent_cat.as_deref(),
+            // ) {
+            //     println!("{err}");
+            // };
         }
         Some(CategorySubCommand::Export(args)) => {
             let _ = manager.export_csv(&args.path);

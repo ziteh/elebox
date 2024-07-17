@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
+import { Part } from "../interface";
+import { useRouter, useRoute } from "vue-router";
+import { DbPart } from "../db_cmd_part";
 import PartQty from "../components/PartQty.vue";
 import PartDel from "../components/PartDel.vue";
-import { PartData } from "../interface";
-import { useRouter, useRoute } from "vue-router";
+import ItemEditButton from "../components/ItemEditButton.vue";
 
-let parts = reactive<PartData[]>([]);
+let parts = reactive<Part[]>([]);
 
 const router = useRouter();
 const route = useRoute();
+
+async function getParts() {
+  let promise = await DbPart.list();
+  Object.assign(parts, promise);
+}
 
 function reload() {
   // window.location.reload();
@@ -18,17 +24,6 @@ function reload() {
   router.replace("/redirect").then(() => {
     router.replace(currentPath);
   });
-}
-
-async function updatePage() {
-  reload();
-}
-
-async function getParts() {
-  const ps = await invoke("get_parts", {});
-  Object.assign(parts, ps);
-  console.log(`get parts ${parts.length}`);
-  console.debug(parts);
 }
 
 onMounted(getParts);
@@ -42,7 +37,7 @@ onMounted(getParts);
         variant="outlined"
         :items="parts.map((part) => part.name)"
       ></v-autocomplete>
-      <v-btn @click="updatePage">Update</v-btn>
+      <v-btn @click="reload">Update</v-btn>
     </v-row>
 
     <v-table>
@@ -72,12 +67,17 @@ onMounted(getParts);
           <td>{{ p.package }}</td>
           <td>{{ p.mfr }}</td>
           <td>
-            <PartDel :part="p.name" />
-            <v-btn
+            <!-- <v-btn
               density="comfortable"
               icon="mdi-square-edit-outline"
               :to="{ name: 'update_part', params: { ori_name: p.name } }"
-            ></v-btn>
+            ></v-btn> -->
+
+          <ItemEditButton
+            :path_name="'update_part'"
+            :item_name="p.name"
+          />
+            <PartDel :part="p.name" />
           </td>
         </tr>
       </tbody>

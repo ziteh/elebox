@@ -12,10 +12,10 @@ export interface Supplier {
     note: string;
 }
 
-export interface PartData {
-    name?: string;
-    quantity?: number;
-    category?: string;
+export interface Part {
+    name: string;
+    quantity: number;
+    category: string;
     package?: string;
     package_detail?: string;
     mfr?: string;
@@ -26,33 +26,26 @@ export interface PartData {
     datasheet_link?: string;
     product_link?: string;
     image_link?: string;
-    custom_fields?: CustomField[];
-    suppliers?: Supplier[];
+    custom_fields: CustomField[];
+    suppliers: Supplier[];
 }
 
-export interface Parts extends Array<PartData> { }
-
-export interface Categories {
-    [index: number]: {
-        name: string;
-        parent: string;
-    };
+export interface Category {
+    name: string;
+    parent?: string;
+    alias?: string;
 }
 
-export interface Packages {
-    [index: number]: {
-        name: string;
-        pkg_type: string;
-        alias: string;
-    };
+export interface Package {
+    name: string;
+    pkg_type: string; // TODO enum
+    alias?: string;
 }
 
-export interface Manufacturers {
-    [index: number]: {
-        name: string;
-        alias: string;
-        url: string;
-    };
+export interface Manufacturer {
+    name: string;
+    alias?: string;
+    url?: string;
 }
 
 export interface TreeNode {

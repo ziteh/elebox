@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
-import { DbCategory as Db } from "../db_cmd_category";
+import { DbPackage as Db } from "../db_cmd_package";
 import ItemEditButton from "./ItemEditButton.vue";
 
-let categories = reactive<Db.Category[]>([]);
+let pkgs = reactive<Db.Package[]>([]);
 
 async function list() {
   const data = await Db.list();
-  Object.assign(categories, data);
+  Object.assign(pkgs, data);
 }
 
 async function remove(name: string) {
@@ -22,26 +22,23 @@ onMounted(list);
     <thead>
       <tr>
         <th>Name</th>
+        <th>Type</th>
         <th>Alias</th>
-        <th>Parent</th>
         <th>Edit</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(cat, i) in categories" :key="i">
-        <td>{{ cat.name }}</td>
-        <td>{{ cat.alias }}</td>
-        <td>{{ cat.parent }}</td>
+      <tr v-for="(p, i) in pkgs" :key="i">
+        <td>{{ p.name }}</td>
+        <td>{{ p.pkg_type.toUpperCase() }}</td>
+        <td>{{ p.alias }}</td>
         <td>
-          <ItemEditButton
-            :path_name="'update_category'"
-            :item_name="cat.name"
-          />
+          <ItemEditButton :path_name="'update_package'" :item_name="p.name" />
           <v-btn
             density="comfortable"
             icon="mdi-trash-can-outline"
-            :title="`Delete: ${cat.name}`"
-            @click="remove(cat.name)"
+            :title="`Delete: ${p.name}`"
+            @click="remove(p.name)"
           ></v-btn>
         </td>
       </tr>

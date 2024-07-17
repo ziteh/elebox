@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
-import { DbCategory as Db } from "../db_cmd_category";
+import { DbManufacturer as Db } from "../db_cmd_manufacturer";
 import ItemEditButton from "./ItemEditButton.vue";
 
-let categories = reactive<Db.Category[]>([]);
+let mfrs = reactive<Db.Manufacturer[]>([]);
 
 async function list() {
   const data = await Db.list();
-  Object.assign(categories, data);
+  Object.assign(mfrs, data);
 }
 
 async function remove(name: string) {
@@ -23,25 +23,32 @@ onMounted(list);
       <tr>
         <th>Name</th>
         <th>Alias</th>
-        <th>Parent</th>
         <th>Edit</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(cat, i) in categories" :key="i">
-        <td>{{ cat.name }}</td>
-        <td>{{ cat.alias }}</td>
-        <td>{{ cat.parent }}</td>
+      <tr v-for="(m, i) in mfrs" :key="i">
+        <td>
+          {{ m.name }}
+          <a
+            v-if="m.url !== '' && m.url !== undefined"
+            :title="m.url"
+            :href="m.url"
+            target="_blank"
+            ><v-icon>mdi-open-in-new</v-icon>
+          </a>
+        </td>
+        <td>{{ m.alias }}</td>
         <td>
           <ItemEditButton
-            :path_name="'update_category'"
-            :item_name="cat.name"
+            :path_name="'update_manufacturer'"
+            :item_name="m.name"
           />
           <v-btn
             density="comfortable"
             icon="mdi-trash-can-outline"
-            :title="`Delete: ${cat.name}`"
-            @click="remove(cat.name)"
+            :title="`Delete: ${m.name}`"
+            @click="remove(m.name)"
           ></v-btn>
         </td>
       </tr>

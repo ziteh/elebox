@@ -1,138 +1,98 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import {
-  Categories,
-  Packages,
-  Manufacturers,
-  CustomField,
-  Supplier,
-  PartData,
-} from "../interface";
+import { CustomField, Supplier } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
 import { useRoute } from "vue-router";
+import { DbPart } from "../db_cmd_part";
+import { DbCategory } from "../db_cmd_category";
+import { DbManufacturer as DbMfr } from "../db_cmd_manufacturer";
+import { DbPackage } from "../db_cmd_package";
 
-let categories = reactive<Categories>({});
-let packages = reactive<Packages>({});
-let manufacturers = reactive<Manufacturers>({});
-let custom_fields = reactive<CustomField[]>([]);
-let suppliers = reactive<Supplier[]>([]);
-
-const new_cf_type = ref();
-const new_cf_name = ref();
-const new_cf_value = ref();
-
-const new_s_name = ref();
-const new_s_link = ref();
-const new_s_price = ref();
-const new_s_note = ref();
+const origin_name = ref<string>();
+const part = ref<DbPart.Part>({
+  name: "",
+  quantity: 0,
+  category: "",
+  custom_fields: [],
+  suppliers: [],
+});
 
 const favorite = ref();
 
-const name = ref();
-const qty = ref();
-const category = ref();
-const pkg = ref();
-const pkg_detail = ref();
-const mfr = ref();
-const location = ref();
-const alias = ref();
-const description = ref();
-const mfr_no = ref();
-const datasheet_link = ref();
-const product_link = ref();
-const image_link = ref();
+const new_custom_field = ref<CustomField>({
+  name: "",
+  field_type: "",
+  value: "",
+});
 
-const ori_name = ref();
+const new_supplier = ref<Supplier>({
+  name: "",
+  link: "",
+  price: undefined,
+  note: "",
+});
+
+let categories = reactive<DbCategory.Category[]>([]);
+let packages = reactive<DbPackage.Package[]>([]);
+let mfrs = reactive<DbMfr.Manufacturer[]>([]);
+let custom_fields = reactive<CustomField[]>([]);
+let suppliers = reactive<Supplier[]>([]);
 
 async function newPart() {
-  // console.log(mfr.value);
-  // console.log(pkg.value);
+  if (
+    part.value.name === "" ||
+    part.value.category === "" ||
+    part.value.quantity < 0
+  ) {
+    return;
+  }
 
-  await invoke("new_part", {
-    name: name.value,
-    qty: parseInt(qty.value),
-    category: category.value,
-    package: pkg.value ?? "",
-    packageDetail: pkg_detail.value ?? "",
-    mfr: mfr.value ?? "",
-    alias: alias.value ?? "",
-    description: description.value ?? "",
-    location: location.value ?? "",
-    mfrNo: mfr_no.value ?? "",
-    datasheetLink: datasheet_link.value ?? "",
-    productLink: product_link.value ?? "",
-    imageLink: image_link.value ?? "",
-    customFields: custom_fields,
-    suppliers: suppliers,
-  });
+  part.value.quantity = Math.trunc(part.value.quantity);
+  await DbPart.add(part.value);
 }
+
 async function updatePart() {
-  await invoke("update_part", {
-    originName: ori_name.value,
-    name: name.value,
-    qty: parseInt(qty.value),
-    category: category.value,
-    package: pkg.value ?? "",
-    packageDetail: pkg_detail.value ?? "",
-    mfr: mfr.value ?? "",
-    alias: alias.value ?? "",
-    description: description.value ?? "",
-    location: location.value ?? "",
-    mfrNo: mfr_no.value ?? "",
-    datasheetLink: datasheet_link.value ?? "",
-    productLink: product_link.value ?? "",
-    imageLink: image_link.value ?? "",
-    customFields: custom_fields,
-    suppliers: suppliers,
-  });
+  if (origin_name.value === undefined) {
+    return;
+  }
+
+  if (
+    part.value.name === "" ||
+    part.value.category === "" ||
+    part.value.quantity < 0
+  ) {
+    return;
+  }
+
+  await DbPart.update(origin_name.value, part.value);
 }
 
 async function getCategories() {
-  const cs = await invoke("get_categories", {});
-  Object.assign(categories, cs);
-  console.debug(`get categories: ${categories}`);
+  const data = await DbCategory.list();
+  Object.assign(categories, data);
 }
 
 async function getMfrs() {
-  const cs = await invoke("get_mfrs", {});
-  Object.assign(manufacturers, cs);
+  const date = await DbMfr.list();
+  Object.assign(mfrs, date);
 }
 
 async function getPackages() {
-  const cs = await invoke("get_packages", {});
-  Object.assign(packages, cs);
+  const data = await DbPackage.list();
+  Object.assign(packages, data);
 }
 
-async function getPart(ori_name: string) {
-  const cs = await invoke("get_part", { part: ori_name });
-  const ori_part = cs as PartData;
-
-  name.value = ori_part.name;
-  qty.value = ori_part.quantity;
-  category.value = ori_part.category;
-  pkg.value = ori_part.package;
-  pkg_detail.value = ori_part.package_detail;
-  mfr.value = ori_part.mfr;
-  mfr_no.value = ori_part.mfr_no;
-  alias.value = ori_part.alias;
-  product_link.value = ori_part.product_link;
-  datasheet_link.value = ori_part.datasheet_link;
-  image_link.value = ori_part.image_link;
-  description.value = ori_part.description;
-  Object.assign(suppliers, ori_part.suppliers);
-  Object.assign(custom_fields, ori_part.custom_fields);
+async function getPart(name: string) {
+  const data = await DbPart.get(name);
+  part.value = data as DbPart.Part;
+  Object.assign(custom_fields, part.value.custom_fields);
+  Object.assign(suppliers, part.value.suppliers);
 }
 
-function handleCustomFieldUpdate(data: {
-  field_type: string;
-  name: string;
-  value: string;
-}) {
-  new_cf_type.value = data.field_type;
-  new_cf_name.value = data.name;
-  new_cf_value.value = data.value;
+function handleCustomFieldUpdate(data: { new: CustomField }) {
+  new_custom_field.value = data.new;
 }
 
 function handleCustomFieldDel(data: { name: string }) {
@@ -143,29 +103,17 @@ function handleCustomFieldDel(data: { name: string }) {
   }
 }
 
-function handleCustomFieldAdd() {
-  const cf: CustomField = {
-    field_type: new_cf_type.value,
-    name: new_cf_name.value,
-    value: new_cf_value.value || "",
+function handleCustomFieldAdd(data: { new: CustomField }) {
+  new_custom_field.value = {
+    field_type: "",
+    name: "",
+    value: "",
   };
-  custom_fields.push(cf);
-
-  new_cf_type.value = "";
-  new_cf_name.value = "";
-  new_cf_value.value = "";
+  custom_fields.push(data.new);
 }
 
-function handleSupplierUpdate(data: {
-  name: string;
-  link: string;
-  price: number;
-  note: string;
-}) {
-  new_s_name.value = data.name;
-  new_s_link.value = data.link;
-  new_s_price.value = data.price;
-  new_s_note.value = data.note;
+function handleSupplierUpdate(data: { new: Supplier }) {
+  new_supplier.value = data.new;
 }
 
 function handleSupplierDel(data: { name: string }) {
@@ -176,28 +124,24 @@ function handleSupplierDel(data: { name: string }) {
   }
 }
 
-function handleSupplierAdd() {
-  const sup: Supplier = {
-    name: new_s_name.value,
-    link: new_s_link.value || "",
-    note: new_s_note.value || "",
-    price: new_s_price?.value ? parseFloat(new_s_price.value) : undefined,
+function handleSupplierAdd(data: { new: Supplier }) {
+  suppliers.push(data.new);
+  new_supplier.value = {
+    name: "",
+    link: "",
+    note: "",
+    price: undefined,
   };
-  suppliers.push(sup);
-
-  new_s_name.value = "";
-  new_s_link.value = "";
-  new_s_price.value = 0.0;
-  new_s_note.value = "";
 }
 
 const route = useRoute();
 
 onMounted(() => {
-  ori_name.value = route.params.ori_name || "";
-  if (ori_name.value !== "") {
-    getPart(ori_name.value);
+  origin_name.value = route.params.origin_name;
+  if (origin_name.value !== undefined && origin_name.value !== "") {
+    getPart(origin_name.value);
   }
+
   getCategories();
   getMfrs();
   getPackages();
@@ -208,7 +152,9 @@ onMounted(() => {
   <v-form fast-fail @submit.prevent>
     <v-container>
       <v-row class="mb-3 ga-8" align="center">
-        <v-btn v-if="ori_name == ''" type="submit" @click="newPart">ADD</v-btn>
+        <v-btn v-if="origin_name == ''" type="submit" @click="newPart"
+          >ADD</v-btn
+        >
         <v-btn v-else @click="updatePart">Update</v-btn>
         <v-switch
           true-icon="mdi-star"
@@ -222,7 +168,7 @@ onMounted(() => {
         <v-text-field
           label="Name"
           variant="outlined"
-          v-model="name"
+          v-model="part.name"
           placeholder="RP2040"
           :rules="[(v: any) => !!v || 'Required']"
           required
@@ -230,7 +176,7 @@ onMounted(() => {
         <v-text-field
           label="Quantity"
           variant="outlined"
-          v-model="qty"
+          v-model.number="part.quantity"
           placeholder="15"
           :rules="[(v: any) => !!v || 'Required']"
           required
@@ -240,7 +186,7 @@ onMounted(() => {
         <v-autocomplete
           label="Category"
           variant="outlined"
-          v-model="category"
+          v-model="part.category"
           :items="Object.values(categories).map((cat) => cat.name)"
           :rules="[(v: any) => !!v || 'Required']"
         ></v-autocomplete>
@@ -252,25 +198,25 @@ onMounted(() => {
         <v-autocomplete
           label="Package"
           variant="outlined"
-          v-model="pkg"
+          v-model="part.package"
           :items="Object.values(packages).map((pck) => pck.name)"
         ></v-autocomplete>
         <v-text-field
           label="Package Detail"
           variant="outlined"
-          v-model="pkg_detail"
+          v-model="part.package_detail"
           placeholder="7x7mm P0.4mm 1EP3.2x32.mm"
         ></v-text-field>
         <v-autocomplete
           label="Manufacturer"
           variant="outlined"
-          v-model="mfr"
-          :items="Object.values(manufacturers).map((mfr) => mfr.name)"
+          v-model="part.mfr"
+          :items="Object.values(mfrs).map((mfr) => mfr.name)"
         ></v-autocomplete>
         <v-text-field
           label="Location"
           variant="outlined"
-          v-model="location"
+          v-model="part.location"
           placeholder="Box #1"
         ></v-text-field>
       </v-row>
@@ -278,13 +224,13 @@ onMounted(() => {
         <v-text-field
           label="Alias"
           variant="outlined"
-          v-model="alias"
+          v-model="part.alias"
           placeholder=""
         ></v-text-field>
         <v-text-field
           label="Mfr #"
           variant="outlined"
-          v-model="mfr_no"
+          v-model="part.mfr_no"
           placeholder="SC0914(7)"
           title="Manufacturer part number"
         ></v-text-field>
@@ -293,19 +239,19 @@ onMounted(() => {
         <v-text-field
           label="Product"
           variant="outlined"
-          v-model="product_link"
+          v-model="part.product_link"
           placeholder="URL, full path or filename"
         ></v-text-field>
         <v-text-field
           label="Datasheet"
           variant="outlined"
-          v-model="datasheet_link"
+          v-model="part.datasheet_link"
           placeholder="URL, full path or filename"
         ></v-text-field>
         <v-text-field
           label="Image"
           variant="outlined"
-          v-model="image_link"
+          v-model="part.image_link"
           placeholder="URL, full path or filename"
         ></v-text-field>
       </v-row>
@@ -313,7 +259,7 @@ onMounted(() => {
         <v-textarea
           label="Description"
           variant="outlined"
-          v-model="description"
+          v-model="part.description"
           placeholder="Write something ..."
         ></v-textarea>
       </v-row>
@@ -331,9 +277,9 @@ onMounted(() => {
           </v-row>
           <v-row class="ga-8">
             <PartCustomField
-              :field_type="new_cf_type"
-              :name="new_cf_name"
-              :value="new_cf_type"
+              :field_type="new_custom_field.field_type"
+              :name="new_custom_field.name"
+              :value="new_custom_field.value"
               :create="true"
               @update="handleCustomFieldUpdate"
               @add="handleCustomFieldAdd"
@@ -356,10 +302,10 @@ onMounted(() => {
           </v-row>
           <v-row class="ga-8">
             <PartSupplier
-              :name="new_s_name"
-              :link="new_s_link"
-              :price="new_s_price"
-              :note="new_s_note"
+              :name="new_supplier.name"
+              :link="new_supplier.link"
+              :price="new_supplier.price"
+              :note="new_supplier.note"
               :create="true"
               @update="handleSupplierUpdate"
               @add="handleSupplierAdd"

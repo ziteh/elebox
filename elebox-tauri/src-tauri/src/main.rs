@@ -5,7 +5,7 @@ use dirs;
 use elebox_core::{
     Category, CustomField, Manufacturer, Package, PackageType, Part, Supplier, TreeNode,
 };
-use std::sync::Mutex;
+use std::{sync::Mutex, task::ready};
 use tauri::Manager;
 
 macro_rules! GET {
@@ -16,92 +16,16 @@ macro_rules! GET {
 
 struct DbPath(Mutex<String>);
 
-#[tauri::command]
-fn get_packages(path: tauri::State<DbPath>) -> Vec<Package> {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::PackageManager::new(&db);
-    mgr.list()
-}
-
-#[tauri::command]
-fn new_package(path: tauri::State<DbPath>, name: &str, pkg_type: &str, alias: &str) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::PackageManager::new(&db);
-
-    let pkg = Package {
-        name: name.to_string(),
-        pkg_type: match pkg_type.to_uppercase().as_str() {
-            "SMT" => PackageType::Smt,
-            "THT" => PackageType::Tht,
-            _ => PackageType::Others,
-        },
-        alias: match alias {
-            "" => None,
-            _ => Some(alias.to_string()),
-        },
-    };
-    let _ = mgr.add(&pkg);
-}
-
-#[tauri::command]
-fn del_package(path: tauri::State<DbPath>, name: &str) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::PackageManager::new(&db);
-    let _ = mgr.delete(name);
-}
-
-#[tauri::command]
-fn get_mfrs(path: tauri::State<DbPath>) -> Vec<Manufacturer> {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::ManufacturerManager::new(&db);
-    mgr.list()
-}
-
-#[tauri::command]
-fn new_mfr(path: tauri::State<DbPath>, name: &str, alias: &str, url: &str) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::ManufacturerManager::new(&db);
-
-    let mfr = Manufacturer {
-        name: name.to_string(),
-        alias: match alias {
-            "" => None,
-            _ => Some(alias.to_string()),
-        },
-        url: match url {
-            "" => None,
-            _ => Some(url.to_string()),
-        },
-    };
-    let _ = mgr.add(&mfr);
-}
-
-#[tauri::command]
-fn del_mfr(path: tauri::State<DbPath>, name: &str) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::ManufacturerManager::new(&db);
-    let _ = mgr.delete(name);
-}
-
-#[tauri::command]
-fn get_part(path: tauri::State<DbPath>, part: &str) -> Option<Part> {
+#[tauri::command(rename_all = "snake_case")]
+fn get_part(path: tauri::State<DbPath>, name: &str) -> Option<Part> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
-    let part = mgr.get(part);
-    if part.is_err() {
-        return None;
-    }
-    return Some(part.unwrap());
+    let part = mgr.get(name).ok()?;
+    Some(part)
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -109,144 +33,49 @@ fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
     mgr.list()
 }
 
-#[tauri::command]
-fn get_tree(path: tauri::State<DbPath>) -> Vec<TreeNode> {
+#[tauri::command(rename_all = "snake_case")]
+fn add_part(path: tauri::State<DbPath>, item: Part) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PartManager::new(&db);
+    mgr.add(&item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn update_part(path: tauri::State<DbPath>, ori_name: &str, new_item: Part) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PartManager::new(&db);
+    mgr.update(ori_name, &new_item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn del_part(path: tauri::State<DbPath>, item: &str) -> Result<String, String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PartManager::new(&db);
+    mgr.delete(item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn increment_part(path: tauri::State<DbPath>, name: &str, increment: i16) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PartManager::new(&db);
+    mgr.update_part_quantity(name, increment)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_category(path: tauri::State<DbPath>, name: &str) -> Option<Category> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&db);
-    mgr.get_tree()
+    let cat = mgr.get(name).ok()?;
+    Some(cat)
 }
 
-#[tauri::command]
-fn part_del(path: tauri::State<DbPath>, part: &str) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::PartManager::new(&db);
-    let _ = mgr.delete(part);
-}
-
-#[tauri::command]
-fn part_add(path: tauri::State<DbPath>, part: &str, qty: i16) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::PartManager::new(&db);
-    let _ = mgr.update_part_quantity(part, qty);
-}
-
-#[tauri::command]
-fn new_category(path: tauri::State<DbPath>, name: &str, parent: &str) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::CategoryManager::new(&db);
-
-    let cat = Category {
-        name: name.to_string(),
-        parent: match parent {
-            "" => None,
-            _ => Some(parent.to_string()),
-        },
-        alias: None, // TODO
-    };
-    let _ = mgr.add(&cat);
-}
-
-#[tauri::command]
-fn del_category(path: tauri::State<DbPath>, name: &str) -> String {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::CategoryManager::new(&db);
-
-    let res = mgr.delete(name);
-    match res {
-        Err(e) => return e.to_string(),
-        Ok(s) => return format!("OK {s}"),
-    }
-}
-
-#[tauri::command]
-fn new_part(
-    path: tauri::State<DbPath>,
-    name: &str,
-    qty: u16,
-    category: &str,
-    package: &str,
-    package_detail: &str,
-    mfr: &str,
-    alias: &str,
-    description: &str,
-    location: &str,
-    mfr_no: &str,
-    datasheet_link: &str,
-    product_link: &str,
-    image_link: &str,
-    custom_fields: Vec<CustomField>,
-    suppliers: Vec<Supplier>,
-) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::PartManager::new(&db);
-
-    let mut part = Part::new(name, category, qty);
-
-    part.package = Option::from(package.to_string()).filter(|s| !s.is_empty());
-    part.package_detail = Option::from(package_detail.to_string()).filter(|s| !s.is_empty());
-    part.mfr = Option::from(mfr.to_string()).filter(|s| !s.is_empty());
-    part.alias = Option::from(alias.to_string()).filter(|s| !s.is_empty());
-    part.description = Option::from(description.to_string()).filter(|s| !s.is_empty());
-    part.location = Option::from(location.to_string()).filter(|s| !s.is_empty());
-    part.mfr_no = Option::from(mfr_no.to_string()).filter(|s| !s.is_empty());
-    part.datasheet_link = Option::from(datasheet_link.to_string()).filter(|s| !s.is_empty());
-    part.product_link = Option::from(product_link.to_string()).filter(|s| !s.is_empty());
-    part.image_link = Option::from(image_link.to_string()).filter(|s| !s.is_empty());
-    part.custom_fields = custom_fields;
-    part.suppliers = suppliers;
-
-    let _ = mgr.add(&part);
-}
-
-#[tauri::command]
-fn update_part(
-    path: tauri::State<DbPath>,
-    origin_name: &str,
-    name: &str,
-    qty: u16,
-    category: &str,
-    package: &str,
-    package_detail: &str,
-    mfr: &str,
-    alias: &str,
-    description: &str,
-    location: &str,
-    mfr_no: &str,
-    datasheet_link: &str,
-    product_link: &str,
-    image_link: &str,
-    custom_fields: Vec<CustomField>,
-    suppliers: Vec<Supplier>,
-) {
-    let p = GET!(path);
-    let db = elebox_core::JammDatabase::new(&p);
-    let mgr = elebox_core::PartManager::new(&db);
-
-    let mut part = Part::new(name, category, qty);
-
-    part.package = Option::from(package.to_string()).filter(|s| !s.is_empty());
-    part.package_detail = Option::from(package_detail.to_string()).filter(|s| !s.is_empty());
-    part.mfr = Option::from(mfr.to_string()).filter(|s| !s.is_empty());
-    part.alias = Option::from(alias.to_string()).filter(|s| !s.is_empty());
-    part.description = Option::from(description.to_string()).filter(|s| !s.is_empty());
-    part.location = Option::from(location.to_string()).filter(|s| !s.is_empty());
-    part.mfr_no = Option::from(mfr_no.to_string()).filter(|s| !s.is_empty());
-    part.datasheet_link = Option::from(datasheet_link.to_string()).filter(|s| !s.is_empty());
-    part.product_link = Option::from(product_link.to_string()).filter(|s| !s.is_empty());
-    part.image_link = Option::from(image_link.to_string()).filter(|s| !s.is_empty());
-    part.custom_fields = custom_fields;
-    part.suppliers = suppliers;
-
-    let _ = mgr.update(origin_name, &part);
-}
-
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn get_categories(path: tauri::State<DbPath>) -> Vec<Category> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
@@ -254,27 +83,153 @@ fn get_categories(path: tauri::State<DbPath>) -> Vec<Category> {
     mgr.list()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
+fn add_category(path: tauri::State<DbPath>, item: Category) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::CategoryManager::new(&db);
+    mgr.add(&item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn update_category(
+    path: tauri::State<DbPath>,
+    ori_name: &str,
+    new_item: Category,
+) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::CategoryManager::new(&db);
+    mgr.update(ori_name, &new_item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn del_category(path: tauri::State<DbPath>, name: &str) -> Result<String, String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::CategoryManager::new(&db);
+    mgr.delete(name).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_tree(path: tauri::State<DbPath>) -> Vec<TreeNode> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::CategoryManager::new(&db);
+    mgr.get_tree()
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_package(path: tauri::State<DbPath>, name: &str) -> Option<Package> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PackageManager::new(&db);
+    let pkg = mgr.get(name).ok()?;
+    Some(pkg)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_packages(path: tauri::State<DbPath>) -> Vec<Package> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PackageManager::new(&db);
+    mgr.list()
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn add_package(path: tauri::State<DbPath>, item: Package) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PackageManager::new(&db);
+    mgr.add(&item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn update_package(
+    path: tauri::State<DbPath>,
+    ori_name: &str,
+    new_item: Package,
+) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PackageManager::new(&db);
+    mgr.update(ori_name, &new_item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn del_package(path: tauri::State<DbPath>, name: &str) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::PackageManager::new(&db);
+    mgr.delete(name).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_mfr(path: tauri::State<DbPath>, name: &str) -> Option<Manufacturer> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::ManufacturerManager::new(&db);
+    let mfr = mgr.get(name).ok()?;
+    Some(mfr)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_mfrs(path: tauri::State<DbPath>) -> Vec<Manufacturer> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::ManufacturerManager::new(&db);
+    mgr.list()
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn add_mfr(path: tauri::State<DbPath>, item: Manufacturer) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::ManufacturerManager::new(&db);
+    mgr.add(&item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn update_mfr(
+    path: tauri::State<DbPath>,
+    ori_name: &str,
+    new_item: Manufacturer,
+) -> Result<(), String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::ManufacturerManager::new(&db);
+    mgr.update(ori_name, &new_item).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn del_mfr(path: tauri::State<DbPath>, name: &str) -> Result<String, String> {
+    let p = GET!(path);
+    let db = elebox_core::JammDatabase::new(&p);
+    let mgr = elebox_core::ManufacturerManager::new(&db);
+    mgr.delete(name).map_err(|e| e.to_string())
+}
+
+#[tauri::command(rename_all = "snake_case")]
 fn get_db_path(path: tauri::State<DbPath>) -> String {
     GET!(path).to_string()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
     update_db_path(path, new_path);
     init_db(new_path);
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 fn export_csv(path: tauri::State<DbPath>, csv_path: &str) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     elebox_core::export_csv(&db, csv_path);
 }
 
-#[tauri::command]
-fn import_csv(path: tauri::State<DbPath>, csv_path: &str) {
-    let _ = elebox_core::import_csv(csv_path);
+#[tauri::command(rename_all = "snake_case")]
+fn import_csv(csv_path: &str) -> Result<(), String> {
+    elebox_core::import_csv(csv_path)
 }
 
 fn main() {
@@ -300,26 +255,32 @@ fn main() {
         })
         .manage(DbPath(Mutex::new(db_path)))
         .invoke_handler(tauri::generate_handler![
-            get_parts,
             get_part,
+            get_parts,
+            add_part,
+            update_part,
+            del_part,
+            increment_part,
+            get_category,
             get_categories,
-            part_add,
-            new_part,
-            part_del,
-            new_category,
+            add_category,
+            update_category,
             del_category,
+            get_tree,
+            get_package,
+            get_packages,
+            add_package,
+            update_package,
+            del_package,
+            get_mfr,
+            get_mfrs,
+            add_mfr,
+            update_mfr,
+            del_mfr,
             get_db_path,
             set_db_path,
-            get_packages,
-            new_package,
-            del_package,
-            get_mfrs,
-            new_mfr,
-            del_mfr,
             export_csv,
             import_csv,
-            get_tree,
-            update_part,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

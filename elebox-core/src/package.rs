@@ -21,10 +21,7 @@ impl Package {
         Self {
             pkg_type,
             name: name.to_string(),
-            alias: match alias {
-                Some(s) => Some(s.to_string()),
-                _ => None,
-            },
+            alias: alias.map(|s| s.to_string()),
         }
     }
 }
@@ -39,55 +36,92 @@ impl<'a> PackageManager<'a> {
     }
 
     pub fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_package_id(name);
-        if id.is_none() {
-            return Err(EleboxError::NotExists(name.to_string()));
-        }
+        let id = self.db.get_package_id(name).ok_or(EleboxError::NotExists(
+            "Package".to_string(),
+            name.to_string(),
+        ))?;
 
-        self.db.delete_package(&id.unwrap());
-        return Ok(());
+        self.db.delete_package(&id);
+        Ok(())
     }
 
-    pub fn add(&self, item: &Package) -> Result<(), EleboxError> {
-        if self.db.get_package_id(&item.name).is_some() {
-            return Err(EleboxError::AlreadyExists(item.name.to_string()));
-        }
-
+    fn to_db_package(&self, package: &Package) -> Result<DbPackage, EleboxError> {
         let db_pkg = DbPackage {
-            name: item.name.to_string(),
-            pkg_type: match item.pkg_type {
+            name: package.name.to_string(),
+            pkg_type: match package.pkg_type {
                 PackageType::Smt => String::from("smt"),
                 PackageType::Tht => String::from("tht"),
                 PackageType::Others => String::from("others"),
             },
-            alias: match &item.alias {
+            alias: match &package.alias {
                 Some(s) => s.to_string(),
                 _ => String::from(""),
             },
         };
+        Ok(db_pkg)
+    }
 
+    pub fn add(&self, package: &Package) -> Result<(), EleboxError> {
+        if self.db.get_package_id(&package.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                "Package".to_string(),
+                package.name.clone(),
+            ));
+        }
+
+        let db_pkg = self.to_db_package(package)?;
         self.db.add_package(&db_pkg);
-        return Ok(());
+        Ok(())
+    }
+
+    pub fn update(&self, ori_name: &str, new_package: &Package) -> Result<(), EleboxError> {
+        if self.db.get_package_id(ori_name).is_none() {
+            return Err(EleboxError::NotExists(
+                "Origin package".to_string(),
+                ori_name.to_string(),
+            ));
+        }
+
+        let db_pkg = self.to_db_package(new_package)?;
+        self.db.update_package(ori_name, &db_pkg);
+        Ok(())
+    }
+
+    fn to_package(&self, db_package: DbPackage) -> Package {
+        Package {
+            name: db_package.name,
+            pkg_type: match db_package.pkg_type.as_str() {
+                "smt" => PackageType::Smt,
+                "tht" => PackageType::Tht,
+                _ => PackageType::Others,
+            },
+            alias: match db_package.alias.as_str() {
+                "" => None,
+                other => Some(other.to_string()),
+            },
+        }
+    }
+
+    pub fn get(&self, name: &str) -> Result<Package, EleboxError> {
+        let id = self.db.get_package_id(name).ok_or(EleboxError::NotExists(
+            "Package".to_string(),
+            name.to_string(),
+        ))?;
+
+        let db_pkg = self
+            .db
+            .get_package_from_id(&id)
+            .ok_or(EleboxError::NotExists("Package".to_string(), id))?;
+
+        Ok(self.to_package(db_pkg))
     }
 
     pub fn list(&self) -> Vec<Package> {
-        let db_pkgs = self.db.get_packages();
-        let mut pkgs: Vec<Package> = Vec::new();
-
-        for db_pkg in db_pkgs {
-            let p = Package::new(
-                &db_pkg.name,
-                match db_pkg.pkg_type.as_str() {
-                    "smt" => PackageType::Smt,
-                    "tht" => PackageType::Tht,
-                    "others" => PackageType::Others,
-                    _ => panic!(),
-                },
-                Some(db_pkg.alias.as_str()).filter(|s| !s.is_empty()),
-            );
-            pkgs.push(p)
-        }
-        return pkgs;
+        self.db
+            .get_packages()
+            .into_iter()
+            .filter_map(|db_p| Some(self.to_package(db_p)))
+            .collect()
     }
 
     pub fn export_csv(&self, filename: &str) -> Result<(), ()> {

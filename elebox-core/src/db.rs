@@ -133,6 +133,9 @@ pub trait Database {
     fn delete_mfr(&self, id: &str) -> String;
 
     fn update_part(&self, name: &str, part: &DbPart);
+    fn update_category(&self, name: &str, category: &DbCategory);
+    fn update_package(&self, ori_name: &str, new: &DbPackage);
+    fn update_mfr(&self, ori_name: &str, new: &DbManufacturer);
 }
 
 pub struct JammDatabase<'a> {
@@ -155,6 +158,19 @@ impl<'a> JammDatabase<'a> {
         let value = rmp_serde::to_vec(&item).unwrap();
         let id = Uuid::new_v4().to_string();
         bkt.put(id, value).unwrap();
+        let _ = tx.commit();
+    }
+
+    fn update_item<T>(&self, bucket: &str, ori_id: &str, new_item: &T)
+    where
+        T: Serialize,
+    {
+        let db = DB::open(self.path).unwrap();
+        let tx = db.tx(true).unwrap();
+        let bkt = tx.get_bucket(bucket).unwrap();
+
+        let value = rmp_serde::to_vec(&new_item).unwrap();
+        bkt.put(ori_id, value).unwrap();
         let _ = tx.commit();
     }
 
@@ -233,19 +249,19 @@ impl<'a> Database for JammDatabase<'a> {
     }
 
     fn add_part(&self, part: &DbPart) {
-        self.add_item::<DbPart>(PARTS_BUCKET, part)
+        self.add_item(PARTS_BUCKET, part)
     }
 
     fn add_category(&self, category: &DbCategory) {
-        self.add_item::<DbCategory>(CATEGORIES_BUCKET, category);
+        self.add_item(CATEGORIES_BUCKET, category);
     }
 
     fn add_package(&self, package: &DbPackage) {
-        self.add_item::<DbPackage>(PACKAGES_BUCKET, package);
+        self.add_item(PACKAGES_BUCKET, package);
     }
 
     fn add_mfr(&self, mfr: &DbManufacturer) {
-        self.add_item::<DbManufacturer>(MFR_BUCKET, mfr);
+        self.add_item(MFR_BUCKET, mfr);
     }
 
     fn get_part_id(&self, name: &str) -> Option<String> {
@@ -312,18 +328,27 @@ impl<'a> Database for JammDatabase<'a> {
         self.delete_item(MFR_BUCKET, id)
     }
 
-    fn update_part(&self, name: &str, part: &DbPart) {
-        let id = self.get_part_id(name);
-        if id.is_none() {
-            return;
+    fn update_part(&self, ori_name: &str, new: &DbPart) {
+        if let Some(id) = self.get_part_id(ori_name) {
+            self.update_item(PARTS_BUCKET, &id, new);
         }
+    }
 
-        let db = DB::open(self.path).unwrap();
-        let tx = db.tx(true).unwrap();
-        let bkt = tx.get_bucket(PARTS_BUCKET).unwrap();
+    fn update_category(&self, ori_name: &str, new: &DbCategory) {
+        if let Some(id) = self.get_category_id(ori_name) {
+            self.update_item(CATEGORIES_BUCKET, &id, new);
+        }
+    }
 
-        let value = rmp_serde::to_vec(&part).unwrap();
-        bkt.put(id.unwrap(), value).unwrap();
-        let _ = tx.commit();
+    fn update_package(&self, ori_name: &str, new: &DbPackage) {
+        if let Some(id) = self.get_package_id(ori_name) {
+            self.update_item(PACKAGES_BUCKET, &id, new);
+        }
+    }
+
+    fn update_mfr(&self, ori_name: &str, new: &DbManufacturer) {
+        if let Some(id) = self.get_package_id(ori_name) {
+            self.update_item(MFR_BUCKET, &id, new);
+        }
     }
 }
