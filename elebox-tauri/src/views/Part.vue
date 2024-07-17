@@ -10,7 +10,7 @@ import { DbCategory } from "../db_cmd_category";
 import { DbManufacturer as DbMfr } from "../db_cmd_manufacturer";
 import { DbPackage } from "../db_cmd_package";
 
-const origin_name = ref<string>();
+const origin_name = ref<string>("");
 const part = ref<DbPart.Part>({
   name: "",
   quantity: 0,
@@ -20,6 +20,7 @@ const part = ref<DbPart.Part>({
 });
 
 const favorite = ref();
+const alert = ref(false);
 
 const new_custom_field = ref<CustomField>({
   name: "",
@@ -137,8 +138,11 @@ function handleSupplierAdd(data: { new: Supplier }) {
 const route = useRoute();
 
 onMounted(() => {
-  origin_name.value = route.params.origin_name; // FIXME
-  if (origin_name.value !== undefined && origin_name.value !== "") {
+  if (
+    route.params.origin_name !== undefined &&
+    route.params.origin_name !== ""
+  ) {
+    origin_name.value = route.params.origin_name; // FIXME
     getPart(origin_name.value);
   }
 
