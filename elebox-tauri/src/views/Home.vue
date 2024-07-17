@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
-import PartQty from "../components/PartQty.vue";
-import PartDel from "../components/PartDel.vue";
 import { Part } from "../interface";
 import { useRouter, useRoute } from "vue-router";
 import { DbPart } from "../db_cmd_part";
+import PartQty from "../components/PartQty.vue";
+import PartDel from "../components/PartDel.vue";
 
 let parts = reactive<Part[]>([]);
 

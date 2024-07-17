@@ -138,9 +138,10 @@ const route = useRoute();
 
 onMounted(() => {
   origin_name.value = route.params.ori_name;
-  if (origin_name.value !== "") {
+  if (origin_name.value !== undefined && origin_name.value !== "") {
     getPart(origin_name.value);
   }
+
   getCategories();
   getMfrs();
   getPackages();
