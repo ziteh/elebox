@@ -21,13 +21,22 @@ async function update() {
     return;
   }
 
+  if (category.value.parent === "") {
+    category.value.parent = undefined; // To root
+  }
+
   await Db.update(props.origin_name, category.value);
   await list();
 }
 
 async function list() {
   const data = await Db.list();
+
+  if (props.origin_name) {
+    data.splice(0, 0, { name: "" }); // Root
+  }
   Object.assign(categories, data);
+
   console.debug(`get categories: ${categories.length}`);
 }
 
