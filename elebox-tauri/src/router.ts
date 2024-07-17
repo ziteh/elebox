@@ -39,14 +39,19 @@ export default createRouter({
       component: () => import("./views/PartDetail.vue"),
     },
     {
-      path: "/update-part:ori_name",
+      path: "/update_part:ori_name",
       name: "update_part",
       component: () => import("./views/Part.vue"),
     },
     {
-      path: "/update-category:origin_name",
+      path: "/update_category:origin_name",
       name: "update_category",
       component: () => import("./views/CategoryEdit.vue"),
+    },
+    {
+      path: "/update_package:origin_name",
+      name: "update_package",
+      component: () => import("./views/PackageEdit.vue"),
     },
     {
       path: "/tree",

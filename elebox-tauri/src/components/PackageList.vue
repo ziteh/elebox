@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
-import { DbCategory as Db } from "../db_cmd_category";
+import { DbPackage as Db } from "../db_cmd_package";
 
-let categories = reactive<Db.Category[]>([]);
+let pkgs = reactive<Db.Package[]>([]);
 
 async function get() {
   const data = await Db.list();
-  Object.assign(categories, data);
+  Object.assign(pkgs, data);
 }
 
 async function remove(name: string) {
@@ -21,31 +21,31 @@ onMounted(get);
     <thead>
       <tr>
         <th>Name</th>
+        <th>Type</th>
         <th>Alias</th>
-        <th>Parent</th>
         <th>Edit</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(cat, i) in categories" :key="i">
-        <td>{{ cat.name }}</td>
-        <td>{{ cat.alias }}</td>
-        <td>{{ cat.parent }}</td>
+      <tr v-for="(p, i) in pkgs" :key="i">
+        <td>{{ p.name }}</td>
+        <td>{{ p.pkg_type.toUpperCase() }}</td>
+        <td>{{ p.alias }}</td>
         <td>
           <v-btn
             density="comfortable"
             icon="mdi-square-edit-outline"
             title="Edit"
             :to="{
-              name: 'update_category',
-              params: { origin_name: cat.name },
+              name: 'update_package',
+              params: { origin_name: p.name },
             }"
           ></v-btn>
           <v-btn
             density="comfortable"
             icon="mdi-trash-can-outline"
-            :title="`Delete: ${cat.name}`"
-            @click="remove(cat.name)"
+            :title="`Delete: ${p.name}`"
+            @click="remove(p.name)"
           ></v-btn>
         </td>
       </tr>
