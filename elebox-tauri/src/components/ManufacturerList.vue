@@ -30,11 +30,7 @@ onMounted(list);
       <tr v-for="(m, i) in mfrs" :key="i">
         <td>
           {{ m.name }}
-          <a
-            v-if="m.url !== '' && m.url !== undefined"
-            :title="m.url"
-            :href="m.url"
-            target="_blank"
+          <a v-if="m.url" :title="m.url" :href="m.url" target="_blank"
             ><v-icon>mdi-open-in-new</v-icon>
           </a>
         </td>
