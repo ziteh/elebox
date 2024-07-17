@@ -137,7 +137,7 @@ function handleSupplierAdd(data: { new: Supplier }) {
 const route = useRoute();
 
 onMounted(() => {
-  origin_name.value = route.params.ori_name;
+  origin_name.value = route.params.origin_name;
   if (origin_name.value !== undefined && origin_name.value !== "") {
     getPart(origin_name.value);
   }

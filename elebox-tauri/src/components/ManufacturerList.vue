@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
 import { DbManufacturer as Db } from "../db_cmd_manufacturer";
+import ItemEditButton from "./ItemEditButton.vue";
 
 let mfrs = reactive<Db.Manufacturer[]>([]);
 
@@ -39,15 +40,10 @@ onMounted(list);
         </td>
         <td>{{ m.alias }}</td>
         <td>
-          <v-btn
-            density="comfortable"
-            icon="mdi-square-edit-outline"
-            title="Edit"
-            :to="{
-              name: 'update_manufacturer',
-              params: { origin_name: m.name },
-            }"
-          ></v-btn>
+          <ItemEditButton
+            :path_name="'update_manufacturer'"
+            :item_name="m.name"
+          />
           <v-btn
             density="comfortable"
             icon="mdi-trash-can-outline"

@@ -5,6 +5,7 @@ import { useRouter, useRoute } from "vue-router";
 import { DbPart } from "../db_cmd_part";
 import PartQty from "../components/PartQty.vue";
 import PartDel from "../components/PartDel.vue";
+import ItemEditButton from "../components/ItemEditButton.vue";
 
 let parts = reactive<Part[]>([]);
 
@@ -66,11 +67,16 @@ onMounted(getParts);
           <td>{{ p.package }}</td>
           <td>{{ p.mfr }}</td>
           <td>
-            <v-btn
+            <!-- <v-btn
               density="comfortable"
               icon="mdi-square-edit-outline"
               :to="{ name: 'update_part', params: { ori_name: p.name } }"
-            ></v-btn>
+            ></v-btn> -->
+
+          <ItemEditButton
+            :path_name="'update_part'"
+            :item_name="p.name"
+          />
             <PartDel :part="p.name" />
           </td>
         </tr>

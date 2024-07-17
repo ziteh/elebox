@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
 import { DbCategory as Db } from "../db_cmd_category";
+import ItemEditButton from "./ItemEditButton.vue";
 
 let categories = reactive<Db.Category[]>([]);
 
@@ -32,15 +33,10 @@ onMounted(list);
         <td>{{ cat.alias }}</td>
         <td>{{ cat.parent }}</td>
         <td>
-          <v-btn
-            density="comfortable"
-            icon="mdi-square-edit-outline"
-            title="Edit"
-            :to="{
-              name: 'update_category',
-              params: { origin_name: cat.name },
-            }"
-          ></v-btn>
+          <ItemEditButton
+            :path_name="'update_category'"
+            :item_name="cat.name"
+          />
           <v-btn
             density="comfortable"
             icon="mdi-trash-can-outline"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
 import { DbPackage as Db } from "../db_cmd_package";
+import ItemEditButton from "./ItemEditButton.vue";
 
 let pkgs = reactive<Db.Package[]>([]);
 
@@ -32,15 +33,7 @@ onMounted(list);
         <td>{{ p.pkg_type.toUpperCase() }}</td>
         <td>{{ p.alias }}</td>
         <td>
-          <v-btn
-            density="comfortable"
-            icon="mdi-square-edit-outline"
-            title="Edit"
-            :to="{
-              name: 'update_package',
-              params: { origin_name: p.name },
-            }"
-          ></v-btn>
+          <ItemEditButton :path_name="'update_package'" :item_name="p.name" />
           <v-btn
             density="comfortable"
             icon="mdi-trash-can-outline"
