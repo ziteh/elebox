@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { readonly, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { Supplier } from "../interface";
 
 const props = defineProps<{
