@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
 import { CustomField, PkgType, Supplier } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
@@ -21,7 +20,7 @@ const part = ref<DbPart.Part>({
 
 const qty_input = ref<number | undefined>(undefined);
 const favorite = ref();
-const alert = ref(false);
+// const alert = ref(false);
 
 const new_custom_field = ref<CustomField>({
   name: "",
@@ -160,7 +159,12 @@ onMounted(() => {
     route.params.origin_name !== undefined &&
     route.params.origin_name !== ""
   ) {
-    origin_name.value = route.params.origin_name; // FIXME
+    if (Array.isArray(route.params.origin_name)) {
+      origin_name.value = route.params.origin_name[0];
+    } else {
+      origin_name.value = route.params.origin_name;
+    }
+
     getPart(origin_name.value);
   }
 
