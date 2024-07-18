@@ -67,7 +67,11 @@ onMounted(() => {
         </tr>
         <tr>
           <td>Datasheet</td>
-          <td>{{ part.datasheet_link }}</td>
+          <td>
+            <a target="_blank" :href="part.datasheet_link">{{
+              part.datasheet_link
+            }}</a>
+          </td>
         </tr>
         <tr>
           <td>Description</td>
@@ -83,7 +87,11 @@ onMounted(() => {
         </tr>
         <tr>
           <td>Product</td>
-          <td>{{ part.product_link }}</td>
+          <td>
+            <a target="_blank" :href="part.product_link">{{
+              part.product_link
+            }}</a>
+          </td>
         </tr>
         <tr>
           <td>Image</td>
