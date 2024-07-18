@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, reactive } from "vue";
+import { onMounted, ref } from "vue";
 import { DbManufacturer as Db } from "../db_cmd_manufacturer";
 
 const props = defineProps<{ origin_name?: string }>();
