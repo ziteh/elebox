@@ -58,10 +58,5 @@ export default createRouter({
       name: "update_manufacturer",
       component: () => import("./views/ManufacturerEdit.vue"),
     },
-    {
-      path: "/tree",
-      name: "tree",
-      component: () => import("./views/CategoriesTree.vue"),
-    },
   ],
 });

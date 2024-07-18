@@ -50,11 +50,11 @@ fn update_part(path: tauri::State<DbPath>, ori_name: &str, new_item: Part) -> Re
 }
 
 #[tauri::command(rename_all = "snake_case")]
-fn del_part(path: tauri::State<DbPath>, item: &str) -> Result<String, String> {
+fn del_part(path: tauri::State<DbPath>, name: &str) -> Result<String, String> {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&db);
-    mgr.delete(item).map_err(|e| e.to_string())
+    mgr.delete(name).map_err(|e| e.to_string())
 }
 
 #[tauri::command(rename_all = "snake_case")]

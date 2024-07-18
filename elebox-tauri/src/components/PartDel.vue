@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { invoke } from "@tauri-apps/api/tauri";
+import { DbPart as Db } from "../db_cmd_part";
 
-defineProps({
-  part: String,
-});
+const props = defineProps<{ part: string }>();
 
-async function partDel(part: string) {
-  console.debug(`Part delete: ${part}`);
-  await invoke("part_del", { part });
+async function remove() {
+  await Db.remove(props.part);
 }
 </script>
 
@@ -15,7 +12,7 @@ async function partDel(part: string) {
   <v-btn
     density="comfortable"
     icon="mdi-trash-can-outline"
-    :title="`Delete: ${part}`"
-    @click="partDel(part!)"
+    :title="`Delete: ${props.part}`"
+    @click="remove"
   ></v-btn>
 </template>

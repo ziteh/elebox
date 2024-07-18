@@ -6,6 +6,7 @@ import { DbPart } from "../db_cmd_part";
 import PartQty from "../components/PartQty.vue";
 import PartDel from "../components/PartDel.vue";
 import ItemEditButton from "../components/ItemEditButton.vue";
+import "../styles.css";
 
 let parts = reactive<Part[]>([]);
 
@@ -55,7 +56,10 @@ onMounted(getParts);
       <tbody>
         <tr v-for="(p, index) in parts" :key="index">
           <td>
-            <v-btn :to="{ name: 'part_detail', params: { name: p.name } }">
+            <v-btn
+              :to="{ name: 'part_detail', params: { name: p.name } }"
+              variant="text"
+            >
               {{ p.name }}</v-btn
             >
           </td>
@@ -67,16 +71,7 @@ onMounted(getParts);
           <td>{{ p.package }}</td>
           <td>{{ p.mfr }}</td>
           <td>
-            <!-- <v-btn
-              density="comfortable"
-              icon="mdi-square-edit-outline"
-              :to="{ name: 'update_part', params: { ori_name: p.name } }"
-            ></v-btn> -->
-
-          <ItemEditButton
-            :path_name="'update_part'"
-            :item_name="p.name"
-          />
+            <ItemEditButton :path_name="'update_part'" :item_name="p.name" />
             <PartDel :part="p.name" />
           </td>
         </tr>

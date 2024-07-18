@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import { CustomField, Supplier } from "../interface";
+import { CustomField, PkgType, Supplier } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
 import { useRoute } from "vue-router";
@@ -10,7 +10,7 @@ import { DbCategory } from "../db_cmd_category";
 import { DbManufacturer as DbMfr } from "../db_cmd_manufacturer";
 import { DbPackage } from "../db_cmd_package";
 
-const origin_name = ref<string>();
+const origin_name = ref<string>("");
 const part = ref<DbPart.Part>({
   name: "",
   quantity: 0,
@@ -19,7 +19,9 @@ const part = ref<DbPart.Part>({
   suppliers: [],
 });
 
+const qty_input = ref<number | undefined>(undefined);
 const favorite = ref();
+const alert = ref(false);
 
 const new_custom_field = ref<CustomField>({
   name: "",
@@ -41,6 +43,12 @@ let custom_fields = reactive<CustomField[]>([]);
 let suppliers = reactive<Supplier[]>([]);
 
 async function newPart() {
+  if (origin_name.value === undefined || qty_input.value === undefined) {
+    return;
+  }
+
+  part.value.quantity = Math.trunc(qty_input.value);
+
   if (
     part.value.name === "" ||
     part.value.category === "" ||
@@ -49,14 +57,24 @@ async function newPart() {
     return;
   }
 
-  part.value.quantity = Math.trunc(part.value.quantity);
+  if (part.value.mfr === "") {
+    part.value.mfr = undefined;
+  }
+  if (part.value.package === "") {
+    part.value.package = undefined;
+  }
+
+  part.value.custom_fields = custom_fields;
+  part.value.suppliers = suppliers;
   await DbPart.add(part.value);
 }
 
 async function updatePart() {
-  if (origin_name.value === undefined) {
+  if (origin_name.value === undefined || qty_input.value === undefined) {
     return;
   }
+
+  part.value.quantity = Math.trunc(qty_input.value);
 
   if (
     part.value.name === "" ||
@@ -66,6 +84,15 @@ async function updatePart() {
     return;
   }
 
+  if (part.value.mfr === "") {
+    part.value.mfr = undefined;
+  }
+  if (part.value.package === "") {
+    part.value.package = undefined;
+  }
+
+  part.value.custom_fields = custom_fields;
+  part.value.suppliers = suppliers;
   await DbPart.update(origin_name.value, part.value);
 }
 
@@ -77,16 +104,19 @@ async function getCategories() {
 async function getMfrs() {
   const date = await DbMfr.list();
   Object.assign(mfrs, date);
+  mfrs.splice(0, 0, { name: "" });
 }
 
 async function getPackages() {
   const data = await DbPackage.list();
   Object.assign(packages, data);
+  packages.splice(0, 0, { name: "", pkg_type: PkgType.Others });
 }
 
 async function getPart(name: string) {
   const data = await DbPart.get(name);
   part.value = data as DbPart.Part;
+  qty_input.value = part.value.quantity;
   Object.assign(custom_fields, part.value.custom_fields);
   Object.assign(suppliers, part.value.suppliers);
 }
@@ -104,11 +134,6 @@ function handleCustomFieldDel(data: { name: string }) {
 }
 
 function handleCustomFieldAdd(data: { new: CustomField }) {
-  new_custom_field.value = {
-    field_type: "",
-    name: "",
-    value: "",
-  };
   custom_fields.push(data.new);
 }
 
@@ -126,19 +151,16 @@ function handleSupplierDel(data: { name: string }) {
 
 function handleSupplierAdd(data: { new: Supplier }) {
   suppliers.push(data.new);
-  new_supplier.value = {
-    name: "",
-    link: "",
-    note: "",
-    price: undefined,
-  };
 }
 
 const route = useRoute();
 
 onMounted(() => {
-  origin_name.value = route.params.origin_name;
-  if (origin_name.value !== undefined && origin_name.value !== "") {
+  if (
+    route.params.origin_name !== undefined &&
+    route.params.origin_name !== ""
+  ) {
+    origin_name.value = route.params.origin_name; // FIXME
     getPart(origin_name.value);
   }
 
@@ -149,7 +171,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-form fast-fail @submit.prevent>
+  <v-form @submit.prevent>
     <v-container>
       <v-row class="mb-3 ga-8" align="center">
         <v-btn v-if="origin_name == ''" type="submit" @click="newPart"
@@ -176,7 +198,7 @@ onMounted(() => {
         <v-text-field
           label="Quantity"
           variant="outlined"
-          v-model.number="part.quantity"
+          v-model.number="qty_input"
           placeholder="15"
           :rules="[(v: any) => !!v || 'Required']"
           required
@@ -264,9 +286,9 @@ onMounted(() => {
         ></v-textarea>
       </v-row>
 
-      <v-card title="Custom Fields" variant="flat">
+      <v-card title="Custom Fields" variant="flat" class="mb-2">
         <v-container>
-          <v-row class="ga-8" v-for="cf in custom_fields">
+          <v-row class="ma-2" v-for="cf in custom_fields">
             <PartCustomField
               :field_type="cf.field_type"
               :name="cf.name"
@@ -275,7 +297,7 @@ onMounted(() => {
               @del="handleCustomFieldDel"
             />
           </v-row>
-          <v-row class="ga-8">
+          <v-row class="ma-2">
             <PartCustomField
               :field_type="new_custom_field.field_type"
               :name="new_custom_field.name"
@@ -290,7 +312,7 @@ onMounted(() => {
 
       <v-card title="Suppliers" variant="flat">
         <v-container>
-          <v-row class="ga-8" v-for="s in suppliers">
+          <v-row class="ma-2" v-for="s in suppliers">
             <PartSupplier
               :name="s.name"
               :link="s.link"
@@ -300,7 +322,7 @@ onMounted(() => {
               @del="handleSupplierDel"
             />
           </v-row>
-          <v-row class="ga-8">
+          <v-row class="ma-2">
             <PartSupplier
               :name="new_supplier.name"
               :link="new_supplier.link"

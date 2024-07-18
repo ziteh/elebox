@@ -19,7 +19,5 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-container>
-    <TreeItem v-if="catNodes.length > 0" :nodes="catNodes" />
-  </v-container>
+  <TreeItem v-if="catNodes.length > 0" :nodes="catNodes" />
 </template>

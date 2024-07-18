@@ -29,11 +29,6 @@
           :to="{ name: 'mfrs' }"
         ></v-list-item>
         <v-list-item
-          prepend-icon="mdi-file-tree"
-          title="Tree"
-          :to="{ name: 'tree' }"
-        ></v-list-item>
-        <v-list-item
           prepend-icon="mdi-cog"
           title="Settings"
           :to="{ name: 'settings' }"

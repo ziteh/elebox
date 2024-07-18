@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const custom_field = ref<CustomField>({
   name: props.name,
-  field_type: props.field_type,
+  field_type: props.field_type || "Normal",
   value: props.value,
 });
 
@@ -31,43 +31,79 @@ function emitAdd() {
     return;
   }
 
-  emit("add", { new: custom_field.value });
+  const clone: CustomField = {
+    name: custom_field.value.name,
+    field_type: custom_field.value.field_type,
+    value: custom_field.value.value ?? "",
+  };
+
+  // Clear
+  custom_field.value = {
+    name: "",
+    field_type: "Normal",
+    value: "",
+  };
+
+  emit("add", { new: clone });
 }
 </script>
 
 <template>
-  <v-select
-    label="Type"
-    :items="['Normal', 'Link']"
-    variant="outlined"
-    v-model="custom_field.field_type"
-  ></v-select>
-  <v-text-field
-    label="Name"
-    variant="outlined"
-    v-model.trim="custom_field.name"
-    placeholder=""
-  ></v-text-field>
-  <v-text-field
-    label="Value"
-    variant="outlined"
-    v-model.trim="custom_field.value"
-    placeholder=""
-  ></v-text-field>
+  <v-form @submit.prevent>
+    <v-row class="ma-2 ga-8">
+      <v-select
+        v-if="props.create"
+        label="Type"
+        :items="['Normal', 'Link']"
+        variant="outlined"
+        v-model="custom_field.field_type"
+        :rules="[(v: any) => !!v || 'Required']"
+        required
+        :readonly="!props.create"
+      ></v-select>
+      <v-text-field
+        v-else
+        label="Type"
+        variant="outlined"
+        v-model.trim="custom_field.field_type"
+        required
+        readonly
+      ></v-text-field>
+      <v-text-field
+        label="Name"
+        variant="outlined"
+        v-model.trim="custom_field.name"
+        placeholder=""
+        :rules="[(v: any) => !!v || 'Required']"
+        required
+        :readonly="!props.create"
+      ></v-text-field>
+      <v-text-field
+        label="Value"
+        variant="outlined"
+        v-model.trim="custom_field.value"
+        placeholder=""
+        :readonly="!props.create"
+        :dirty="!props.create"
+      ></v-text-field>
 
-  <v-btn
-    v-if="!props.create"
-    density="comfortable"
-    icon="mdi-trash-can-outline"
-    title="Delete"
-    @click="emitDel()"
-  ></v-btn>
-  <v-btn
-    v-if="props.create"
-    density="comfortable"
-    icon="mdi-plus"
-    title="Add"
-    color="green"
-    @click="emitAdd()"
-  ></v-btn>
+      <v-btn
+        v-if="props.create"
+        density="comfortable"
+        icon="mdi-plus"
+        title="Add"
+        color="green"
+        type="submit"
+        @click="emitAdd()"
+      ></v-btn>
+      <v-btn
+        v-else
+        density="comfortable"
+        icon="mdi-trash-can-outline"
+        title="Delete"
+        type="submit"
+        @click="emitDel()"
+      ></v-btn>
+    </v-row>
+  </v-form>
 </template>
