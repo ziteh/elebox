@@ -87,7 +87,14 @@ onMounted(() => {
         </tr>
         <tr>
           <td>Image</td>
-          <td>{{ part.image_link }}</td>
+          <td>
+            <v-img
+              v-if="part.image_link"
+              :src="part.image_link"
+              :title="part.image_link"
+              height="250"
+            ></v-img>
+          </td>
         </tr>
       </tbody>
     </v-table>
