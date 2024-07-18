@@ -87,7 +87,20 @@ impl<'a> CategoryManager<'a> {
             ));
         }
 
-        let db_category = self.to_db_category(new_category)?;
+        // Normalize
+        let mut cat = Category {
+            name: new_category.name.clone(),
+            alias: new_category.alias.clone(),
+            parent: match &new_category.parent {
+                Some(p) => match p.as_str() {
+                    "" => None,
+                    _ => Some(p.to_string()),
+                },
+                None => None,
+            },
+        };
+
+        let db_category = self.to_db_category(&cat)?;
         self.db.update_category(ori_name, &db_category);
         Ok(())
     }
@@ -127,7 +140,20 @@ impl<'a> CategoryManager<'a> {
             ));
         }
 
-        let db_category = self.to_db_category(category)?;
+        // Normalize
+        let mut cat = Category {
+            name: category.name.clone(),
+            alias: category.alias.clone(),
+            parent: match &category.parent {
+                Some(p) => match p.as_str() {
+                    "" => None,
+                    _ => Some(p.to_string()),
+                },
+                None => None,
+            },
+        };
+
+        let db_category = self.to_db_category(&cat)?;
         self.db.add_category(&db_category);
         Ok(())
     }
