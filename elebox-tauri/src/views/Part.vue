@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import { CustomField, Supplier } from "../interface";
+import { CustomField, PkgType, Supplier } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
 import { useRoute } from "vue-router";
@@ -57,6 +57,13 @@ async function newPart() {
     return;
   }
 
+  if (part.value.mfr === "") {
+    part.value.mfr = undefined;
+  }
+  if (part.value.package === "") {
+    part.value.package = undefined;
+  }
+
   part.value.custom_fields = custom_fields;
   part.value.suppliers = suppliers;
   await DbPart.add(part.value);
@@ -77,6 +84,13 @@ async function updatePart() {
     return;
   }
 
+  if (part.value.mfr === "") {
+    part.value.mfr = undefined;
+  }
+  if (part.value.package === "") {
+    part.value.package = undefined;
+  }
+
   part.value.custom_fields = custom_fields;
   part.value.suppliers = suppliers;
   await DbPart.update(origin_name.value, part.value);
@@ -90,11 +104,13 @@ async function getCategories() {
 async function getMfrs() {
   const date = await DbMfr.list();
   Object.assign(mfrs, date);
+  mfrs.splice(0, 0, { name: "" });
 }
 
 async function getPackages() {
   const data = await DbPackage.list();
   Object.assign(packages, data);
+  packages.splice(0, 0, { name: "", pkg_type: PkgType.Others });
 }
 
 async function getPart(name: string) {
