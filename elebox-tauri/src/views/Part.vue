@@ -19,6 +19,7 @@ const part = ref<DbPart.Part>({
   suppliers: [],
 });
 
+const qty_input = ref<number | undefined>(undefined);
 const favorite = ref();
 const alert = ref(false);
 
@@ -42,6 +43,12 @@ let custom_fields = reactive<CustomField[]>([]);
 let suppliers = reactive<Supplier[]>([]);
 
 async function newPart() {
+  if (origin_name.value === undefined || qty_input.value === undefined) {
+    return;
+  }
+
+  part.value.quantity = qty_input.value;
+
   if (
     part.value.name === "" ||
     part.value.category === "" ||
@@ -55,9 +62,11 @@ async function newPart() {
 }
 
 async function updatePart() {
-  if (origin_name.value === undefined) {
+  if (origin_name.value === undefined || qty_input.value === undefined) {
     return;
   }
+
+  part.value.quantity = qty_input.value;
 
   if (
     part.value.name === "" ||
@@ -88,6 +97,7 @@ async function getPackages() {
 async function getPart(name: string) {
   const data = await DbPart.get(name);
   part.value = data as DbPart.Part;
+  qty_input.value = part.value.quantity;
   Object.assign(custom_fields, part.value.custom_fields);
   Object.assign(suppliers, part.value.suppliers);
 }
@@ -153,7 +163,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-form fast-fail @submit.prevent>
+  <v-form @submit.prevent>
     <v-container>
       <v-row class="mb-3 ga-8" align="center">
         <v-btn v-if="origin_name == ''" type="submit" @click="newPart"
@@ -180,7 +190,7 @@ onMounted(() => {
         <v-text-field
           label="Quantity"
           variant="outlined"
-          v-model.number="part.quantity"
+          v-model.number="qty_input"
           placeholder="15"
           :rules="[(v: any) => !!v || 'Required']"
           required
