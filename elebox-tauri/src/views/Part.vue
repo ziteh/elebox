@@ -115,11 +115,6 @@ function handleCustomFieldDel(data: { name: string }) {
 }
 
 function handleCustomFieldAdd(data: { new: CustomField }) {
-  new_custom_field.value = {
-    field_type: "",
-    name: "",
-    value: "",
-  };
   custom_fields.push(data.new);
 }
 
@@ -137,12 +132,6 @@ function handleSupplierDel(data: { name: string }) {
 
 function handleSupplierAdd(data: { new: Supplier }) {
   suppliers.push(data.new);
-  new_supplier.value = {
-    name: "",
-    link: "",
-    note: "",
-    price: undefined,
-  };
 }
 
 const route = useRoute();

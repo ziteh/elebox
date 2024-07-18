@@ -15,8 +15,6 @@ const custom_field = ref<CustomField>({
   value: props.value,
 });
 
-const empty = ref(false);
-
 const emit = defineEmits(["update", "add", "del"]);
 
 watch([custom_field], ([new_custom_field]) => {
@@ -30,15 +28,23 @@ function emitDel() {
 function emitAdd() {
   // Required value
   if (!custom_field.value.field_type || !custom_field.value.name) {
-    empty.value = true;
     return;
   }
 
-  if (custom_field.value.value) {
-    custom_field.value.value = "";
-  }
+  const clone: CustomField = {
+    name: custom_field.value.name,
+    field_type: custom_field.value.field_type,
+    value: custom_field.value.value ?? "",
+  };
 
-  emit("add", { new: custom_field.value });
+  // Clear
+  custom_field.value = {
+    name: "",
+    field_type: "Normal",
+    value: "",
+  };
+
+  emit("add", { new: clone });
 }
 </script>
 

@@ -33,7 +33,22 @@ function emitAdd() {
     return;
   }
 
-  emit("add", { new: supplier.value });
+  const clone: Supplier = {
+    name: supplier.value.name,
+    link: supplier.value.link ?? "",
+    note: supplier.value.note ?? "",
+    price: supplier.value.price,
+  };
+
+  // Clear
+  supplier.value = {
+    name: "",
+    link: "",
+    note: "",
+    price: undefined,
+  };
+
+  emit("add", { new: clone });
 }
 </script>
 
