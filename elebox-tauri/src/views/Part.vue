@@ -268,9 +268,9 @@ onMounted(() => {
         ></v-textarea>
       </v-row>
 
-      <v-card title="Custom Fields" variant="flat">
+      <v-card title="Custom Fields" variant="flat" class="mb-2">
         <v-container>
-          <v-row class="ga-8" v-for="cf in custom_fields">
+          <v-row class="ma-2" v-for="cf in custom_fields">
             <PartCustomField
               :field_type="cf.field_type"
               :name="cf.name"
@@ -279,7 +279,7 @@ onMounted(() => {
               @del="handleCustomFieldDel"
             />
           </v-row>
-          <v-row class="ga-8">
+          <v-row class="ma-2">
             <PartCustomField
               :field_type="new_custom_field.field_type"
               :name="new_custom_field.name"
@@ -294,7 +294,7 @@ onMounted(() => {
 
       <v-card title="Suppliers" variant="flat">
         <v-container>
-          <v-row class="ga-8" v-for="s in suppliers">
+          <v-row class="ma-2" v-for="s in suppliers">
             <PartSupplier
               :name="s.name"
               :link="s.link"
@@ -304,7 +304,7 @@ onMounted(() => {
               @del="handleSupplierDel"
             />
           </v-row>
-          <v-row class="ga-8">
+          <v-row class="ma-2">
             <PartSupplier
               :name="new_supplier.name"
               :link="new_supplier.link"
