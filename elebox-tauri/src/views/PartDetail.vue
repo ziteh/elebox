@@ -2,6 +2,8 @@
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { DbPart } from "../db_cmd_part";
+import ItemEditButton from "../components/ItemEditButton.vue";
+import PartDel from "../components/PartDel.vue";
 
 const route = useRoute();
 const name = ref();
@@ -26,8 +28,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container>
+  <v-container v-if="name">
     <v-btn :to="{ name: 'home' }">Back</v-btn>
+    <ItemEditButton :path_name="'update_part'" :item_name="name" />
+    <PartDel :part="name" />
     <v-table>
       <thead>
         <tr>

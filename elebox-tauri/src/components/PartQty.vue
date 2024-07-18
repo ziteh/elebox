@@ -1,25 +1,14 @@
 <script setup lang="ts">
-import { invoke } from "@tauri-apps/api/tauri";
+import { DbPart as Db } from "../db_cmd_part";
 
-defineProps({
-  part: String,
-});
+const props = defineProps<{ part: string }>();
 
-async function partAdd(part: string, qty: Number) {
-  await invoke("part_add", { part, qty });
-  console.log(part);
+async function modify(inc: number) {
+  await Db.modifyQty(props.part, inc);
 }
 </script>
 
 <template>
-  <v-btn
-    density="comfortable"
-    icon="mdi-plus"
-    @click="partAdd(part!, 1)"
-  ></v-btn>
-  <v-btn
-    density="comfortable"
-    icon="mdi-minus"
-    @click="partAdd(part!, -1)"
-  ></v-btn>
+  <v-btn density="comfortable" icon="mdi-plus" @click="modify(1)"></v-btn>
+  <v-btn density="comfortable" icon="mdi-minus" @click="modify(-1)"></v-btn>
 </template>

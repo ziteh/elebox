@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import { Part } from "../interface";
 import { useRouter, useRoute } from "vue-router";
 import { DbPart } from "../db_cmd_part";
@@ -12,6 +12,15 @@ let parts = reactive<Part[]>([]);
 
 const router = useRouter();
 const route = useRoute();
+
+const search = ref("");
+const headers = ref([
+  { key: "name", title: "Name", align: "start", sortable: true },
+  { key: "quantity", title: "Quantity" },
+  { key: "category", title: "Category" },
+  { key: "package", title: "Package" },
+  { key: "mfr", title: "Manufacturer" },
+]);
 
 async function getParts() {
   let promise = await DbPart.list();
@@ -32,50 +41,42 @@ onMounted(getParts);
 
 <template>
   <v-container>
-    <v-row class="ga-8" align="center">
+    <!-- <v-row class="ga-8" align="center">
       <v-autocomplete
         label="Search"
         variant="outlined"
         :items="parts.map((part) => part.name)"
       ></v-autocomplete>
-      <v-btn @click="reload">Update</v-btn>
-    </v-row>
+    </v-row> -->
 
-    <v-table>
-      <thead>
-        <tr>
-          <th>Part</th>
-          <th>Quantity</th>
-          <th>Category</th>
-          <th>Package</th>
-          <th>Mfr</th>
-          <th>Edit</th>
-        </tr>
-      </thead>
+    <v-btn @click="reload">Update</v-btn>
 
-      <tbody>
-        <tr v-for="(p, index) in parts" :key="index">
-          <td>
-            <v-btn
-              :to="{ name: 'part_detail', params: { name: p.name } }"
-              variant="text"
-            >
-              {{ p.name }}</v-btn
-            >
-          </td>
-          <td>
-            {{ p.quantity }}
-            <PartQty :part="p.name" />
-          </td>
-          <td>{{ p.category }}</td>
-          <td>{{ p.package }}</td>
-          <td>{{ p.mfr }}</td>
-          <td>
-            <ItemEditButton :path_name="'update_part'" :item_name="p.name" />
-            <PartDel :part="p.name" />
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+    <v-card title="Parts" flat>
+      <template v-slot:text>
+        <v-text-field
+          v-model="search"
+          label="Search"
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+          hide-details
+          single-line
+        ></v-text-field>
+      </template>
+
+      <v-data-table :headers="headers" :items="parts" :search="search">
+        <template v-slot:item.name="{ item }">
+          <v-btn
+            :to="{ name: 'part_detail', params: { name: item.name } }"
+            variant="text"
+          >
+            {{ item.name }}
+          </v-btn>
+        </template>
+        <template v-slot:item.quantity="{ item }">
+          {{ item.quantity }}
+          <PartQty :part="item.name" />
+        </template>
+      </v-data-table>
+    </v-card>
   </v-container>
 </template>
