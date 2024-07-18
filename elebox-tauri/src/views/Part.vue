@@ -47,7 +47,7 @@ async function newPart() {
     return;
   }
 
-  part.value.quantity = qty_input.value;
+  part.value.quantity = Math.trunc(qty_input.value);
 
   if (
     part.value.name === "" ||
@@ -57,7 +57,8 @@ async function newPart() {
     return;
   }
 
-  part.value.quantity = Math.trunc(part.value.quantity);
+  part.value.custom_fields = custom_fields;
+  part.value.suppliers = suppliers;
   await DbPart.add(part.value);
 }
 
@@ -66,7 +67,7 @@ async function updatePart() {
     return;
   }
 
-  part.value.quantity = qty_input.value;
+  part.value.quantity = Math.trunc(qty_input.value);
 
   if (
     part.value.name === "" ||
@@ -76,6 +77,8 @@ async function updatePart() {
     return;
   }
 
+  part.value.custom_fields = custom_fields;
+  part.value.suppliers = suppliers;
   await DbPart.update(origin_name.value, part.value);
 }
 
