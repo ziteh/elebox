@@ -79,7 +79,25 @@ onMounted(() => {
         </tr>
         <tr>
           <td>Mfr #</td>
-          <td>{{ part.mfr_no }}</td>
+          <td>
+            {{ part.mfr_no
+            }}<a
+              title="Search on Mouser"
+              target="_blank"
+              :href="`https://www.mouser.com/c/?q=${part.mfr_no}`"
+              ><v-icon>mdi-search-web</v-icon></a
+            ><a
+              title="Search on Digikey"
+              target="_blank"
+              :href="`https://www.digikey.com/en/products/result?keywords=${part.mfr_no}`"
+              ><v-icon>mdi-search-web</v-icon></a
+            ><a
+              title="Search on Octopart"
+              target="_blank"
+              :href="`https://octopart.com/search?q=${part.mfr_no}&currency=USD&specs=0`"
+              ><v-icon>mdi-search-web</v-icon></a
+            >
+          </td>
         </tr>
         <tr>
           <td>Manufacturer</td>
