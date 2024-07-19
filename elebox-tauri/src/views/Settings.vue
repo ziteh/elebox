@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import "../styles.css";
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import DbPath from "../components/DbPath.vue";

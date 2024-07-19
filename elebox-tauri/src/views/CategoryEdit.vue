@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import "../styles.css";
 import CategoryField from "../components/CategoryField.vue";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";

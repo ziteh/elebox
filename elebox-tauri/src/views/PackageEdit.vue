@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import "../styles.css";
 import PackageField from "../components/PackageField.vue";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import "../styles.css";
 import { onMounted, ref, reactive } from "vue";
 import { DbCategory as Db } from "../db_cmd_category";
 

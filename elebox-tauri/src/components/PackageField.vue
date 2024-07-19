@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import "../styles.css";
 import { onMounted, ref } from "vue";
 import { DbPackage as Db } from "../db_cmd_package";
 import { PkgType } from "../interface"; // TODO to db_cmd_package

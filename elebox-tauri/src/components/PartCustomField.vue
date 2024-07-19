@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import "../styles.css";
 import { ref, watch } from "vue";
 import { CustomField } from "../interface";
 

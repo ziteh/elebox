@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import "../styles.css";
 import { ref } from "vue";
 import CategoryField from "../components/CategoryField.vue";
 import CategoryList from "../components/CategoryList.vue";

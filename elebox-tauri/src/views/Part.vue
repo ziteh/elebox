@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import "../styles.css";
 import { onMounted, ref, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { DbPart } from "../db_cmd_part";

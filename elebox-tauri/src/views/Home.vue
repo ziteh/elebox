@@ -4,9 +4,6 @@ import { Part } from "../interface";
 import { useRouter, useRoute } from "vue-router";
 import { DbPart } from "../db_cmd_part";
 import PartQty from "../components/PartQty.vue";
-import PartDel from "../components/PartDel.vue";
-import ItemEditButton from "../components/ItemEditButton.vue";
-import "../styles.css";
 
 let parts = reactive<Part[]>([]);
 
