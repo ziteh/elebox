@@ -40,7 +40,7 @@ onMounted(getParts);
   <v-container>
     <v-row>
       <v-container>
-        <v-card flat>
+        <v-card flat variant="text">
           <template v-slot:text>
             <v-row class="align-center">
               <v-col>
