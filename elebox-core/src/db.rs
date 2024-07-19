@@ -51,6 +51,7 @@ pub struct DbPart {
     pub image_link: String,
     pub custom_fields: Vec<CustomField>,
     pub suppliers: Vec<Supplier>,
+    pub starred: bool,
 }
 
 impl DbItem for DbPart {

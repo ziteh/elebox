@@ -256,7 +256,7 @@ pub fn create_default_db(path: &str) {
         category: "MCU".to_string(),
         alias: Some("RPi RP2040".to_string()),
         package: Some("QFN-56".to_string()),
-        package_detail: Some("7x7mm P0.4mm 1EP3.2x32.mm".to_string()),
+        package_detail: Some("7x7mm P0.4mm 1EP3.2x3.2mm".to_string()),
         mfr: Some("Raspberry Pi".to_string()),
         mfr_no: Some("SC0914(7)".to_string()),
         datasheet_link: Some(
@@ -271,6 +271,7 @@ pub fn create_default_db(path: &str) {
         ),
         description: Some("Dual ARM Cortex-M0+ 133MHz, 264KB SRAM".to_string()),
         location: Some("Box #1".to_string()),
+        starred: false,
         custom_fields: vec![
             CustomField {
                 name: "Mouser #".to_string(),

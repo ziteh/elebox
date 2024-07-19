@@ -16,6 +16,7 @@ const displayTree = ref(false);
       false-icon="mdi-view-list"
       true-icon="mdi-file-tree"
       v-model="displayTree"
+      class="my-n4"
     ></v-switch>
 
     <CategoryList v-if="!displayTree" />

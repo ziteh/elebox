@@ -27,6 +27,7 @@ export interface Part {
   image_link?: string;
   custom_fields: CustomField[];
   suppliers: Supplier[];
+  starred: boolean;
 }
 
 export interface Category {

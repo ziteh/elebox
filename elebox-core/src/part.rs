@@ -19,6 +19,7 @@ pub struct Part {
     pub image_link: Option<String>,
     pub custom_fields: Vec<CustomField>,
     pub suppliers: Vec<Supplier>,
+    pub starred: bool,
 }
 
 impl Part {
@@ -39,6 +40,7 @@ impl Part {
             image_link: None,
             custom_fields: vec![],
             suppliers: vec![],
+            starred: false,
         }
     }
 }
@@ -111,6 +113,7 @@ impl<'a> PartManager<'a> {
             image_link: unwrap_or_empty(&part.image_link),
             custom_fields: part.custom_fields.clone(),
             suppliers: part.suppliers.clone(),
+            starred: part.starred,
         };
 
         Ok(db_part)
@@ -193,6 +196,7 @@ impl<'a> PartManager<'a> {
             image_link: Some(db_part.image_link),
             custom_fields: db_part.custom_fields,
             suppliers: db_part.suppliers,
+            starred: db_part.starred,
         };
 
         return Ok(part);

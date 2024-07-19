@@ -13,7 +13,7 @@ onMounted(() => {
 
 <template>
   <v-container v-if="name !== undefined">
-    <h1>Edit Category</h1>
+    <h1 class="mb-8">Edit Category</h1>
     <CategoryField :origin_name="name" />
   </v-container>
 </template>
