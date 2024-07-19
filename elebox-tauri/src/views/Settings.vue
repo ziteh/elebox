@@ -19,7 +19,7 @@ async function import_csv() {
 <template>
   <v-container>
     <v-row>
-      <h1 class="mb-8">Settings</h1>
+      <h1 class="my-8">Settings</h1>
     </v-row>
     <DbPath />
     <v-row class="align-center">
