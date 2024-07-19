@@ -15,7 +15,7 @@ const route = useRoute();
 
 const search = ref("");
 const headers = ref([
-  { key: "name", title: "Name", align: "start", sortable: true },
+  { key: "name", title: "Name", sortable: true },
   { key: "quantity", title: "Quantity" },
   { key: "category", title: "Category" },
   { key: "package", title: "Package" },
@@ -41,43 +41,55 @@ onMounted(getParts);
 
 <template>
   <v-container>
-    <!-- <v-row class="ga-8" align="center">
-      <v-autocomplete
-        label="Search"
-        variant="outlined"
-        :items="parts.map((part) => part.name)"
-      ></v-autocomplete>
-    </v-row> -->
+    <v-row>
+      <v-container>
+        <v-card flat>
+          <template v-slot:text>
+            <v-row class="align-center">
+              <v-col>
+                <v-text-field
+                  v-model="search"
+                  label="Search"
+                  prepend-inner-icon="mdi-magnify"
+                  variant="outlined"
+                  hide-details
+                  single-line
+                ></v-text-field>
+              </v-col>
+              <v-col cols="auto">
+                <v-btn
+                  @click="reload"
+                  text="Update"
+                  icon="mdi-refresh"
+                  density="comfortable"
+                  size="large"
+                  title="Refresh"
+                ></v-btn>
+              </v-col>
+            </v-row>
+          </template>
 
-    <v-btn @click="reload">Update</v-btn>
-
-    <v-card flat>
-      <template v-slot:text>
-        <v-text-field
-          v-model="search"
-          label="Search"
-          prepend-inner-icon="mdi-magnify"
-          variant="outlined"
-          hide-details
-          single-line
-        ></v-text-field>
-      </template>
-
-      <v-data-table :headers="headers" :items="parts" :search="search">
-        <template v-slot:item.name="{ item }">
-          <v-btn
-            :to="{ name: 'part_detail', params: { name: item.name } }"
-            variant="text"
+          <v-data-table
+            :headers="headers"
+            :items="parts"
+            :search="search"
+            v-if="parts.length > 0"
           >
-            {{ item.name
-            }}<v-icon v-if="item.starred" color="#fcba03">mdi-star</v-icon>
-          </v-btn>
-        </template>
-        <template v-slot:item.quantity="{ item }">
-          {{ item.quantity }}
-          <PartQty :part="item.name" />
-        </template>
-      </v-data-table>
-    </v-card>
+            <template v-slot:item.name="{ item }">
+              <v-btn
+                :to="{ name: 'part_detail', params: { name: item.name } }"
+                variant="text"
+              >
+                {{ item.name
+                }}<v-icon v-if="item.starred" color="#fcba03">mdi-star</v-icon>
+              </v-btn>
+            </template>
+            <template v-slot:item.quantity="{ item }">
+              <PartQty :part="item.name" />
+            </template>
+          </v-data-table>
+        </v-card>
+      </v-container>
+    </v-row>
   </v-container>
 </template>
