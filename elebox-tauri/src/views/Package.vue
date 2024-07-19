@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "../styles.css";
 import PackageField from "../components/PackageField.vue";
 import PackageList from "../components/PackageList.vue";
 </script>

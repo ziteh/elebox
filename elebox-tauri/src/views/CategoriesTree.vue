@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "../styles.css";
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import TreeItem from "../components/TreeItem.vue";

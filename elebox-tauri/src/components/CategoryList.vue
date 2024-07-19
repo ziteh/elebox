@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "../styles.css";
 import { onMounted, reactive, ref } from "vue";
 import { DbCategory as Db } from "../db_cmd_category";
 import ItemEditButton from "./ItemEditButton.vue";

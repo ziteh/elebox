@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "../styles.css";
 import { ref } from "vue";
 import CategoryField from "../components/CategoryField.vue";
 import CategoryList from "../components/CategoryList.vue";
@@ -16,6 +17,7 @@ const displayTree = ref(false);
       false-icon="mdi-view-list"
       true-icon="mdi-file-tree"
       v-model="displayTree"
+      class="my-n4"
     ></v-switch>
 
     <CategoryList v-if="!displayTree" />

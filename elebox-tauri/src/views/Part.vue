@@ -182,7 +182,7 @@ onMounted(() => {
   <v-form @submit.prevent>
     <v-container>
       <v-row align="center">
-        <v-col>Part</v-col>
+        <v-col><h1>Part</h1></v-col>
         <v-spacer></v-spacer>
         <v-col cols="auto">
           <v-switch

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "../styles.css";
 import { onMounted, ref } from "vue";
 import { DbPackage as Db } from "../db_cmd_package";
 import { PkgType } from "../interface"; // TODO to db_cmd_package
@@ -60,9 +61,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-form>
-    <v-container>
-      <v-row class="ga-8">
+  <v-form @submit.prevent>
+    <v-row class="align-center pb-2">
+      <v-col>
         <v-select
           label="Type"
           :items="['SMT', 'THT', 'Others']"
@@ -71,6 +72,8 @@ onMounted(() => {
           :rules="[(v: any) => !!v || 'Required']"
           required
         ></v-select>
+      </v-col>
+      <v-col>
         <v-text-field
           label="Name"
           variant="outlined"
@@ -79,16 +82,24 @@ onMounted(() => {
           :rules="[(v: any) => !!v || 'Required']"
           required
         ></v-text-field>
+      </v-col>
+      <v-col>
         <v-text-field
           label="Alias"
           variant="outlined"
           v-model.trim="pkg.alias"
           placeholder=""
         ></v-text-field>
-
-        <v-btn v-if="props.origin_name === undefined" @click="add">Add</v-btn>
-        <v-btn v-else @click="update">Update</v-btn>
-      </v-row>
-    </v-container>
+      </v-col>
+      <v-col cols="auto" class="mb-6">
+        <v-btn
+          v-if="props.origin_name === undefined"
+          @click="add"
+          type="submit"
+          text="Add"
+        ></v-btn>
+        <v-btn v-else @click="update" type="submit" text="Update"></v-btn>
+      </v-col>
+    </v-row>
   </v-form>
 </template>
