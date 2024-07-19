@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import DbPath from "../components/DbPath.vue";
+import "../styles.css";
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
+import DbPath from "../components/DbPath.vue";
 
 const csv_path = ref("");
 
@@ -17,22 +18,35 @@ async function import_csv() {
 </script>
 
 <template>
-  <v-container class="d-flex flex-column">
-    <DbPath />
+  <v-container>
     <v-row>
-      <v-text-field
-        label="CSV Path"
-        variant="outlined"
-        v-model="csv_path"
-        placeholder="path\to\folder\"
-      ></v-text-field>
-      <v-btn @click="export_csv">Export</v-btn>
-      <v-btn @click="import_csv">Import</v-btn>
+      <h1 class="mb-8">Settings</h1>
     </v-row>
-    <div class="flex-fill"></div>
-    <div class="d-flex align-end ga-2 mt-auto">
-      <v-label>Version</v-label>
-      <code>1.0.0-beta.2</code>
-    </div>
+    <DbPath />
+    <v-row class="align-center">
+      <v-col>
+        <v-text-field
+          label="CSV Path"
+          variant="outlined"
+          v-model="csv_path"
+          placeholder="path\to\folder\"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="auto" class="mb-6">
+        <v-btn @click="export_csv">Export</v-btn>
+      </v-col>
+      <v-col cols="auto" class="mb-6">
+        <v-btn @click="import_csv">Import</v-btn>
+      </v-col>
+    </v-row>
+    <v-row class="align-center">
+      <v-spacer></v-spacer>
+      <v-col cols="auto">
+        <v-label>Version</v-label>
+      </v-col>
+      <v-col cols="auto">
+        <code>1.0.0-beta.2</code>
+      </v-col>
+    </v-row>
   </v-container>
 </template>

@@ -18,14 +18,18 @@ onMounted(getPath);
 </script>
 
 <template>
-  <v-row>
-    <!-- <v-file-input label="Database file" variant="outlined" v-model="path" placeholder="elebox.db"></v-file-input> -->
-    <v-text-field
-      label="Database Path"
-      variant="outlined"
-      v-model="path"
-      placeholder="elebox.db"
-    ></v-text-field>
-    <v-btn @click="setPath">Apply</v-btn>
+  <!-- <v-file-input label="Database file" variant="outlined" v-model="path" placeholder="elebox.db"></v-file-input> -->
+  <v-row class="align-center">
+    <v-col>
+      <v-text-field
+        label="Database Path"
+        variant="outlined"
+        v-model="path"
+        placeholder="elebox.db"
+      ></v-text-field>
+    </v-col>
+    <v-col cols="auto" class="mb-6">
+      <v-btn @click="setPath" text="Apply"></v-btn>
+    </v-col>
   </v-row>
 </template>
