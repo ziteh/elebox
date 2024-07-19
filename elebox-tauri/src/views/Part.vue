@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import "../styles.css";
 import { onMounted, ref, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { DbPart } from "../db_cmd_part";
+import { DbCategory } from "../db_cmd_category";
+import { DbPackage } from "../db_cmd_package";
+import { DbManufacturer as DbMfr } from "../db_cmd_manufacturer";
 import { CustomField, PkgType, Supplier } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
-import { useRoute } from "vue-router";
-import { DbPart } from "../db_cmd_part";
-import { DbCategory } from "../db_cmd_category";
-import { DbManufacturer as DbMfr } from "../db_cmd_manufacturer";
-import { DbPackage } from "../db_cmd_package";
 
+const router = useRouter();
 const origin_name = ref<string>("");
 const part = ref<DbPart.Part>({
   name: "",
@@ -66,6 +68,7 @@ async function newPart() {
   part.value.custom_fields = custom_fields;
   part.value.suppliers = suppliers;
   await DbPart.add(part.value);
+  router.replace("/"); // Back to home
 }
 
 async function updatePart() {
@@ -93,6 +96,7 @@ async function updatePart() {
   part.value.custom_fields = custom_fields;
   part.value.suppliers = suppliers;
   await DbPart.update(origin_name.value, part.value);
+  router.replace("/"); // Back to home
 }
 
 async function getCategories() {
@@ -177,133 +181,170 @@ onMounted(() => {
 <template>
   <v-form @submit.prevent>
     <v-container>
-      <v-row class="mb-3 ga-8" align="center">
-        <v-btn v-if="origin_name == ''" type="submit" @click="newPart"
-          >ADD</v-btn
-        >
-        <v-btn v-else @click="updatePart">Update</v-btn>
-        <v-switch
-          true-icon="mdi-star"
-          v-model="part.starred"
-          :true-value="true"
-          :false-value="false"
-          color="#fcba03"
-          label="Star"
-          hide-details
-        ></v-switch>
+      <v-row align="center">
+        <v-col>Part</v-col>
+        <v-spacer></v-spacer>
+        <v-col cols="auto">
+          <v-switch
+            true-icon="mdi-star"
+            v-model="part.starred"
+            :true-value="true"
+            :false-value="false"
+            color="#fcba03"
+            label="Star"
+            hide-details
+          ></v-switch>
+        </v-col>
+        <v-col cols="1">
+          <v-btn
+            v-if="origin_name == ''"
+            type="submit"
+            @click="newPart"
+            text="Add"
+          ></v-btn>
+          <v-btn v-else type="submit" @click="updatePart" text="Update"></v-btn>
+        </v-col>
       </v-row>
-      <v-row class="ga-8">
-        <v-text-field
-          label="Name"
-          variant="outlined"
-          v-model="part.name"
-          placeholder="RP2040"
-          :rules="[(v: any) => !!v || 'Required']"
-          required
-        ></v-text-field>
-        <v-text-field
-          label="Quantity"
-          variant="outlined"
-          v-model.number="qty_input"
-          placeholder="15"
-          :rules="[(v: any) => !!v || 'Required']"
-          required
-          type="number"
-          min="0"
-        ></v-text-field>
-        <v-autocomplete
-          label="Category"
-          variant="outlined"
-          v-model="part.category"
-          :items="Object.values(categories).map((cat) => cat.name)"
-          :rules="[(v: any) => !!v || 'Required']"
-        ></v-autocomplete>
-      </v-row>
-
-      <v-divider class="ma-8"></v-divider>
-
-      <v-row class="ga-8">
-        <v-autocomplete
-          label="Package"
-          variant="outlined"
-          v-model="part.package"
-          :items="Object.values(packages).map((pck) => pck.name)"
-        ></v-autocomplete>
-        <v-text-field
-          label="Package Detail"
-          variant="outlined"
-          v-model="part.package_detail"
-          placeholder="7x7mm P0.4mm 1EP3.2x32.mm"
-        ></v-text-field>
-        <v-autocomplete
-          label="Manufacturer"
-          variant="outlined"
-          v-model="part.mfr"
-          :items="Object.values(mfrs).map((mfr) => mfr.name)"
-        ></v-autocomplete>
-        <v-text-field
-          label="Location"
-          variant="outlined"
-          v-model="part.location"
-          placeholder="Box #1"
-        ></v-text-field>
-      </v-row>
-      <v-row class="ga-8">
-        <v-text-field
-          label="Alias"
-          variant="outlined"
-          v-model="part.alias"
-          placeholder=""
-        ></v-text-field>
-        <v-text-field
-          label="Mfr #"
-          variant="outlined"
-          v-model="part.mfr_no"
-          placeholder="SC0914(7)"
-          title="Manufacturer part number"
-        ></v-text-field>
-      </v-row>
-      <v-row class="ga-8">
-        <v-text-field
-          label="Product"
-          variant="outlined"
-          v-model="part.product_link"
-          placeholder="URL, full path or filename"
-        ></v-text-field>
-        <v-text-field
-          label="Datasheet"
-          variant="outlined"
-          v-model="part.datasheet_link"
-          placeholder="URL, full path or filename"
-        ></v-text-field>
-        <v-text-field
-          label="Image"
-          variant="outlined"
-          v-model="part.image_link"
-          placeholder="URL, full path or filename"
-        ></v-text-field>
-      </v-row>
-      <v-row class="ga-8">
-        <v-textarea
-          label="Description"
-          variant="outlined"
-          v-model="part.description"
-          placeholder="Write something ..."
-        ></v-textarea>
+      <v-row>
+        <v-col>
+          <v-text-field
+            label="Name"
+            variant="outlined"
+            v-model="part.name"
+            placeholder="RP2040"
+            :rules="[(v: any) => !!v || 'Required']"
+            required
+          ></v-text-field>
+        </v-col>
+        <v-col cols="4">
+          <v-autocomplete
+            label="Category"
+            variant="outlined"
+            v-model="part.category"
+            :items="Object.values(categories).map((cat) => cat.name)"
+            :rules="[(v: any) => !!v || 'Required']"
+          ></v-autocomplete>
+        </v-col>
+        <v-col cols="3">
+          <v-text-field
+            label="Quantity"
+            variant="outlined"
+            v-model.number="qty_input"
+            placeholder="15"
+            :rules="[(v: any) => !!v || 'Required']"
+            required
+            type="number"
+            min="0"
+          ></v-text-field>
+        </v-col>
       </v-row>
 
-      <v-card title="Custom Fields" variant="flat" class="mb-2">
-        <v-container>
-          <v-row class="ma-2" v-for="cf in custom_fields">
+      <v-divider class="my-6"></v-divider>
+
+      <v-row class="mb-n6">
+        <v-col>
+          <v-autocomplete
+            label="Package"
+            variant="outlined"
+            v-model="part.package"
+            :items="Object.values(packages).map((pck) => pck.name)"
+          ></v-autocomplete>
+        </v-col>
+        <v-col>
+          <v-text-field
+            label="Package Detail"
+            variant="outlined"
+            v-model="part.package_detail"
+            placeholder="P0.4mm EP3.2x3.2mm"
+          ></v-text-field>
+        </v-col>
+        <v-col>
+          <v-autocomplete
+            label="Manufacturer"
+            variant="outlined"
+            v-model="part.mfr"
+            :items="Object.values(mfrs).map((mfr) => mfr.name)"
+          ></v-autocomplete>
+        </v-col>
+        <v-col>
+          <v-text-field
+            label="Mfr #"
+            variant="outlined"
+            v-model="part.mfr_no"
+            placeholder="SC0914(7)"
+            title="Manufacturer part number"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row class="mb-n6">
+        <v-col>
+          <v-text-field
+            label="Alias"
+            variant="outlined"
+            v-model="part.alias"
+            placeholder=""
+          ></v-text-field>
+        </v-col>
+        <v-col>
+          <v-text-field
+            label="Location"
+            variant="outlined"
+            v-model="part.location"
+            placeholder="Box #1"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row class="mb-n6">
+        <v-col>
+          <v-text-field
+            label="Product Link"
+            variant="outlined"
+            v-model="part.product_link"
+            placeholder="https://"
+          ></v-text-field>
+        </v-col>
+        <v-col>
+          <v-text-field
+            label="Datasheet Link"
+            variant="outlined"
+            v-model="part.datasheet_link"
+            placeholder="https://"
+          ></v-text-field>
+        </v-col>
+        <v-col>
+          <v-text-field
+            label="Image Link"
+            variant="outlined"
+            v-model="part.image_link"
+            placeholder="https://"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row class="mb-n6">
+        <v-col>
+          <v-textarea
+            label="Description"
+            variant="outlined"
+            v-model="part.description"
+            placeholder="Write something ..."
+          ></v-textarea>
+        </v-col>
+      </v-row>
+
+      <v-divider class="my-6"></v-divider>
+
+      <v-row>
+        <v-col>
+          <v-card title="Custom Fields" variant="text">
+            <v-spacer class="my-2"></v-spacer>
             <PartCustomField
+              v-for="cf in custom_fields"
               :field_type="cf.field_type"
               :name="cf.name"
               :value="cf.value"
               :create="false"
               @del="handleCustomFieldDel"
             />
-          </v-row>
-          <v-row class="ma-2">
             <PartCustomField
               :field_type="new_custom_field.field_type"
               :name="new_custom_field.name"
@@ -312,14 +353,16 @@ onMounted(() => {
               @update="handleCustomFieldUpdate"
               @add="handleCustomFieldAdd"
             />
-          </v-row>
-        </v-container>
-      </v-card>
+          </v-card>
+        </v-col>
+      </v-row>
 
-      <v-card title="Suppliers" variant="flat">
-        <v-container>
-          <v-row class="ma-2" v-for="s in suppliers">
+      <v-row>
+        <v-col>
+          <v-card title="Suppliers" variant="text">
+            <v-spacer class="my-2"></v-spacer>
             <PartSupplier
+              v-for="s in suppliers"
               :name="s.name"
               :link="s.link"
               :price="s.price"
@@ -327,8 +370,6 @@ onMounted(() => {
               :create="false"
               @del="handleSupplierDel"
             />
-          </v-row>
-          <v-row class="ma-2">
             <PartSupplier
               :name="new_supplier.name"
               :link="new_supplier.link"
@@ -338,9 +379,9 @@ onMounted(() => {
               @update="handleSupplierUpdate"
               @add="handleSupplierAdd"
             />
-          </v-row>
-        </v-container>
-      </v-card>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-container>
   </v-form>
 </template>
