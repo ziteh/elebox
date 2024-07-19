@@ -9,6 +9,9 @@ import { CustomField, PkgType, Supplier } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
 
+const snackbar = ref(false);
+const snackbar_msg = ref("");
+
 const router = useRouter();
 const origin_name = ref<string>("");
 const part = ref<DbPart.Part>({
@@ -21,7 +24,6 @@ const part = ref<DbPart.Part>({
 });
 
 const qty_input = ref<number | undefined>(undefined);
-// const alert = ref(false);
 
 const new_custom_field = ref<CustomField>({
   name: "",
@@ -66,8 +68,12 @@ async function newPart() {
 
   part.value.custom_fields = custom_fields;
   part.value.suppliers = suppliers;
-  await DbPart.add(part.value);
-  router.replace("/"); // Back to home
+  await DbPart.add(part.value)
+    .then(() => router.replace("/")) // Back to home
+    .catch((err) => {
+      snackbar.value = true;
+      snackbar_msg.value = err;
+    });
 }
 
 async function updatePart() {
@@ -94,8 +100,12 @@ async function updatePart() {
 
   part.value.custom_fields = custom_fields;
   part.value.suppliers = suppliers;
-  await DbPart.update(origin_name.value, part.value);
-  router.replace("/"); // Back to home
+  await DbPart.update(origin_name.value, part.value)
+    .then(() => router.replace("/")) // Back to home
+    .catch((err) => {
+      snackbar.value = true;
+      snackbar_msg.value = err;
+    });
 }
 
 async function getCategories() {
@@ -382,5 +392,14 @@ onMounted(() => {
         </v-col>
       </v-row>
     </v-container>
+
+    <v-snackbar v-model="snackbar">
+      {{ snackbar_msg }}
+      <template v-slot:actions>
+        <v-btn color="pink" variant="text" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-form>
 </template>
