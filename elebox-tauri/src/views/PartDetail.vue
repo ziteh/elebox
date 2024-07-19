@@ -13,6 +13,7 @@ const part = ref<DbPart.Part>({
   category: "",
   custom_fields: [],
   suppliers: [],
+  starred: false,
 });
 
 async function getPart(name: string) {
@@ -36,7 +37,10 @@ onMounted(() => {
       <thead>
         <tr>
           <th>Part</th>
-          <th>{{ part.name }}</th>
+          <th>
+            {{ part.name
+            }}<v-icon v-if="part.starred" color="#fcba03">mdi-star</v-icon>
+          </th>
         </tr>
       </thead>
 

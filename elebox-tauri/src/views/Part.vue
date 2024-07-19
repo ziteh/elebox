@@ -16,10 +16,10 @@ const part = ref<DbPart.Part>({
   category: "",
   custom_fields: [],
   suppliers: [],
+  starred: false,
 });
 
 const qty_input = ref<number | undefined>(undefined);
-const favorite = ref();
 // const alert = ref(false);
 
 const new_custom_field = ref<CustomField>({
@@ -184,9 +184,11 @@ onMounted(() => {
         <v-btn v-else @click="updatePart">Update</v-btn>
         <v-switch
           true-icon="mdi-star"
-          v-model="favorite"
-          color="primary"
-          label="Favorite"
+          v-model="part.starred"
+          :true-value="true"
+          :false-value="false"
+          color="#fcba03"
+          label="Star"
           hide-details
         ></v-switch>
       </v-row>

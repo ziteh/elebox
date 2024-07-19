@@ -69,7 +69,8 @@ onMounted(getParts);
             :to="{ name: 'part_detail', params: { name: item.name } }"
             variant="text"
           >
-            {{ item.name }}
+            {{ item.name
+            }}<v-icon v-if="item.starred" color="#fcba03">mdi-star</v-icon>
           </v-btn>
         </template>
         <template v-slot:item.quantity="{ item }">

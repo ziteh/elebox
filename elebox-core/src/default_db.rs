@@ -271,6 +271,7 @@ pub fn create_default_db(path: &str) {
         ),
         description: Some("Dual ARM Cortex-M0+ 133MHz, 264KB SRAM".to_string()),
         location: Some("Box #1".to_string()),
+        starred: false,
         custom_fields: vec![
             CustomField {
                 name: "Mouser #".to_string(),
