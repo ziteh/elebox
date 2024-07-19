@@ -51,7 +51,7 @@ onMounted(getParts);
 
     <v-btn @click="reload">Update</v-btn>
 
-    <v-card title="Parts" flat>
+    <v-card flat>
       <template v-slot:text>
         <v-text-field
           v-model="search"

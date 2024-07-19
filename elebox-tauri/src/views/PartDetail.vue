@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "../styles.css";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { DbPart } from "../db_cmd_part";
@@ -30,16 +31,31 @@ onMounted(() => {
 
 <template>
   <v-container v-if="name">
-    <v-btn :to="{ name: 'home' }">Back</v-btn>
-    <ItemEditButton :path_name="'update_part'" :item_name="name" />
-    <PartDel :part="name" />
+    <div>
+      <v-row>
+        <v-col>
+          <v-btn :to="{ name: 'home' }">Back</v-btn>
+        </v-col>
+        <v-col cols="1">
+          <ItemEditButton :path_name="'update_part'" :item_name="name" />
+        </v-col>
+        <v-col cols="2">
+          <PartDel :part="name" />
+        </v-col>
+      </v-row>
+    </div>
+
+    <v-divider class="my-4"></v-divider>
+
     <v-table>
       <thead>
         <tr>
-          <th>Part</th>
+          <th>Name</th>
           <th>
             {{ part.name
-            }}<v-icon v-if="part.starred" color="#fcba03">mdi-star</v-icon>
+            }}<v-icon v-if="part.starred" color="#fcba03" title="Starred" end
+              >mdi-star</v-icon
+            >
           </th>
         </tr>
       </thead>
@@ -70,22 +86,14 @@ onMounted(() => {
           <td>{{ part.package_detail }}</td>
         </tr>
         <tr>
-          <td>Datasheet</td>
-          <td>
-            <a target="_blank" :href="part.datasheet_link">{{
-              part.datasheet_link
-            }}</a>
-          </td>
-        </tr>
-        <tr>
           <td>Description</td>
           <td>{{ part.description }}</td>
         </tr>
         <tr>
-          <td>Mfr #</td>
+          <td>Manufacturer #</td>
           <td>
-            {{ part.mfr_no
-            }}<a
+            {{ part.mfr_no }}
+            <a
               title="Search on Mouser"
               target="_blank"
               :href="`https://www.mouser.com/c/?q=${part.mfr_no}`"
@@ -108,6 +116,14 @@ onMounted(() => {
           <td>{{ part.mfr }}</td>
         </tr>
         <tr>
+          <td>Datasheet</td>
+          <td>
+            <a target="_blank" :href="part.datasheet_link">{{
+              part.datasheet_link
+            }}</a>
+          </td>
+        </tr>
+        <tr>
           <td>Product</td>
           <td>
             <a target="_blank" :href="part.product_link">{{
@@ -118,37 +134,39 @@ onMounted(() => {
         <tr>
           <td>Image</td>
           <td>
-            <v-img
+            <a
               v-if="part.image_link"
-              :src="part.image_link"
+              target="_blank"
+              :href="part.image_link"
               :title="part.image_link"
-              height="250"
-            ></v-img>
+            >
+              <v-img :src="part.image_link" height="250"></v-img>
+            </a>
           </td>
         </tr>
       </tbody>
     </v-table>
 
-    <v-label>Custom Fields</v-label>
+    <v-label class="mt-8">Custom Fields</v-label>
     <v-table>
       <thead>
         <tr>
           <th>Name</th>
           <th>Value</th>
-          <th>Type</th>
+          <th>Field Type</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr v-for="f in part.custom_fields">
-          <td>{{ f.name }}</td>
-          <td>{{ f.value }}</td>
-          <td>{{ f.field_type }}</td>
+        <tr v-for="cf in part.custom_fields" :key="cf.name">
+          <td>{{ cf.name }}</td>
+          <td>{{ cf.value }}</td>
+          <td>{{ cf.field_type }}</td>
         </tr>
       </tbody>
     </v-table>
 
-    <v-label>Suppliers</v-label>
+    <v-label class="mt-8">Suppliers</v-label>
     <v-table>
       <thead>
         <tr>
@@ -160,7 +178,7 @@ onMounted(() => {
       </thead>
 
       <tbody>
-        <tr v-for="s in part.suppliers">
+        <tr v-for="s in part.suppliers" :key="s.name">
           <td>{{ s.name }}</td>
           <td>
             <a :href="s.link" target="_blank" :title="s.link">Link</a>
