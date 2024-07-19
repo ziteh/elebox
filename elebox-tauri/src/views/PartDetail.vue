@@ -3,7 +3,6 @@ import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { DbPart } from "../db_cmd_part";
 import ItemEditButton from "../components/ItemEditButton.vue";
-import PartDel from "../components/PartDel.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -41,10 +40,10 @@ onMounted(() => {
         <v-col>
           <v-btn :to="{ name: 'home' }">Back</v-btn>
         </v-col>
-        <v-col cols="1">
+        <v-col cols="auto">
           <ItemEditButton :path_name="'update_part'" :item_name="name" />
         </v-col>
-        <v-col cols="1">
+        <v-col cols="auto">
           <v-dialog max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
               <v-btn
