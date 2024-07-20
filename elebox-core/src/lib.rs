@@ -1,4 +1,5 @@
 mod category;
+mod comm;
 mod csv;
 mod db;
 mod default_db;
