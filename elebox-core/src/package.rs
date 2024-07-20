@@ -46,13 +46,6 @@ impl<'a> PackageManager<'a> {
     }
 
     fn to_db_package(&self, package: &Package) -> Result<DbPackage, EleboxError> {
-        if self.db.get_package_id(&package.name).is_some() {
-            return Err(EleboxError::AlreadyExists(
-                "Package".to_string(),
-                package.name.clone(),
-            ));
-        }
-
         let db_pkg = DbPackage {
             name: package.name.to_string(),
             pkg_type: match package.pkg_type {
@@ -69,6 +62,13 @@ impl<'a> PackageManager<'a> {
     }
 
     pub fn add(&self, package: &Package) -> Result<(), EleboxError> {
+        if self.db.get_package_id(&package.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                "Package".to_string(),
+                package.name.clone(),
+            ));
+        }
+
         let db_pkg = self.to_db_package(package)?;
         self.db.add_package(&db_pkg);
         Ok(())
@@ -79,6 +79,13 @@ impl<'a> PackageManager<'a> {
             return Err(EleboxError::NotExists(
                 "Origin package".to_string(),
                 ori_name.to_string(),
+            ));
+        }
+
+        if ori_name != &new_package.name && self.db.get_package_id(&new_package.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                "Package".to_string(),
+                new_package.name.clone(),
             ));
         }
 
