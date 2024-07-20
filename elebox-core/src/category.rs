@@ -1,4 +1,4 @@
-use crate::{csv::*, db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug};
 
@@ -165,24 +165,34 @@ impl<'a> CategoryManager<'a> {
         Ok(())
     }
 
-    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+    pub fn export(&self, filename: &str) -> Result<(), ()> {
         let cats = self.list();
-        let res = write_csv(filename, cats, None);
+        let res = write_yaml(filename, cats);
         return res;
     }
 
-    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
-        let res_parts = read_csv(filename, None);
+    pub fn import(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_yaml(filename);
         if res_parts.is_err() {
             return Err(());
         }
 
         let cats: Vec<Category> = res_parts.unwrap();
-        for cat in cats {
-            let _ = self.add(&cat);
+        for cat in &cats {
+            self.add_recursion(cat, &cats);
         }
 
         Ok(())
+    }
+
+    fn add_recursion(&self, category: &Category, cats: &[Category]) -> Result<(), EleboxError> {
+        if let Some(parent_name) = &category.parent {
+            if let Some(parent_cat) = cats.iter().find(|c| c.name == *parent_name) {
+                self.add_recursion(parent_cat, cats);
+            }
+        }
+
+        self.add(category)
     }
 
     fn to_node(&self, name: String, map: &HashMap<String, Vec<String>>) -> TreeNode {

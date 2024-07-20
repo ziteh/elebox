@@ -76,7 +76,7 @@ pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
             // };
         }
         Some(CategorySubCommand::Export(args)) => {
-            let _ = manager.export_csv(&args.path);
+            let _ = manager.export(&args.path);
         }
         None => {
             println!("List part category");

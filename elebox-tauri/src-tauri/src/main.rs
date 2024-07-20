@@ -232,12 +232,12 @@ fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
 fn export_csv(path: tauri::State<DbPath>, csv_path: &str) {
     let p = GET!(path);
     let db = elebox_core::JammDatabase::new(&p);
-    elebox_core::export_csv(&db, csv_path);
+    elebox_core::export(&db, csv_path);
 }
 
 #[tauri::command(rename_all = "snake_case")]
 fn import_csv(csv_path: &str) -> Result<(), String> {
-    elebox_core::import_csv(csv_path)
+    elebox_core::import(csv_path)
 }
 
 fn main() {

@@ -6,12 +6,12 @@ import DbPath from "../components/DbPath.vue";
 const csv_path = ref("");
 
 async function export_csv() {
-  await invoke("export_csv", { csvPath: csv_path.value });
+  await invoke("export_csv", { csv_path: csv_path.value });
   console.debug(`Export path: ${csv_path.value}`);
 }
 
 async function import_csv() {
-  await invoke("import_csv", { csvPath: csv_path.value });
+  await invoke("import_csv", { csv_path: csv_path.value });
   console.debug(`Import path: ${csv_path.value}`);
 }
 </script>

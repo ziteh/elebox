@@ -1,4 +1,4 @@
-use crate::{csv::*, db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::fmt::{format, Debug};
 
@@ -231,21 +231,24 @@ impl<'a> PartManager<'a> {
             .collect()
     }
 
-    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+    pub fn export(&self, filename: &str) -> Result<(), ()> {
         let parts = self.list();
-        let res = write_csv(filename, parts, None);
+        let res = write_yaml(filename, parts);
         return res;
     }
 
-    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
-        let res_parts = read_csv(filename, None);
+    pub fn import(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_yaml(filename);
+
         if res_parts.is_err() {
             return Err(());
         }
 
         let parts: Vec<Part> = res_parts.unwrap();
         for part in parts {
-            let _ = self.add(&part);
+            if let Err(e) = self.add(&part) {
+                panic!("{}", e.to_string())
+            }
         }
 
         Ok(())

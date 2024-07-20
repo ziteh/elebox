@@ -53,9 +53,9 @@ fn main() {
         EntityType::Init => db.init(),
         EntityType::Part(cmd) => part_cmd(&db, cmd),
         EntityType::Category(cmd) => category_cmd(&db, cmd),
-        EntityType::Export(args) => elebox_core::export_csv(&db, &args.path),
+        EntityType::Export(args) => elebox_core::export(&db, &args.path),
         EntityType::Import(args) => {
-            let _ = elebox_core::import_csv(&args.path);
+            let _ = elebox_core::import(&args.path);
         }
     };
 }
