@@ -31,8 +31,8 @@ const part = ref<DbPart.Part>({
 const qty_input = ref<number | undefined>(undefined);
 
 const new_custom_field = ref<CustomField>({
+  field_type: "Normal",
   name: "",
-  field_type: "",
   value: "",
 });
 
@@ -360,17 +360,13 @@ onMounted(() => {
             <v-spacer class="my-2"></v-spacer>
             <PartCustomField
               v-for="cf in custom_fields"
-              :field_type="cf.field_type"
-              :name="cf.name"
-              :value="cf.value"
-              :create="false"
+              :current="cf"
+              :existing="undefined"
               @del="handleCustomFieldDel"
             />
             <PartCustomField
-              :field_type="new_custom_field.field_type"
-              :name="new_custom_field.name"
-              :value="new_custom_field.value"
-              :create="true"
+              :current="new_custom_field"
+              :existing="custom_fields"
               @update="handleCustomFieldUpdate"
               @add="handleCustomFieldAdd"
             />
