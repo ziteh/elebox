@@ -11,6 +11,11 @@ import PartSupplier from "../components/PartSupplier.vue";
 
 const snackbar = ref(false);
 const snackbar_msg = ref("");
+const rules = ref({
+  required: (v: any) => !!v || "Required",
+  duplicate: (v: any) =>
+    !parts.some((part) => part.name === v) || "Already exists",
+});
 
 const router = useRouter();
 const origin_name = ref<string>("");
@@ -38,6 +43,7 @@ const new_supplier = ref<Supplier>({
   note: "",
 });
 
+let parts = reactive<DbPart.Part[]>([]);
 let categories = reactive<DbCategory.Category[]>([]);
 let packages = reactive<DbPackage.Package[]>([]);
 let mfrs = reactive<DbMfr.Manufacturer[]>([]);
@@ -106,6 +112,11 @@ async function updatePart() {
       snackbar.value = true;
       snackbar_msg.value = err;
     });
+}
+
+async function getParts() {
+  const data = await DbPart.list();
+  Object.assign(parts, data);
 }
 
 async function getCategories() {
@@ -181,6 +192,7 @@ onMounted(() => {
     getPart(origin_name.value);
   }
 
+  getParts();
   getCategories();
   getMfrs();
   getPackages();
@@ -221,7 +233,7 @@ onMounted(() => {
             variant="outlined"
             v-model="part.name"
             placeholder="RP2040"
-            :rules="[(v: any) => !!v || 'Required']"
+            :rules="[rules.required, rules.duplicate]"
             required
           ></v-text-field>
         </v-col>
@@ -231,7 +243,7 @@ onMounted(() => {
             variant="outlined"
             v-model="part.category"
             :items="Object.values(categories).map((cat) => cat.name)"
-            :rules="[(v: any) => !!v || 'Required']"
+            :rules="[rules.required]"
           ></v-autocomplete>
         </v-col>
         <v-col cols="3">
@@ -240,7 +252,7 @@ onMounted(() => {
             variant="outlined"
             v-model.number="qty_input"
             placeholder="15"
-            :rules="[(v: any) => !!v || 'Required']"
+            :rules="[rules.required]"
             required
             type="number"
             min="0"

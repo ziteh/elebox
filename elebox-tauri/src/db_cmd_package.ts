@@ -15,15 +15,25 @@ export namespace DbPackage {
   }
 
   export async function add(item: PackageInterface) {
-    await invoke("add_package", { item })
-      .then((msg) => console.log(`Add package, ${msg}`))
-      .catch((err) => console.error(`Add package, ${err}`));
+    try {
+      const msg = await invoke("add_package", { item });
+      console.log(`Add package, ${msg}`);
+      return msg;
+    } catch (err) {
+      console.warn(`Add package, ${err}`);
+      throw err;
+    }
   }
 
   export async function update(ori_name: string, new_item: PackageInterface) {
-    await invoke("update_package", { ori_name, new_item })
-      .then((msg) => console.log(`Update package, ${msg}`))
-      .catch((err) => console.error(`Update package, ${err}`));
+    try {
+      const msg = await invoke("update_package", { ori_name, new_item });
+      console.log(`Update package, ${msg}`);
+      return msg;
+    } catch (err) {
+      console.warn(`Update package, ${err}`);
+      throw err;
+    }
   }
 
   export async function remove(name: string) {

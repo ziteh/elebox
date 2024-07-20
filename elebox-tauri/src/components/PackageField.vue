@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import { DbPackage as Db } from "../db_cmd_package";
 import { PkgType } from "../interface"; // TODO to db_cmd_package
 
 const props = defineProps<{ origin_name?: string }>();
 const pkg = ref<Db.Package>({ name: "", pkg_type: PkgType.Smt, alias: "" });
 const pkg_type_input = ref<string>("SMT");
+let pkgs = reactive<Db.Package[]>([]);
+
+const snackbar = ref(false);
+const snackbar_msg = ref("");
+const rules = ref({
+  required: (v: any) => !!v || "Required",
+  duplicate: (v: any) =>
+    !pkgs.some((pkg) => pkg.name === v) || "Already exists",
+});
 
 function setPkgType(input: string): PkgType {
   // --noImplicitAny
@@ -27,7 +36,15 @@ async function add() {
   }
 
   pkg.value.pkg_type = setPkgType(pkg_type_input.value);
-  await Db.add(pkg.value);
+  await Db.add(pkg.value)
+    .then(() => {
+      snackbar.value = true;
+      snackbar_msg.value = "Success";
+    })
+    .catch((e) => {
+      snackbar.value = true;
+      snackbar_msg.value = e;
+    });
 }
 
 async function update() {
@@ -37,6 +54,11 @@ async function update() {
 
   pkg.value.pkg_type = setPkgType(pkg_type_input.value);
   await Db.update(props.origin_name, pkg.value);
+}
+
+async function list() {
+  const data = await Db.list();
+  Object.assign(pkgs, data);
 }
 
 async function get(name: string) {
@@ -56,6 +78,8 @@ onMounted(() => {
   if (props.origin_name !== undefined) {
     get(props.origin_name);
   }
+
+  list();
 });
 </script>
 
@@ -78,7 +102,7 @@ onMounted(() => {
           variant="outlined"
           v-model.trim="pkg.name"
           placeholder="SOT-23"
-          :rules="[(v: any) => !!v || 'Required']"
+          :rules="[rules.required, rules.duplicate]"
           required
         ></v-text-field>
       </v-col>
@@ -101,4 +125,12 @@ onMounted(() => {
       </v-col>
     </v-row>
   </v-form>
+  <v-snackbar v-model="snackbar">
+    {{ snackbar_msg }}
+    <template v-slot:actions>
+      <v-btn color="pink" variant="text" @click="snackbar = false">
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>

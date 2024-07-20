@@ -10,7 +10,7 @@ export namespace DbCategory {
 
   export async function get(name: string) {
     return invoke("get_category", { name }).catch((err) =>
-      console.error(`Get part, ${err}`)
+      console.warn(`Get part, ${err}`)
     );
   }
 
@@ -19,21 +19,31 @@ export namespace DbCategory {
   }
 
   export async function add(item: CategoryInterface) {
-    await invoke("add_category", { item })
-      .then((msg) => console.log(`Add category, ${msg}`))
-      .catch((err) => console.error(`Add category, ${err}`));
+    try {
+      const msg = await invoke("add_category", { item });
+      console.log(`Add category, ${msg}`);
+      return msg;
+    } catch (err) {
+      console.warn(`Add category, ${err}`);
+      throw err;
+    }
   }
 
   export async function update(ori_name: string, new_item: CategoryInterface) {
-    await invoke("update_category", { ori_name, new_item })
-      .then((msg) => console.log(`Update category, ${msg}`))
-      .catch((err) => console.error(`Update category, ${err}`));
+    try {
+      const msg = await invoke("update_category", { ori_name, new_item });
+      console.log(`Update category, ${msg}`);
+      return msg;
+    } catch (err) {
+      console.warn(`Update category, ${err}`);
+      throw err;
+    }
   }
 
   export async function remove(name: string) {
     await invoke("del_category", { name })
       .then((msg) => console.log(`Delete category, ${msg}`))
-      .catch((err) => console.error(`Delete category, ${err}`));
+      .catch((err) => console.warn(`Delete category, ${err}`));
   }
 
   export async function getTree(): Promise<TreeNodeInterface[]> {
