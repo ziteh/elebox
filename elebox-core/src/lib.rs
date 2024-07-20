@@ -1,4 +1,3 @@
-mod backup;
 mod category;
 mod csv;
 mod db;
@@ -7,6 +6,7 @@ mod errors;
 mod manufacturer;
 mod package;
 mod part;
+mod transfer;
 mod yaml;
 
 pub use category::*;
@@ -19,6 +19,6 @@ pub use manufacturer::*;
 pub use package::*;
 pub use part::*;
 
-pub use backup::export;
-pub use backup::import;
 pub use default_db::create_default_db;
+pub use transfer::export;
+pub use transfer::import;
