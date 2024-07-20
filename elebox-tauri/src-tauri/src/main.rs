@@ -5,7 +5,7 @@ use dirs;
 use elebox_core::{
     Category, CustomField, Manufacturer, Package, PackageType, Part, Supplier, TreeNode,
 };
-use std::{sync::Mutex, task::ready};
+use std::{path::Path, sync::Mutex, task::ready};
 use tauri::Manager;
 
 macro_rules! GET {
@@ -215,6 +215,14 @@ fn get_db_path(path: tauri::State<DbPath>) -> String {
 }
 
 #[tauri::command(rename_all = "snake_case")]
+fn get_default_db_path() -> String {
+    if let Ok(path) = get_default_path() {
+        return path;
+    }
+    return "".to_string();
+}
+
+#[tauri::command(rename_all = "snake_case")]
 fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
     update_db_path(path, new_path);
     init_db(new_path);
@@ -233,12 +241,16 @@ fn import_csv(csv_path: &str) -> Result<(), String> {
 }
 
 fn main() {
-    let db_path = match get_default_path() {
+    let mut db_path = match get_default_path() {
         Ok(path) => path,
         Err(err) => panic!("{}", err),
     };
 
-    init_db(&db_path);
+    if Path::new(&db_path).exists() {
+        init_db(&db_path);
+    } else {
+        db_path = "".to_string();
+    }
 
     tauri::Builder::default()
         .setup(|app| {
@@ -278,6 +290,7 @@ fn main() {
             update_mfr,
             del_mfr,
             get_db_path,
+            get_default_db_path,
             set_db_path,
             export_csv,
             import_csv,
