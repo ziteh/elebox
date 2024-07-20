@@ -6,7 +6,7 @@ export namespace DbPackage {
 
   export async function get(name: string) {
     return invoke("get_package", { name }).catch((err) =>
-      console.error(`Get part, ${err}`)
+      console.warn(`Get part, ${err}`)
     );
   }
 
@@ -39,6 +39,6 @@ export namespace DbPackage {
   export async function remove(name: string) {
     await invoke("del_package", { name })
       .then((msg) => console.log(`Delete package, ${msg}`))
-      .catch((err) => console.error(`Delete package, ${err}`));
+      .catch((err) => console.warn(`Delete package, ${err}`));
   }
 }

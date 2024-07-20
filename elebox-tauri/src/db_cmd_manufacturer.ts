@@ -6,7 +6,7 @@ export namespace DbManufacturer {
 
   export async function get(name: string) {
     return invoke("get_mfr", { name }).catch((err) =>
-      console.error(`Get part, ${err}`)
+      console.warn(`Get part, ${err}`)
     );
   }
 
@@ -42,6 +42,6 @@ export namespace DbManufacturer {
   export async function remove(name: string) {
     await invoke("del_mfr", { name })
       .then((msg) => console.log(`Delete manufacturer, ${msg}`))
-      .catch((err) => console.error(`Delete manufacturer, ${err}`));
+      .catch((err) => console.warn(`Delete manufacturer, ${err}`));
   }
 }
