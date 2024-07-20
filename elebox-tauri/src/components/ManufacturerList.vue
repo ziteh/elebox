@@ -2,6 +2,7 @@
 import { onMounted, reactive, ref } from "vue";
 import { DbManufacturer as Db } from "../db_cmd_manufacturer";
 import ItemEditButton from "./ItemEditButton.vue";
+import ItemDeleteButton from "./ItemDeleteButton.vue";
 
 const search = ref("");
 const headers = ref([
@@ -17,7 +18,7 @@ async function list() {
   Object.assign(mfrs, data);
 }
 
-async function remove(name: string) {
+async function deleteItem(name: string) {
   await Db.remove(name);
 }
 
@@ -49,12 +50,7 @@ onMounted(list);
           :path_name="'update_manufacturer'"
           :item_name="item.name"
         />
-        <v-btn
-          density="comfortable"
-          icon="mdi-trash-can-outline"
-          :title="`Delete: ${item.name}`"
-          @click="remove(item.name)"
-        ></v-btn>
+        <ItemDeleteButton :name="item.name" @delete="deleteItem(item.name)" />
       </template>
     </v-data-table>
   </v-card>

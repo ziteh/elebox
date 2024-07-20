@@ -2,6 +2,7 @@
 import { onMounted, reactive, ref } from "vue";
 import { DbCategory as Db } from "../db_cmd_category";
 import ItemEditButton from "./ItemEditButton.vue";
+import ItemDeleteButton from "./ItemDeleteButton.vue";
 
 const search = ref("");
 const headers = ref([
@@ -18,7 +19,7 @@ async function list() {
   Object.assign(categories, data);
 }
 
-async function remove(name: string) {
+async function deleteItem(name: string) {
   await Db.remove(name);
 }
 
@@ -41,12 +42,7 @@ onMounted(list);
     <v-data-table :headers="headers" :items="categories" :search="search">
       <template v-slot:item.edit="{ item }">
         <ItemEditButton :path_name="'update_category'" :item_name="item.name" />
-        <v-btn
-          density="comfortable"
-          icon="mdi-trash-can-outline"
-          :title="`Delete: ${item.name}`"
-          @click="remove(item.name)"
-        ></v-btn>
+        <ItemDeleteButton :name="item.name" @delete="deleteItem(item.name)" />
       </template>
     </v-data-table>
   </v-card>

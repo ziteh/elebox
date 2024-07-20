@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { DbPart } from "../db_cmd_part";
 import ItemEditButton from "../components/ItemEditButton.vue";
+import ItemDeleteButton from "../components/ItemDeleteButton.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -44,46 +45,7 @@ onMounted(() => {
           <ItemEditButton :path_name="'update_part'" :item_name="name" />
         </v-col>
         <v-col cols="auto">
-          <v-dialog max-width="500">
-            <template v-slot:activator="{ props: activatorProps }">
-              <v-btn
-                v-bind="activatorProps"
-                density="comfortable"
-                icon="mdi-trash-can-outline"
-                title="Delete"
-              ></v-btn>
-            </template>
-
-            <template v-slot:default="{ isActive }">
-              <v-card
-                title="Confirm Delete"
-                prepend-icon="mdi-trash-can-outline"
-              >
-                <v-card-text>
-                  <p>
-                    Are you sure you want to delete this part
-                    <strong>{{ part.name }}</strong> ?
-                  </p>
-                  <p>This action cannot be undone.</p>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text="Cancel"
-                    @click="isActive.value = false"
-                    variant="tonal"
-                  ></v-btn>
-                  <v-btn
-                    text="Delete"
-                    @click="removePart"
-                    color="red"
-                    variant="tonal"
-                  ></v-btn>
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
+          <ItemDeleteButton :name="part.name" @delete="removePart" />
         </v-col>
       </v-row>
     </div>
