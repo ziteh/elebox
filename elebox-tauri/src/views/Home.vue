@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, reactive } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import PartList from "../components/PartList.vue";
 import NewDatabase from "../components/NewDatabase.vue";

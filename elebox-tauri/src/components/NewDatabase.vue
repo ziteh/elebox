@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useRouter } from "vue-router";
 
 const path = ref("");
 const default_path = ref("");
@@ -9,10 +8,10 @@ const use_default = ref(true);
 
 const emit = defineEmits(["update"]);
 
-async function getPath() {
-  path.value = await invoke("get_db_path", {});
-  console.debug(`DB path: ${path.value}`);
-}
+// async function getPath() {
+//   path.value = await invoke("get_db_path", {});
+//   console.debug(`DB path: ${path.value}`);
+// }
 
 async function getDefaultPath() {
   default_path.value = await invoke("get_default_db_path", {});
@@ -58,7 +57,6 @@ onMounted(getDefaultPath);
             v-else
             label="Database path"
             variant="outlined"
-            v-model="path"
             placeholder="elebox.db"
             prepend-icon="mdi-paperclip"
           ></v-file-input>
