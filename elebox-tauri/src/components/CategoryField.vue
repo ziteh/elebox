@@ -6,14 +6,30 @@ const props = defineProps<{ origin_name?: string }>();
 const category = ref<Db.Category>({ name: "", parent: "", alias: "" });
 let categories = reactive<Db.Category[]>([]);
 
+const snackbar = ref(false);
+const snackbar_msg = ref("");
+const rules = ref({
+  required: (v: any) => !!v || "Required",
+  duplicate: (v: any) =>
+    !categories.some((cat) => cat.name === v) || "Already exists",
+});
+
 async function add() {
   if (category.value === undefined) {
     console.warn("undefined");
     return;
   }
 
-  await Db.add(category.value);
-  await list();
+  await Db.add(category.value)
+    .then(() => {
+      snackbar.value = true;
+      snackbar_msg.value = "Success";
+      list();
+    })
+    .catch((e) => {
+      snackbar.value = true;
+      snackbar_msg.value = e;
+    });
 }
 
 async function update() {
@@ -34,6 +50,14 @@ async function list() {
 
   data.splice(0, 0, { name: "" }); // Root
   Object.assign(categories, data);
+
+  // The parent category cannot be itself
+  if (props.origin_name) {
+    const index = categories.findIndex((s) => s.name === props.origin_name);
+    if (index !== -1) {
+      categories.splice(index, 1);
+    }
+  }
 
   console.debug(`get categories: ${categories.length}`);
 }
@@ -61,7 +85,7 @@ onMounted(() => {
           variant="outlined"
           v-model="category.name"
           placeholder="MCU"
-          :rules="[(v: any) => !!v || 'Required']"
+          :rules="[rules.required, rules.duplicate]"
           required
         ></v-text-field>
       </v-col>
@@ -92,4 +116,12 @@ onMounted(() => {
       </v-col>
     </v-row>
   </v-form>
+  <v-snackbar v-model="snackbar">
+    {{ snackbar_msg }}
+    <template v-slot:actions>
+      <v-btn color="pink" variant="text" @click="snackbar = false">
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>

@@ -1,4 +1,4 @@
-use crate::{csv::*, db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -73,6 +73,13 @@ impl<'a> ManufacturerManager<'a> {
             ));
         }
 
+        if ori_name != &new_mfr.name && self.db.get_mfr_id(&new_mfr.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                "Mfr".to_string(),
+                new_mfr.name.clone(),
+            ));
+        }
+
         let db_mfr = self.to_db_mfr(new_mfr)?;
         self.db.update_mfr(ori_name, &db_mfr);
         Ok(())
@@ -108,14 +115,14 @@ impl<'a> ManufacturerManager<'a> {
             .collect()
     }
 
-    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+    pub fn export(&self, filename: &str) -> Result<(), ()> {
         let mfrs = self.list();
-        let res = write_csv(filename, mfrs, None);
+        let res = write_yaml(filename, mfrs);
         return res;
     }
 
-    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
-        let res_parts = read_csv(filename, None);
+    pub fn import(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_yaml(filename);
         if res_parts.is_err() {
             return Err(());
         }

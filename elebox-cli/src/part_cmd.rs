@@ -116,10 +116,10 @@ pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
                 }
             }
             PartSubCommand::Export(args) => {
-                let _ = manager.export_csv(&args.path);
+                let _ = manager.export(&args.path);
             }
             PartSubCommand::Import(args) => {
-                let _ = manager.import_csv(&args.path);
+                let _ = manager.import(&args.path);
             }
         },
         None => {

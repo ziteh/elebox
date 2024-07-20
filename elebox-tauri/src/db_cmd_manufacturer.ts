@@ -6,7 +6,7 @@ export namespace DbManufacturer {
 
   export async function get(name: string) {
     return invoke("get_mfr", { name }).catch((err) =>
-      console.error(`Get part, ${err}`)
+      console.warn(`Get part, ${err}`)
     );
   }
 
@@ -15,23 +15,33 @@ export namespace DbManufacturer {
   }
 
   export async function add(item: ManufacturerInterface) {
-    await invoke("add_mfr", { item })
-      .then((msg) => console.log(`Add manufacturer, ${msg}`))
-      .catch((err) => console.error(`Add manufacturer, ${err}`));
+    try {
+      const msg = await invoke("add_mfr", { item });
+      console.log(`Add manufacturer, ${msg}`);
+      return msg;
+    } catch (err) {
+      console.warn(`Add manufacturer, ${err}`);
+      throw err;
+    }
   }
 
   export async function update(
     ori_name: string,
     new_item: ManufacturerInterface
   ) {
-    await invoke("update_mfr", { ori_name, new_item })
-      .then((msg) => console.log(`Update manufacturer, ${msg}`))
-      .catch((err) => console.error(`Update manufacturer, ${err}`));
+    try {
+      const msg = await invoke("update_mfr", { ori_name, new_item });
+      console.log(`Update manufacturer, ${msg}`);
+      return msg;
+    } catch (err) {
+      console.warn(`Update manufacturer, ${err}`);
+      throw err;
+    }
   }
 
   export async function remove(name: string) {
     await invoke("del_mfr", { name })
       .then((msg) => console.log(`Delete manufacturer, ${msg}`))
-      .catch((err) => console.error(`Delete manufacturer, ${err}`));
+      .catch((err) => console.warn(`Delete manufacturer, ${err}`));
   }
 }

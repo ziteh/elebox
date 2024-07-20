@@ -1,4 +1,4 @@
-use crate::{csv::*, db::*, errors::EleboxError};
+use crate::{csv::*, db::*, errors::EleboxError, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -82,6 +82,13 @@ impl<'a> PackageManager<'a> {
             ));
         }
 
+        if ori_name != &new_package.name && self.db.get_package_id(&new_package.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                "Package".to_string(),
+                new_package.name.clone(),
+            ));
+        }
+
         let db_pkg = self.to_db_package(new_package)?;
         self.db.update_package(ori_name, &db_pkg);
         Ok(())
@@ -124,14 +131,14 @@ impl<'a> PackageManager<'a> {
             .collect()
     }
 
-    pub fn export_csv(&self, filename: &str) -> Result<(), ()> {
+    pub fn export(&self, filename: &str) -> Result<(), ()> {
         let pkgs = self.list();
-        let res = write_csv(filename, pkgs, None);
+        let res = write_yaml(filename, pkgs);
         return res;
     }
 
-    pub fn import_csv(&self, filename: &str) -> Result<(), ()> {
-        let res_parts = read_csv(filename, None);
+    pub fn import(&self, filename: &str) -> Result<(), ()> {
+        let res_parts = read_yaml(filename);
         if res_parts.is_err() {
             return Err(());
         }

@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { CustomField } from "../interface";
+import { makeRules } from "../input_rules";
 
 const props = defineProps<{
-  field_type: string;
-  name: string;
-  value: string;
-  create: Boolean;
+  current?: CustomField;
+  existing?: CustomField[];
 }>();
 
 const custom_field = ref<CustomField>({
-  name: props.name,
-  field_type: props.field_type || "Normal",
-  value: props.value,
+  field_type: props.current?.field_type ?? "Normal",
+  name: props.current?.name ?? "",
+  value: props.current?.value ?? "",
 });
+
+const rules = makeRules(props.existing);
 
 const emit = defineEmits(["update", "add", "del"]);
 
@@ -22,12 +23,16 @@ watch([custom_field], ([new_custom_field]) => {
 });
 
 function emitDel() {
-  emit("del", { name: props.name });
+  emit("del", { name: props.current?.name });
 }
 
 function emitAdd() {
   // Required value
-  if (!custom_field.value.field_type || !custom_field.value.name) {
+  if (
+    !custom_field.value.field_type ||
+    !custom_field.value.name ||
+    rules.value.duplicate(custom_field.value.name) !== true
+  ) {
     return;
   }
 
@@ -39,8 +44,8 @@ function emitAdd() {
 
   // Clear
   custom_field.value = {
-    name: "",
     field_type: "Normal",
+    name: "",
     value: "",
   };
 
@@ -52,24 +57,25 @@ function emitAdd() {
   <v-form @submit.prevent>
     <v-row class="align-center">
       <v-col cols="2">
-        <v-select
-          v-if="props.create"
-          label="Type"
-          :items="['Normal', 'Link']"
-          variant="outlined"
-          v-model="custom_field.field_type"
-          :rules="[(v: any) => !!v || 'Required']"
-          required
-          :readonly="!props.create"
-        ></v-select>
         <v-text-field
-          v-else
+          v-if="props.existing == undefined"
           label="Type"
           variant="outlined"
           v-model.trim="custom_field.field_type"
           required
           readonly
-        ></v-text-field>
+        >
+        </v-text-field>
+        <v-select
+          v-else
+          label="Type"
+          :items="['Normal', 'Link']"
+          variant="outlined"
+          v-model="custom_field.field_type"
+          :rules="[rules.required]"
+          required
+          :readonly="props.existing == undefined"
+        ></v-select>
       </v-col>
       <v-col>
         <v-text-field
@@ -77,9 +83,9 @@ function emitAdd() {
           variant="outlined"
           v-model.trim="custom_field.name"
           placeholder=""
-          :rules="[(v: any) => !!v || 'Required']"
+          :rules="[rules.required, rules.duplicate]"
           required
-          :readonly="!props.create"
+          :readonly="props.existing == undefined"
         ></v-text-field>
       </v-col>
       <v-col>
@@ -88,27 +94,27 @@ function emitAdd() {
           variant="outlined"
           v-model.trim="custom_field.value"
           placeholder=""
-          :readonly="!props.create"
-          :dirty="!props.create"
+          :readonly="props.existing == undefined"
+          :dirty="props.existing == undefined"
         ></v-text-field>
       </v-col>
       <v-col cols="auto" class="mb-6">
         <v-btn
-          v-if="props.create"
+          v-if="props.existing == undefined"
+          density="comfortable"
+          icon="mdi-trash-can-outline"
+          title="Delete"
+          type="submit"
+          @click="emitDel()"
+        ></v-btn>
+        <v-btn
+          v-else
           density="comfortable"
           icon="mdi-plus"
           title="Add"
           color="green"
           type="submit"
           @click="emitAdd()"
-        ></v-btn>
-        <v-btn
-          v-else
-          density="comfortable"
-          icon="mdi-trash-can-outline"
-          title="Delete"
-          type="submit"
-          @click="emitDel()"
         ></v-btn>
       </v-col>
     </v-row>

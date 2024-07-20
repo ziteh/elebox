@@ -9,6 +9,14 @@ import { CustomField, PkgType, Supplier } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
 
+const snackbar = ref(false);
+const snackbar_msg = ref("");
+const rules = ref({
+  required: (v: any) => !!v || "Required",
+  duplicate: (v: any) =>
+    !parts.some((part) => part.name === v) || "Already exists",
+});
+
 const router = useRouter();
 const origin_name = ref<string>("");
 const part = ref<DbPart.Part>({
@@ -21,11 +29,10 @@ const part = ref<DbPart.Part>({
 });
 
 const qty_input = ref<number | undefined>(undefined);
-// const alert = ref(false);
 
 const new_custom_field = ref<CustomField>({
+  field_type: "Normal",
   name: "",
-  field_type: "",
   value: "",
 });
 
@@ -36,6 +43,7 @@ const new_supplier = ref<Supplier>({
   note: "",
 });
 
+let parts = reactive<DbPart.Part[]>([]);
 let categories = reactive<DbCategory.Category[]>([]);
 let packages = reactive<DbPackage.Package[]>([]);
 let mfrs = reactive<DbMfr.Manufacturer[]>([]);
@@ -66,8 +74,12 @@ async function newPart() {
 
   part.value.custom_fields = custom_fields;
   part.value.suppliers = suppliers;
-  await DbPart.add(part.value);
-  router.replace("/"); // Back to home
+  await DbPart.add(part.value)
+    .then(() => router.replace("/")) // Back to home
+    .catch((err) => {
+      snackbar.value = true;
+      snackbar_msg.value = err;
+    });
 }
 
 async function updatePart() {
@@ -94,8 +106,17 @@ async function updatePart() {
 
   part.value.custom_fields = custom_fields;
   part.value.suppliers = suppliers;
-  await DbPart.update(origin_name.value, part.value);
-  router.replace("/"); // Back to home
+  await DbPart.update(origin_name.value, part.value)
+    .then(() => router.replace("/")) // Back to home
+    .catch((err) => {
+      snackbar.value = true;
+      snackbar_msg.value = err;
+    });
+}
+
+async function getParts() {
+  const data = await DbPart.list();
+  Object.assign(parts, data);
 }
 
 async function getCategories() {
@@ -171,6 +192,7 @@ onMounted(() => {
     getPart(origin_name.value);
   }
 
+  getParts();
   getCategories();
   getMfrs();
   getPackages();
@@ -211,7 +233,7 @@ onMounted(() => {
             variant="outlined"
             v-model="part.name"
             placeholder="RP2040"
-            :rules="[(v: any) => !!v || 'Required']"
+            :rules="[rules.required, rules.duplicate]"
             required
           ></v-text-field>
         </v-col>
@@ -221,7 +243,7 @@ onMounted(() => {
             variant="outlined"
             v-model="part.category"
             :items="Object.values(categories).map((cat) => cat.name)"
-            :rules="[(v: any) => !!v || 'Required']"
+            :rules="[rules.required]"
           ></v-autocomplete>
         </v-col>
         <v-col cols="3">
@@ -230,7 +252,7 @@ onMounted(() => {
             variant="outlined"
             v-model.number="qty_input"
             placeholder="15"
-            :rules="[(v: any) => !!v || 'Required']"
+            :rules="[rules.required]"
             required
             type="number"
             min="0"
@@ -338,17 +360,13 @@ onMounted(() => {
             <v-spacer class="my-2"></v-spacer>
             <PartCustomField
               v-for="cf in custom_fields"
-              :field_type="cf.field_type"
-              :name="cf.name"
-              :value="cf.value"
-              :create="false"
+              :current="cf"
+              :existing="undefined"
               @del="handleCustomFieldDel"
             />
             <PartCustomField
-              :field_type="new_custom_field.field_type"
-              :name="new_custom_field.name"
-              :value="new_custom_field.value"
-              :create="true"
+              :current="new_custom_field"
+              :existing="custom_fields"
               @update="handleCustomFieldUpdate"
               @add="handleCustomFieldAdd"
             />
@@ -362,19 +380,13 @@ onMounted(() => {
             <v-spacer class="my-2"></v-spacer>
             <PartSupplier
               v-for="s in suppliers"
-              :name="s.name"
-              :link="s.link"
-              :price="s.price"
-              :note="s.note"
-              :create="false"
+              :current="s"
+              :existing="undefined"
               @del="handleSupplierDel"
             />
             <PartSupplier
-              :name="new_supplier.name"
-              :link="new_supplier.link"
-              :price="new_supplier.price"
-              :note="new_supplier.note"
-              :create="true"
+              :current="new_supplier"
+              :existing="suppliers"
               @update="handleSupplierUpdate"
               @add="handleSupplierAdd"
             />
@@ -382,5 +394,14 @@ onMounted(() => {
         </v-col>
       </v-row>
     </v-container>
+
+    <v-snackbar v-model="snackbar">
+      {{ snackbar_msg }}
+      <template v-slot:actions>
+        <v-btn color="pink" variant="text" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-form>
 </template>
