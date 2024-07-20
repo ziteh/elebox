@@ -1,4 +1,5 @@
 use clap::{Args, Subcommand};
+use elebox_core::Manager;
 
 #[derive(Debug, Args)]
 pub struct CategoryCommand {
@@ -47,8 +48,8 @@ struct ExportCategoryArgs {
     path: String,
 }
 
-pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
-    let manager = elebox_core::CategoryManager::new(db);
+pub fn category_cmd(path: &str, cmd: &CategoryCommand) {
+    let manager = elebox_core::CategoryManager::new(path);
 
     match &cmd.command {
         Some(CategorySubCommand::New(args)) => {
@@ -75,15 +76,16 @@ pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
             //     println!("{err}");
             // };
         }
-        Some(CategorySubCommand::Export(args)) => {
-            let _ = manager.export(&args.path);
-        }
+        // Some(CategorySubCommand::Export(args)) => {
+        //     let _ = manager.export(&args.path);
+        // }
         None => {
             println!("List part category");
-            let pts = manager.list();
+            let pts = manager.list().unwrap();
             for pt in pts {
                 println!("{}  {:?}", pt.name, pt.parent);
             }
         }
+        _ => (),
     }
 }

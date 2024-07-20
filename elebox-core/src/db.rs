@@ -11,11 +11,10 @@ use uuid::Uuid;
 
 use crate::comm::*;
 
-const PARTS_BUCKET: &str = "parts";
-const CATEGORIES_BUCKET: &str = "categories";
-const PACKAGES_BUCKET: &str = "packages";
-const MFR_BUCKET: &str = "manufacturers";
-const STAR_BUCKET: &str = "stars";
+pub const PARTS_BUCKET: &str = "parts";
+pub const PACKAGES_BUCKET: &str = "packages";
+pub const MFR_BUCKET: &str = "manufacturers";
+pub const CATEGORIES_BUCKET: &str = "categories";
 
 pub trait BaseDatabase<T> {
     fn init(&self) -> Result<(), ()>;

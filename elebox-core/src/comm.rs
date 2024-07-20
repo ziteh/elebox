@@ -1,11 +1,11 @@
 use serde::{ser::SerializeMap, Deserialize, Serialize};
 
-use crate::{Database, EleboxError};
+use crate::{Category, EleboxError, Part};
 
-pub const ITEM_PART: String = String::from("part");
-pub const ITEM_CAT: String = String::from("category");
-pub const ITEM_PKG: String = String::from("package");
-pub const ITEM_MFR: String = String::from("manufacturer");
+pub const ITEM_PART: &str = "part";
+pub const ITEM_CAT: &str = "category";
+pub const ITEM_PKG: &str = "package";
+pub const ITEM_MFR: &str = "manufacturer";
 
 pub type Id = String;
 
@@ -14,6 +14,7 @@ pub trait DbItem {
 }
 
 pub trait Manager<T> {
+    fn init(&self) -> Result<(), EleboxError>;
     fn delete(&self, name: &str) -> Result<(), EleboxError>;
     fn add(&self, item: &T) -> Result<(), EleboxError>;
     fn update(&self, ori_name: &str, new_item: &T) -> Result<(), EleboxError>;

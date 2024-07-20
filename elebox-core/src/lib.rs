@@ -11,10 +11,8 @@ mod transfer;
 mod yaml;
 
 pub use category::*;
-pub use db::CustomField;
-pub use db::Database;
-pub use db::JammDatabase;
-pub use db::Supplier;
+pub use comm::*;
+pub use db::*;
 pub use errors::*;
 pub use manufacturer::*;
 pub use package::*;

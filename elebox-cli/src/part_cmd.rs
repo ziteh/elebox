@@ -1,4 +1,5 @@
 use clap::{Args, Subcommand};
+use elebox_core::Manager;
 
 #[derive(Debug, Args)]
 pub struct PartCommand {
@@ -72,8 +73,9 @@ struct CsvPartArgs {
     path: String,
 }
 
-pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
-    let manager = elebox_core::PartManager::new(db);
+// pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
+pub fn part_cmd(path:&str, cmd: &PartCommand) {
+    let manager = elebox_core::PartManager::new(path);
 
     match &cmd.command {
         Some(sub_cmd) => match sub_cmd {
@@ -115,16 +117,17 @@ pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
                     println!("{err}");
                 }
             }
-            PartSubCommand::Export(args) => {
-                let _ = manager.export(&args.path);
-            }
-            PartSubCommand::Import(args) => {
-                let _ = manager.import(&args.path);
-            }
+            // PartSubCommand::Export(args) => {
+            //     let _ = manager.export(&args.path);
+            // }
+            // PartSubCommand::Import(args) => {
+            //     let _ = manager.import(&args.path);
+            // }
+            _=>(),
         },
         None => {
             println!("List part");
-            let parts = manager.list();
+            let parts = manager.list().unwrap();
             for part in parts {
                 println!("{}   {}   {}", part.name, part.quantity, part.category);
             }

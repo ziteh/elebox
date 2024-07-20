@@ -1,6 +1,9 @@
-use crate::{csv::*, db::*, errors::EleboxError, yaml::*};
+use crate::{category, comm::*, csv::*, db::*, errors::EleboxError, package, transfer::*, yaml::*};
 use serde::{Deserialize, Serialize};
-use std::fmt::{format, Debug};
+use std::{
+    env::set_current_dir,
+    fmt::{format, Debug},
+};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
@@ -45,41 +48,129 @@ impl Part {
     }
 }
 
-pub struct PartManager<'a> {
-    db: &'a dyn Database,
+pub struct PartManager {
+    db: Box<dyn BaseDatabase<DbPart>>,
+    pkg_db: Box<dyn BaseDatabase<DbPackage>>,
+    mfr_db: Box<dyn BaseDatabase<DbManufacturer>>,
+    cat_db: Box<dyn BaseDatabase<DbCategory>>,
 }
 
-impl<'a> PartManager<'a> {
-    pub fn new(db: &'a dyn Database) -> Self {
-        Self { db }
+impl Manager<Part> for PartManager {
+    fn init(&self) -> Result<(), EleboxError> {
+        self.pkg_db.init();
+        self.mfr_db.init();
+        self.cat_db.init();
+        self.db.init();
+        Ok(())
     }
 
-    pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
-        let id = self
+    fn delete(&self, name: &str) -> Result<(), EleboxError> {
+        let id = self.db.get_id(name).ok_or(EleboxError::NotExists(
+            String::from(ITEM_PART),
+            name.to_string(),
+        ))?;
+
+        let _ = self.db.delete(&id);
+        Ok(())
+    }
+
+    fn add(&self, item: &Part) -> Result<(), EleboxError> {
+        if self.db.get_id(&item.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                String::from(ITEM_PART),
+                item.name.clone(),
+            ));
+        }
+
+        let db_item = self.to_db_part(item)?;
+        self.db.add(&db_item);
+        Ok(())
+    }
+
+    fn update(&self, ori_name: &str, new_item: &Part) -> Result<(), EleboxError> {
+        if self.db.get_id(ori_name).is_none() {
+            return Err(EleboxError::NotExists(
+                String::from(ITEM_PART),
+                ori_name.to_string(),
+            ));
+        }
+
+        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_some() {
+            return Err(EleboxError::AlreadyExists(
+                String::from(ITEM_PART),
+                new_item.name.clone(),
+            ));
+        }
+
+        let db_part = self.to_db_part(new_item)?;
+        self.db.update(ori_name, &db_part);
+        Ok(())
+    }
+
+    fn get(&self, name: &str) -> Result<Part, EleboxError> {
+        let id = self.db.get_id(name).ok_or(EleboxError::NotExists(
+            String::from(ITEM_PART),
+            name.to_string(),
+        ))?;
+
+        let db_part = self
             .db
-            .get_part_id(name)
-            .ok_or(EleboxError::NotExists("Part".to_string(), name.to_string()))?;
+            .get(&id)
+            .ok_or(EleboxError::NotExists(String::from(ITEM_PART), id))?;
 
-        return Ok(self.db.delete_part(&id));
+        self.from_db_part(db_part)
     }
 
-    fn to_db_part(&self, part: &Part) -> Result<DbPart, EleboxError> {
-        let category_id = match self.db.get_category_id(&part.category) {
+    fn list(&self) -> Result<Vec<Part>, EleboxError> {
+        let db_items = self.db.list();
+        let mut items: Vec<Part> = vec![];
+        for db_item in db_items {
+            match self.from_db_part(db_item) {
+                Ok(item) => items.push(item),
+                Err(err) => return Err(err),
+            }
+        }
+        Ok(items)
+    }
+}
+
+impl PartManager {
+    pub fn new(path: &str) -> Self {
+        Self {
+            db: Box::new(JammDatabase::new(path, PARTS_BUCKET)),
+            pkg_db: Box::new(JammDatabase::new(path, PACKAGES_BUCKET)),
+            mfr_db: Box::new(JammDatabase::new(path, MFR_BUCKET)),
+            cat_db: Box::new(JammDatabase::new(path, CATEGORIES_BUCKET)),
+        }
+    }
+
+    // pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
+    //     let id = self
+    //         .db
+    //         .get_id(name)
+    //         .ok_or(EleboxError::NotExists("Part".to_string(), name.to_string()))?;
+
+    //     self.db.delete(&id).unwrap();
+    //     return Ok("ok".to_string());
+    // }
+
+    fn to_db_part(&self, item: &Part) -> Result<DbPart, EleboxError> {
+        let category_id = match self.cat_db.get_id(&item.category) {
             Some(id) => id.to_string(),
             None => {
                 return Err(EleboxError::NotExists(
-                    "Category".to_string(),
-                    part.category.clone(),
+                    String::from(ITEM_CAT),
+                    item.category.clone(),
                 ))
             }
         };
 
-        let package_id = match &part.package {
-            Some(name) => match self.db.get_package_id(&name) {
+        let package_id = match &item.package {
+            Some(name) => match self.pkg_db.get_id(&name) {
                 Some(id) => id,
                 None => {
                     return Err(EleboxError::NotExists(
-                        "Package".to_string(),
+                        String::from(ITEM_PKG),
                         name.to_string(),
                     ))
                 }
@@ -87,10 +178,15 @@ impl<'a> PartManager<'a> {
             None => "".to_string(),
         };
 
-        let mfr_id = match &part.mfr {
-            Some(name) => match self.db.get_mfr_id(&name) {
+        let mfr_id = match &item.mfr {
+            Some(name) => match self.mfr_db.get_id(&name) {
                 Some(id) => id,
-                None => return Err(EleboxError::NotExists("Mfr".to_string(), name.to_string())),
+                None => {
+                    return Err(EleboxError::NotExists(
+                        String::from(ITEM_MFR),
+                        name.to_string(),
+                    ))
+                }
             },
             None => "".to_string(),
         };
@@ -98,94 +194,112 @@ impl<'a> PartManager<'a> {
         let unwrap_or_empty = |opt: &Option<String>| opt.as_deref().unwrap_or("").to_string();
 
         let db_part = DbPart {
-            name: part.name.to_string(),
-            quantity: part.quantity,
+            name: item.name.to_string(),
+            quantity: item.quantity,
             category_id,
             mfr_id,
             package_id,
-            package_detail: unwrap_or_empty(&part.package_detail),
-            alias: unwrap_or_empty(&part.alias),
-            description: unwrap_or_empty(&part.description),
-            location: unwrap_or_empty(&part.location),
-            mfr_no: unwrap_or_empty(&part.mfr_no),
-            datasheet_link: unwrap_or_empty(&part.datasheet_link),
-            product_link: unwrap_or_empty(&part.product_link),
-            image_link: unwrap_or_empty(&part.image_link),
-            custom_fields: part.custom_fields.clone(),
-            suppliers: part.suppliers.clone(),
-            starred: part.starred,
+            package_detail: unwrap_or_empty(&item.package_detail),
+            alias: unwrap_or_empty(&item.alias),
+            description: unwrap_or_empty(&item.description),
+            location: unwrap_or_empty(&item.location),
+            mfr_no: unwrap_or_empty(&item.mfr_no),
+            datasheet_link: unwrap_or_empty(&item.datasheet_link),
+            product_link: unwrap_or_empty(&item.product_link),
+            image_link: unwrap_or_empty(&item.image_link),
+            custom_fields: item.custom_fields.clone(),
+            suppliers: item.suppliers.clone(),
+            starred: item.starred,
         };
 
         Ok(db_part)
     }
 
-    pub fn update(&self, ori_name: &str, new_part: &Part) -> Result<(), EleboxError> {
-        if self.db.get_part_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(
-                "Origin part".to_string(),
-                ori_name.to_string(),
-            ));
-        }
+    // pub fn update(&self, ori_name: &str, new_part: &Part) -> Result<(), EleboxError> {
+    //     todo!();
+    //     // if self.db.get_part_id(ori_name).is_none() {
+    //     //     return Err(EleboxError::NotExists(
+    //     //         "Origin part".to_string(),
+    //     //         ori_name.to_string(),
+    //     //     ));
+    //     // }
 
-        if ori_name != &new_part.name && self.db.get_part_id(&new_part.name).is_some() {
-            return Err(EleboxError::AlreadyExists(
-                "Part".to_string(),
-                new_part.name.clone(),
-            ));
-        }
+    //     // if ori_name != &new_part.name && self.db.get_part_id(&new_part.name).is_some() {
+    //     //     return Err(EleboxError::AlreadyExists(
+    //     //         "Part".to_string(),
+    //     //         new_part.name.clone(),
+    //     //     ));
+    //     // }
 
-        let db_part = self.to_db_part(new_part)?;
-        self.db.update_part(ori_name, &db_part);
-        Ok(())
-    }
+    //     // let db_part = self.to_db_part(new_part)?;
+    //     // self.db.update_part(ori_name, &db_part);
+    //     // Ok(())
+    // }
 
     pub fn update_part_quantity(&self, name: &str, increment: i16) -> Result<(), EleboxError> {
-        let id = self.db.get_part_id(name);
-        if id.is_none() {
-            return Err(EleboxError::NotExists("Part".to_string(), name.to_string()));
-        }
+        todo!();
+        // let id = self.db.get_part_id(name);
+        // if id.is_none() {
+        //     return Err(EleboxError::NotExists("Part".to_string(), name.to_string()));
+        // }
 
-        let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
-        let new_q = db_part.quantity as i16 + increment;
-        if new_q < 0 {
-            return Err(EleboxError::InventoryShortage(name.to_string()));
-        } else {
-            db_part.quantity = new_q as u16;
-        }
+        // let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
+        // let new_q = db_part.quantity as i16 + increment;
+        // if new_q < 0 {
+        //     return Err(EleboxError::InventoryShortage(name.to_string()));
+        // } else {
+        //     db_part.quantity = new_q as u16;
+        // }
 
-        self.db.update_part(name, &db_part);
-        return Ok(());
+        // self.db.update_part(name, &db_part);
+        // return Ok(());
     }
 
-    pub fn add(&self, part: &Part) -> Result<(), EleboxError> {
-        if self.db.get_part_id(&part.name).is_some() {
-            return Err(EleboxError::AlreadyExists(
-                "Part".to_string(),
-                part.name.clone(),
-            ));
-        }
+    // pub fn add(&self, part: &Part) -> Result<(), EleboxError> {
+    //     // if self.db.get_part_id(&part.name).is_some() {
+    //     //     return Err(EleboxError::AlreadyExists(
+    //     //         "Part".to_string(),
+    //     //         part.name.clone(),
+    //     //     ));
+    //     // }
 
-        let db_part = self.to_db_part(part)?;
-        self.db.add_part(&db_part);
-        Ok(())
-    }
+    //     // let db_part = self.to_db_part(part)?;
+    //     self.db.init();
+
+    //     let dp = DbPart {
+    //         name: "test".to_string(),
+    //         quantity: 22,
+    //         category_id: "asdf".to_string(),
+    //         package_id: "".to_string(),
+    //         package_detail: "".to_string(),
+    //         mfr_id: "".to_string(),
+    //         alias: "".to_string(),
+    //         description: "".to_string(),
+    //         location: "".to_string(),
+    //         mfr_no: "".to_string(),
+    //         datasheet_link: "".to_string(),
+    //         product_link: "".to_string(),
+    //         image_link: "".to_string(),
+    //         custom_fields: vec![],
+    //         suppliers: vec![],
+    //         starred: false,
+    //     };
+    //     self.db.add(&dp);
+    //     Ok(())
+    // }
 
     fn from_db_part(&self, db_part: DbPart) -> Result<Part, EleboxError> {
         let category = self
-            .db
-            .get_category_from_id(&db_part.category_id)
+            .cat_db
+            .get(&db_part.category_id)
             .ok_or(EleboxError::NotExists(
-                "Category".to_string(),
+                String::from(ITEM_CAT),
                 db_part.category_id,
             ))?
             .name;
 
-        let package = self
-            .db
-            .get_package_from_id(&db_part.package_id)
-            .map(|pkg| pkg.name);
-
-        let mfr = self.db.get_mfr_from_id(&db_part.mfr_id).map(|mfr| mfr.name);
+        let package = self.pkg_db.get(&db_part.package_id).map(|p| p.name);
+        let mfr = self.mfr_db.get(&db_part.mfr_id).map(|m| m.name);
 
         let part = Part {
             name: db_part.name,
@@ -209,48 +323,59 @@ impl<'a> PartManager<'a> {
         return Ok(part);
     }
 
-    pub fn get(&self, name: &str) -> Result<Part, EleboxError> {
-        let id = self
-            .db
-            .get_part_id(name)
-            .ok_or(EleboxError::NotExists("Part".to_string(), name.to_string()))?;
+    // pub fn get(&self, name: &str) -> Result<Part, EleboxError> {
+    //     todo!();
+    //     // let id = self
+    //     //     .db
+    //     //     .get_part_id(name)
+    //     //     .ok_or(EleboxError::NotExists("Part".to_string(), name.to_string()))?;
 
-        let db_part = self
-            .db
-            .get_part_from_id(&id)
-            .ok_or(EleboxError::NotExists("Part".to_string(), id))?;
+    //     // let db_part = self
+    //     //     .db
+    //     //     .get_part_from_id(&id)
+    //     //     .ok_or(EleboxError::NotExists("Part".to_string(), id))?;
 
-        self.from_db_part(db_part)
-    }
+    //     // self.from_db_part(db_part)
+    // }
 
-    pub fn list(&self) -> Vec<Part> {
-        self.db
-            .get_parts()
-            .into_iter()
-            .filter_map(|db_p| self.from_db_part(db_p).ok())
-            .collect()
-    }
-
-    pub fn export(&self, filename: &str) -> Result<(), ()> {
-        let parts = self.list();
-        let res = write_yaml(filename, parts);
-        return res;
-    }
-
-    pub fn import(&self, filename: &str) -> Result<(), ()> {
-        let res_parts = read_yaml(filename);
-
-        if res_parts.is_err() {
-            return Err(());
-        }
-
-        let parts: Vec<Part> = res_parts.unwrap();
-        for part in parts {
-            if let Err(e) = self.add(&part) {
-                panic!("{}", e.to_string())
-            }
-        }
-
-        Ok(())
-    }
+    // pub fn list(&self) -> Vec<Part> {
+    //     // self.db
+    //     //     .get_parts()
+    //     //     .into_iter()
+    //     //     .filter_map(|db_p| self.from_db_part(db_p).ok())
+    //     //     .collect()
+    //     let dbs = self.db.list();
+    //     let mut parts: Vec<Part> = vec![];
+    //     for d in dbs {
+    //         let pp = Part::new(&d.name, "cat", 122);
+    //         parts.push(pp);
+    //     }
+    //     parts
+    // }
 }
+
+// impl Transferable for PartManager {
+//     fn export(&self, filename: &str) -> Result<(), EleboxError> {
+//         Ok(())
+//         // let parts = self.list();
+//         // let res = write_yaml(filename, parts);
+//         // return res;
+//     }
+
+//     fn import(&self, filename: &str) -> Result<(), EleboxError> {
+//         // let res_parts = read_yaml(filename);
+
+//         // if res_parts.is_err() {
+//         //     panic!();
+//         // }
+
+//         // let parts: Vec<Part> = res_parts.unwrap();
+//         // for part in parts {
+//         //     if let Err(e) = self.add(&part) {
+//         //         panic!("{}", e.to_string())
+//         //     }
+//         // }
+
+//         Ok(())
+//     }
+// }
