@@ -384,19 +384,13 @@ onMounted(() => {
             <v-spacer class="my-2"></v-spacer>
             <PartSupplier
               v-for="s in suppliers"
-              :name="s.name"
-              :link="s.link"
-              :price="s.price"
-              :note="s.note"
-              :create="false"
+              :current="s"
+              :existing="undefined"
               @del="handleSupplierDel"
             />
             <PartSupplier
-              :name="new_supplier.name"
-              :link="new_supplier.link"
-              :price="new_supplier.price"
-              :note="new_supplier.note"
-              :create="true"
+              :current="new_supplier"
+              :existing="suppliers"
               @update="handleSupplierUpdate"
               @add="handleSupplierAdd"
             />
