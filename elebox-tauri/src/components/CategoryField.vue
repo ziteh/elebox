@@ -51,6 +51,14 @@ async function list() {
   data.splice(0, 0, { name: "" }); // Root
   Object.assign(categories, data);
 
+  // The parent category cannot be itself
+  if (props.origin_name) {
+    const index = categories.findIndex((s) => s.name === props.origin_name);
+    if (index !== -1) {
+      categories.splice(index, 1);
+    }
+  }
+
   console.debug(`get categories: ${categories.length}`);
 }
 
