@@ -1,10 +1,21 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useDisplay } from "vuetify";
+import { useI18n } from "vue-i18n";
+import { invoke } from "@tauri-apps/api/tauri";
 
 const { xs, sm } = useDisplay();
 const isExtraSmall = computed(() => xs.value);
 const isSmall = computed(() => sm.value);
+
+const { locale } = useI18n();
+
+async function loadLanguage() {
+  let cfg = await invoke("load_config"); // TODO cfg type
+  locale.value = cfg[0] ?? "en";
+}
+
+onMounted(loadLanguage);
 </script>
 
 <template>

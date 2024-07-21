@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod config;
+
 use dirs;
 use elebox_core::{
     Category, CustomField, Database, Manager, Manufacturer, Package, PackageType, Part, Supplier,
@@ -263,7 +265,27 @@ fn import_csv(csv_path: &str) -> Result<(), String> {
     elebox_core::import(csv_path)
 }
 
+#[tauri::command(rename_all = "snake_case")]
+fn save_config(lang: &str, db: &str) -> Result<(), String> {
+    let user_dir = get_user_dir()?;
+    let config = &config::Config {
+        language: Some(lang.to_string()),
+        database: Some(db.to_string()),
+    };
+    let _ = config::save_config(&user_dir, config).unwrap();
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn load_config() -> Result<(Option<String>, Option<String>), String> {
+    let user_dir = get_user_dir()?;
+    let config = config::load_config(&user_dir).unwrap();
+    Ok((config.language, config.database))
+}
+
 fn main() {
+    let user_dir = get_user_dir().unwrap();
+
     let mut db_path = match get_default_path() {
         Ok(path) => path,
         Err(err) => panic!("{}", err),
@@ -274,6 +296,8 @@ fn main() {
     } else {
         db_path = "".to_string();
     }
+
+    config::create_config(&user_dir);
 
     tauri::Builder::default()
         .setup(|app| {
@@ -318,6 +342,8 @@ fn main() {
             set_db_path,
             export_csv,
             import_csv,
+            load_config,
+            save_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -333,6 +359,21 @@ fn get_default_path() -> Result<String, String> {
 
         let db_path = dir.join("elebox.db");
         return Ok(db_path.into_os_string().into_string().unwrap());
+    } else {
+        return Err("Unable to determine user's local data directory.".to_string());
+    }
+}
+
+fn get_user_dir() -> Result<String, String> {
+    if let Some(mut dir) = dirs::data_local_dir() {
+        dir.push("elebox");
+        dir.push(""); // Keep ending '/'
+
+        if let Err(err) = std::fs::create_dir_all(&dir) {
+            return Err(format!("Unable to creating directory. {}", err));
+        }
+
+        return Ok(dir.to_string_lossy().into_owned());
     } else {
         return Err("Unable to determine user's local data directory.".to_string());
     }

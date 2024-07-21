@@ -3,6 +3,7 @@ import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import DbPath from "../components/DbPath.vue";
 import { useI18n } from "vue-i18n";
+import { Config } from "../interface";
 
 const csv_path = ref("");
 const assets_path = ref("");
@@ -17,22 +18,37 @@ async function import_csv() {
   console.debug(`Import path: ${csv_path.value}`);
 }
 
+const config = ref<Config>({});
+
+async function saveConfig() {
+  await invoke("save_config", {
+    lang: config.value.language,
+    db: config.value.database, // FIXME null type
+  });
+  console.log(`Save`);
+}
+
+async function loadConfig() {
+  let cfg = await invoke("load_config"); // FIXME cfg type
+  config.value.language = cfg[0];
+  config.value.database = cfg[1];
+}
+
 async function getAssetsPath() {
   assets_path.value = await invoke("get_assets_path", {});
 }
 
 let languages = reactive(["en", "zh-TW"]);
-const selectedLanguage = ref("en");
 const { locale } = useI18n();
 
 function changeLanguage() {
-  locale.value = selectedLanguage.value;
-  console.log(`Update ${locale.value}`);
+  locale.value = config.value.language ?? "en";
+  saveConfig();
 }
 
 onMounted(() => {
   getAssetsPath();
-  selectedLanguage.value = locale.value;
+  loadConfig(); // FIXME no load language
 });
 </script>
 
@@ -46,7 +62,7 @@ onMounted(() => {
         <v-select
           variant="outlined"
           :items="languages"
-          v-model="selectedLanguage"
+          v-model="config.language"
           @update:modelValue="changeLanguage"
           label="Select Language"
         ></v-select>

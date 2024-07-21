@@ -18,6 +18,7 @@ serde_json = "1.0"
 elebox-core = { path = "../../elebox-core" }
 dirs = "3.0.0"
 log = "0.4.21"
+serde_yaml = "0.9.34"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

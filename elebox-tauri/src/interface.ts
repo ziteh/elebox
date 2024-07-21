@@ -58,3 +58,8 @@ export interface TreeNode {
   name: string;
   children: TreeNode[];
 }
+
+export interface Config {
+  language?: string;
+  database?: string;
+}
