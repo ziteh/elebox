@@ -119,7 +119,7 @@ fn get_tree(path: tauri::State<DbPath>) -> Vec<TreeNode> {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&p);
-    mgr.get_tree()
+    mgr.get_tree().unwrap() // TODO
 }
 
 #[tauri::command(rename_all = "snake_case")]

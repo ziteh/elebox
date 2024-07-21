@@ -1,4 +1,4 @@
-use crate::{comm::*, jamm_db::*, errors::EleboxError};
+use crate::{comm::*, errors::EleboxError, jamm_db::*};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug};
 
@@ -83,43 +83,41 @@ impl CategoryManager {
         // self.add(category)
     }
 
-    fn to_node(&self, _name: String, _map: &HashMap<String, Vec<String>>) -> TreeNode {
-        todo!();
-        // let mut children = vec![];
+    fn to_node(&self, name: String, map: &HashMap<String, Vec<String>>) -> TreeNode {
+        let mut children = vec![];
 
-        // if let Some(ch_names) = map.get(&name) {
-        //     for ch_name in ch_names {
-        //         let ch_node = self.to_node(ch_name.to_string(), map);
-        //         children.push(ch_node);
-        //     }
-        // }
+        if let Some(ch_names) = map.get(&name) {
+            for ch_name in ch_names {
+                let ch_node = self.to_node(ch_name.to_string(), map);
+                children.push(ch_node);
+            }
+        }
 
-        // TreeNode { name, children }
+        TreeNode { name, children }
     }
 
-    pub fn get_tree(&self) -> Vec<TreeNode> {
-        todo!();
-        // let cats = self.list();
+    pub fn get_tree(&self) -> Result<Vec<TreeNode>, EleboxError> {
+        let cats = self.list()?;
 
-        // let mut cat_map: HashMap<String, Vec<String>> = HashMap::new();
-        // let mut root: Vec<String> = Vec::new();
+        let mut cat_map: HashMap<String, Vec<String>> = HashMap::new();
+        let mut root: Vec<String> = Vec::new();
 
-        // for c in cats {
-        //     if let Some(parent) = c.parent {
-        //         cat_map.entry(parent).or_default().push(c.name);
-        //     } else {
-        //         cat_map.entry(c.name.clone()).or_insert_with(Vec::new);
-        //         root.push(c.name);
-        //     }
-        // }
+        for c in cats {
+            if let Some(parent) = c.parent {
+                cat_map.entry(parent).or_default().push(c.name);
+            } else {
+                cat_map.entry(c.name.clone()).or_insert_with(Vec::new);
+                root.push(c.name);
+            }
+        }
 
-        // let mut tree_nodes: Vec<TreeNode> = Vec::new();
-        // for r in root {
-        //     let node = self.to_node(r.to_string(), &cat_map);
-        //     tree_nodes.push(node);
-        // }
+        let mut tree_nodes: Vec<TreeNode> = Vec::new();
+        for r in root {
+            let node = self.to_node(r.to_string(), &cat_map);
+            tree_nodes.push(node);
+        }
 
-        // return tree_nodes;
+        Ok(tree_nodes)
     }
 }
 
