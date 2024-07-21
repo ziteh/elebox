@@ -66,10 +66,10 @@ pub fn category_cmd(path: &str, cmd: &CategoryCommand) {
                 println!("ERR: {err}");
             };
         }
-        Some(CategorySubCommand::Update(args)) => {
+        Some(CategorySubCommand::Update(_args)) => {
             todo!();
         }
-        Some(CategorySubCommand::Export(args)) => {
+        Some(CategorySubCommand::Export(_args)) => {
             todo!();
         }
         None => {

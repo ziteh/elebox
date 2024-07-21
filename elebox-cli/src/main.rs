@@ -1,4 +1,4 @@
-use std::sync::atomic;
+
 
 use clap::{Args, Parser, Subcommand};
 use elebox_core::{self};
@@ -52,7 +52,7 @@ fn main() {
         EntityType::Init => elebox_core::init(&cli.db_path),
         EntityType::Part(cmd) => part_cmd(&cli.db_path, cmd),
         EntityType::Category(cmd) => category_cmd(&cli.db_path, cmd),
-        EntityType::Export(args) => todo!(),
-        EntityType::Import(args) => todo!(),
+        EntityType::Export(_args) => todo!(),
+        EntityType::Import(_args) => todo!(),
     };
 }

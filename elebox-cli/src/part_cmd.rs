@@ -95,7 +95,7 @@ pub fn part_cmd(path: &str, cmd: &PartCommand) {
                     println!("ERR: {err}");
                 }
             }
-            PartSubCommand::Update(args) => {
+            PartSubCommand::Update(_args) => {
                 todo!();
             }
             PartSubCommand::Add(args) => {
