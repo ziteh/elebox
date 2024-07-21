@@ -74,7 +74,7 @@ struct CsvPartArgs {
 }
 
 // pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
-pub fn part_cmd(path:&str, cmd: &PartCommand) {
+pub fn part_cmd(path: &str, cmd: &PartCommand) {
     let manager = elebox_core::PartManager::new(path);
 
     match &cmd.command {
@@ -92,38 +92,29 @@ pub fn part_cmd(path:&str, cmd: &PartCommand) {
             }
             PartSubCommand::Delete(args) => {
                 if let Err(err) = manager.delete(&args.name) {
-                    println!("{err}");
+                    println!("ERR: {err}");
                 }
             }
             PartSubCommand::Update(args) => {
-                // TODO
-                // if let Err(err) = manager.update(
-                //     &args.old_name,
-                //     args.new_name.as_deref(),
-                //     args.new_quantity,
-                //     args.new_part_cat.as_deref(),
-                // ) {
-                //     println!("{err}");
-                // }
+                todo!();
             }
             PartSubCommand::Add(args) => {
                 if let Err(err) = manager.update_part_quantity(&args.name, args.quantity as i16) {
-                    println!("{err}");
+                    println!("ERR: {err}");
                 }
             }
             PartSubCommand::Use(args) => {
                 let q = args.quantity as i16 * -1;
                 if let Err(err) = manager.update_part_quantity(&args.name, q) {
-                    println!("{err}");
+                    println!("ERR: {err}");
                 }
             }
-            // PartSubCommand::Export(args) => {
-            //     let _ = manager.export(&args.path);
-            // }
-            // PartSubCommand::Import(args) => {
-            //     let _ = manager.import(&args.path);
-            // }
-            _=>(),
+            PartSubCommand::Export(args) => {
+                todo!();
+            }
+            PartSubCommand::Import(args) => {
+                todo!();
+            }
         },
         None => {
             println!("List part");

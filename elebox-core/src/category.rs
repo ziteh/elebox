@@ -33,22 +33,18 @@ pub struct CategoryManager {
 
 impl Manager<Category> for CategoryManager {
     fn init(&self) -> Result<(), EleboxError> {
-        self.db.init();
+        let _ = self.db.init()?;
         Ok(())
     }
 
     fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_id(name).ok_or(EleboxError::NotExists(
-            String::from(ITEM_CAT),
-            name.to_string(),
-        ))?;
-
-        let _ = self.db.delete(&id);
+        let id = self.db.get_id(name)?;
+        let _ = self.db.delete(&id)?;
         Ok(())
     }
 
     fn add(&self, item: &Category) -> Result<(), EleboxError> {
-        if self.db.get_id(&item.name).is_some() {
+        if self.db.get_id(&item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
                 String::from(ITEM_CAT),
                 item.name.clone(),
@@ -67,20 +63,15 @@ impl Manager<Category> for CategoryManager {
                 None => None,
             },
         };
-        let db_cat = self.to_db_category(&cat)?;
-        self.db.add(&db_cat);
+        let db_item = self.to_db_category(&cat)?;
+        let _ = self.db.add(&db_item)?;
         Ok(())
     }
 
     fn update(&self, ori_name: &str, new_item: &Category) -> Result<(), EleboxError> {
-        if self.db.get_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(
-                String::from(ITEM_CAT),
-                ori_name.to_string(),
-            ));
-        }
+        let id = self.db.get_id(ori_name)?;
 
-        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_some() {
+        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
                 String::from(ITEM_CAT),
                 new_item.name.clone(),
@@ -100,30 +91,22 @@ impl Manager<Category> for CategoryManager {
             },
         };
 
-        let db_category = self.to_db_category(&cat)?;
-        self.db.update(ori_name, &db_category);
+        let db_item = self.to_db_category(&cat)?;
+        let _ = self.db.update(ori_name, &db_item)?;
         Ok(())
     }
 
     fn get(&self, name: &str) -> Result<Category, EleboxError> {
-        let id = self.db.get_id(name).ok_or(EleboxError::NotExists(
-            String::from(ITEM_CAT),
-            name.to_string(),
-        ))?;
-
-        let db_cat = self
-            .db
-            .get(&id)
-            .ok_or(EleboxError::NotExists(String::from(ITEM_CAT), id))?;
-
-        Ok(self.to_category(db_cat))
+        let id = self.db.get_id(name)?;
+        let db_item = self.db.get(&id)?;
+        Ok(self.to_item(db_item))
     }
 
     fn list(&self) -> Result<Vec<Category>, EleboxError> {
-        let db_items = self.db.list();
+        let db_items = self.db.list()?;
         let mut items: Vec<Category> = vec![];
         for db_item in db_items {
-            items.push(self.to_category(db_item));
+            items.push(self.to_item(db_item));
         }
         Ok(items)
     }
@@ -136,11 +119,15 @@ impl CategoryManager {
         }
     }
 
-    fn to_category(&self, db_category: DbCategory) -> Category {
-        let db_parent = self.db.get(&db_category.parent_id);
+    fn to_item(&self, db_category: DbCategory) -> Category {
+        let db_parent = match self.db.get(&db_category.parent_id) {
+            Ok(db_item) => Some(db_item.name),
+            Err(_) => None,
+        };
+
         Category {
             name: db_category.name,
-            parent: db_parent.map(|p_cat| p_cat.name),
+            parent: db_parent,
             alias: match db_category.alias.as_str() {
                 "" => None,
                 other => Some(other.to_string()),
@@ -214,16 +201,9 @@ impl CategoryManager {
 
     fn to_db_category(&self, item: &Category) -> Result<DbCategory, EleboxError> {
         // Get the ID of parent category
+
         let parent_id = match &item.parent {
-            Some(parent_name) => match self.db.get_id(parent_name) {
-                Some(id) => id,
-                None => {
-                    return Err(EleboxError::NotExists(
-                        String::from(ITEM_CAT),
-                        parent_name.to_string(),
-                    ))
-                }
-            },
+            Some(parent_name) => self.db.get_id(parent_name)?,
             None => ROOT_CATEGORY.to_string(),
         };
 

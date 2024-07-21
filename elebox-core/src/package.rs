@@ -38,22 +38,18 @@ pub struct PackageManager {
 
 impl Manager<Package> for PackageManager {
     fn init(&self) -> Result<(), EleboxError> {
-        self.db.init();
+        let _ = self.db.init()?;
         Ok(())
     }
 
     fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_id(name).ok_or(EleboxError::NotExists(
-            String::from(ITEM_PKG),
-            name.to_string(),
-        ))?;
-
-        let _ = self.db.delete(&id);
+        let id = self.db.get_id(name)?;
+        let _ = self.db.delete(&id)?;
         Ok(())
     }
 
     fn add(&self, item: &Package) -> Result<(), EleboxError> {
-        if self.db.get_id(&item.name).is_some() {
+        if self.db.get_id(&item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
                 String::from(ITEM_PKG),
                 item.name.clone(),
@@ -61,19 +57,14 @@ impl Manager<Package> for PackageManager {
         }
 
         let db_item = self.to_db_item(item)?;
-        self.db.add(&db_item);
+        let _ = self.db.add(&db_item)?;
         Ok(())
     }
 
     fn update(&self, ori_name: &str, new_item: &Package) -> Result<(), EleboxError> {
-        if self.db.get_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(
-                String::from(ITEM_PKG),
-                ori_name.to_string(),
-            ));
-        }
+        let id = self.db.get_id(ori_name)?;
 
-        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_some() {
+        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
                 String::from(ITEM_PKG),
                 new_item.name.clone(),
@@ -81,26 +72,18 @@ impl Manager<Package> for PackageManager {
         }
 
         let db_item = self.to_db_item(new_item)?;
-        self.db.update(ori_name, &db_item);
+        let _ = self.db.update(ori_name, &db_item)?;
         Ok(())
     }
 
     fn get(&self, name: &str) -> Result<Package, EleboxError> {
-        let id = self.db.get_id(name).ok_or(EleboxError::NotExists(
-            String::from(ITEM_PKG),
-            name.to_string(),
-        ))?;
-
-        let db_item = self
-            .db
-            .get(&id)
-            .ok_or(EleboxError::NotExists(String::from(ITEM_PKG), id))?;
-
+        let id = self.db.get_id(name)?;
+        let db_item = self.db.get(&id)?;
         Ok(self.to_item(db_item))
     }
 
     fn list(&self) -> Result<Vec<Package>, EleboxError> {
-        let db_items = self.db.list();
+        let db_items = self.db.list()?;
         let mut items: Vec<Package> = vec![];
         for db_item in db_items {
             items.push(self.to_item(db_item));

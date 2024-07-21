@@ -58,27 +58,20 @@ pub fn category_cmd(path: &str, cmd: &CategoryCommand) {
                 args.parent_cat.as_deref(),
                 None, // TODO
             )) {
-                println!("{err}");
+                println!("ERR: {err}");
             };
         }
         Some(CategorySubCommand::Delete(args)) => {
             if let Err(err) = manager.delete(&args.name) {
-                print!("{err}");
+                println!("ERR: {err}");
             };
         }
         Some(CategorySubCommand::Update(args)) => {
-            // TODO
-            // if let Err(err) = manager.update(
-            //     &args.old_name,
-            //     args.new_name.as_deref(),
-            //     args.parent_cat.as_deref(),
-            // ) {
-            //     println!("{err}");
-            // };
+            todo!();
         }
-        // Some(CategorySubCommand::Export(args)) => {
-        //     let _ = manager.export(&args.path);
-        // }
+        Some(CategorySubCommand::Export(args)) => {
+            todo!();
+        }
         None => {
             println!("List part category");
             let pts = manager.list().unwrap();
@@ -86,6 +79,5 @@ pub fn category_cmd(path: &str, cmd: &CategoryCommand) {
                 println!("{}  {:?}", pt.name, pt.parent);
             }
         }
-        _ => (),
     }
 }

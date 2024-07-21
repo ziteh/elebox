@@ -1,5 +1,6 @@
 use std::{
     fmt::Debug,
+    io::Read,
     marker::PhantomData,
     path::PathBuf,
     str::{self, from_utf8},
@@ -9,7 +10,7 @@ use jammdb::{Bucket, Tx, DB};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::comm::*;
+use crate::{comm::*, DbError};
 
 pub const PARTS_BUCKET: &str = "parts";
 pub const PACKAGES_BUCKET: &str = "packages";
@@ -17,13 +18,13 @@ pub const MFR_BUCKET: &str = "manufacturers";
 pub const CATEGORIES_BUCKET: &str = "categories";
 
 pub trait BaseDatabase<T> {
-    fn init(&self) -> Result<(), ()>;
-    fn get_id(&self, name: &str) -> Option<String>;
-    fn get(&self, id: &str) -> Option<T>;
-    fn list(&self) -> Vec<T>;
-    fn add(&self, item: &T) -> Result<(), ()>;
-    fn update(&self, ori_id: &str, new_item: &T) -> Result<(), ()>;
-    fn delete(&self, id: &str) -> Result<(), ()>;
+    fn init(&self) -> Result<(), DbError>;
+    fn get_id(&self, name: &str) -> Result<String, DbError>;
+    fn get(&self, id: &str) -> Result<T, DbError>;
+    fn list(&self) -> Result<Vec<T>, DbError>;
+    fn add(&self, item: &T) -> Result<(), DbError>;
+    fn update(&self, ori_id: &str, new_item: &T) -> Result<(), DbError>;
+    fn delete(&self, id: &str) -> Result<(), DbError>;
 }
 
 pub struct JammDatabase {
@@ -44,15 +45,15 @@ impl<T> BaseDatabase<T> for JammDatabase
 where
     T: Serialize + for<'de> Deserialize<'de> + DbItem,
 {
-    fn init(&self) -> Result<(), ()> {
+    fn init(&self) -> Result<(), DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(true).unwrap();
         tx.get_or_create_bucket(self.bucket.as_str()).unwrap();
-        let _ = tx.commit();
+        let _ = tx.commit().unwrap();
         Ok(())
     }
 
-    fn add(&self, item: &T) -> Result<(), ()> {
+    fn add(&self, item: &T) -> Result<(), DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
@@ -64,8 +65,8 @@ where
         Ok(())
     }
 
-    fn update(&self, ori_id: &str, new_item: &T) -> Result<(), ()> {
-        let db = DB::open(&self.path).unwrap();
+    fn update(&self, ori_id: &str, new_item: &T) -> Result<(), DbError> {
+        let db = DB::open(&self.path)?;
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
 
@@ -75,34 +76,35 @@ where
         Ok(())
     }
 
-    fn get_id(&self, name: &str) -> Option<String> {
+    fn get_id(&self, name: &str) -> Result<String, DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(false).unwrap();
-        let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
+
+        let bkt = tx.get_bucket(self.bucket.as_str()).expect(&self.bucket);
 
         for data in bkt.cursor() {
             let item: T = rmp_serde::from_slice(data.kv().value()).unwrap();
 
             if &item.get_name() == name {
                 let id = from_utf8(data.kv().key()).unwrap();
-                return Some(id.to_string());
+                return Ok(id.to_string());
             };
         }
-        None
+        Err(DbError::NotExists(self.bucket.to_string())) // TODO
     }
 
-    fn get(&self, id: &str) -> Option<T> {
+    fn get(&self, id: &str) -> Result<T, DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(false).unwrap();
         let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
 
         if let Some(data) = bkt.get(id) {
-            return Some(rmp_serde::from_slice(data.kv().value()).unwrap());
+            return Ok(rmp_serde::from_slice(data.kv().value()).unwrap());
         }
-        None
+        Err(DbError::NotExists(self.bucket.to_string())) // TODO
     }
 
-    fn list(&self) -> Vec<T> {
+    fn list(&self) -> Result<Vec<T>, DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(false).unwrap();
         let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
@@ -112,10 +114,10 @@ where
             let item: T = rmp_serde::from_slice::<T>(data.kv().value()).unwrap();
             items.push(item);
         }
-        items
+        Ok(items)
     }
 
-    fn delete(&self, id: &str) -> Result<(), ()> {
+    fn delete(&self, id: &str) -> Result<(), DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(true).unwrap();
         let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();

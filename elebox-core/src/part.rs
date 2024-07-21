@@ -1,4 +1,5 @@
-use crate::{category, comm::*, csv::*, db::*, errors::EleboxError, package, transfer::*, yaml::*};
+use crate::{category, comm::*, csv::*, db::*, errors::*, package, transfer::*, yaml::*};
+use jammdb::BucketName;
 use serde::{Deserialize, Serialize};
 use std::{
     env::set_current_dir,
@@ -57,25 +58,21 @@ pub struct PartManager {
 
 impl Manager<Part> for PartManager {
     fn init(&self) -> Result<(), EleboxError> {
-        self.pkg_db.init();
-        self.mfr_db.init();
-        self.cat_db.init();
-        self.db.init();
+        let _ = self.pkg_db.init()?;
+        let _ = self.mfr_db.init()?;
+        let _ = self.cat_db.init()?;
+        let _ = self.db.init()?;
         Ok(())
     }
 
     fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_id(name).ok_or(EleboxError::NotExists(
-            String::from(ITEM_PART),
-            name.to_string(),
-        ))?;
-
-        let _ = self.db.delete(&id);
+        let id = self.db.get_id(name)?;
+        let _ = self.db.delete(&id)?;
         Ok(())
     }
 
     fn add(&self, item: &Part) -> Result<(), EleboxError> {
-        if self.db.get_id(&item.name).is_some() {
+        if self.db.get_id(&item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
                 String::from(ITEM_PART),
                 item.name.clone(),
@@ -83,19 +80,14 @@ impl Manager<Part> for PartManager {
         }
 
         let db_item = self.to_db_part(item)?;
-        self.db.add(&db_item);
+        let _ = self.db.add(&db_item)?;
         Ok(())
     }
 
     fn update(&self, ori_name: &str, new_item: &Part) -> Result<(), EleboxError> {
-        if self.db.get_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(
-                String::from(ITEM_PART),
-                ori_name.to_string(),
-            ));
-        }
+        let id = self.db.get_id(ori_name)?;
 
-        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_some() {
+        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
                 String::from(ITEM_PART),
                 new_item.name.clone(),
@@ -103,26 +95,18 @@ impl Manager<Part> for PartManager {
         }
 
         let db_part = self.to_db_part(new_item)?;
-        self.db.update(ori_name, &db_part);
+        let _ = self.db.update(ori_name, &db_part)?;
         Ok(())
     }
 
     fn get(&self, name: &str) -> Result<Part, EleboxError> {
-        let id = self.db.get_id(name).ok_or(EleboxError::NotExists(
-            String::from(ITEM_PART),
-            name.to_string(),
-        ))?;
-
-        let db_part = self
-            .db
-            .get(&id)
-            .ok_or(EleboxError::NotExists(String::from(ITEM_PART), id))?;
-
+        let id = self.db.get_id(name)?;
+        let db_part = self.db.get(&id)?;
         self.from_db_part(db_part)
     }
 
     fn list(&self) -> Result<Vec<Part>, EleboxError> {
-        let db_items = self.db.list();
+        let db_items = self.db.list()?;
         let mut items: Vec<Part> = vec![];
         for db_item in db_items {
             match self.from_db_part(db_item) {
@@ -155,38 +139,36 @@ impl PartManager {
     // }
 
     fn to_db_part(&self, item: &Part) -> Result<DbPart, EleboxError> {
-        let category_id = match self.cat_db.get_id(&item.category) {
-            Some(id) => id.to_string(),
-            None => {
-                return Err(EleboxError::NotExists(
-                    String::from(ITEM_CAT),
-                    item.category.clone(),
-                ))
-            }
-        };
+        let category_id = self.cat_db.get_id(&item.category)?;
 
         let package_id = match &item.package {
             Some(name) => match self.pkg_db.get_id(&name) {
-                Some(id) => id,
-                None => {
-                    return Err(EleboxError::NotExists(
-                        String::from(ITEM_PKG),
-                        name.to_string(),
-                    ))
-                }
+                Ok(id) => id,
+                Err(err) => match err {
+                    DbError::NotExists(_) => {
+                        return Err(EleboxError::NotExists(
+                            String::from(ITEM_PKG),
+                            name.to_string(),
+                        ))
+                    }
+                    _ => return Err(EleboxError::DatabaseError(err)),
+                },
             },
             None => "".to_string(),
         };
 
         let mfr_id = match &item.mfr {
             Some(name) => match self.mfr_db.get_id(&name) {
-                Some(id) => id,
-                None => {
-                    return Err(EleboxError::NotExists(
-                        String::from(ITEM_MFR),
-                        name.to_string(),
-                    ))
-                }
+                Ok(id) => id,
+                Err(err) => match err {
+                    DbError::NotExists(_) => {
+                        return Err(EleboxError::NotExists(
+                            String::from(ITEM_MFR),
+                            name.to_string(),
+                        ))
+                    }
+                    _ => return Err(EleboxError::DatabaseError(err)),
+                },
             },
             None => "".to_string(),
         };
@@ -289,17 +271,34 @@ impl PartManager {
     // }
 
     fn from_db_part(&self, db_part: DbPart) -> Result<Part, EleboxError> {
-        let category = self
-            .cat_db
-            .get(&db_part.category_id)
-            .ok_or(EleboxError::NotExists(
-                String::from(ITEM_CAT),
-                db_part.category_id,
-            ))?
-            .name;
+        let category = match self.cat_db.get(&db_part.category_id) {
+            Ok(item) => item.name,
+            Err(err) => match err {
+                DbError::NotExists(_) => {
+                    return Err(EleboxError::NotExists(
+                        String::from(ITEM_CAT),
+                        db_part.category_id,
+                    ))
+                }
+                _ => return Err(EleboxError::DatabaseError(err)),
+            },
+        };
 
-        let package = self.pkg_db.get(&db_part.package_id).map(|p| p.name);
-        let mfr = self.mfr_db.get(&db_part.mfr_id).map(|m| m.name);
+        let package = match self.pkg_db.get(&db_part.package_id) {
+            Ok(item) => Some(item.name),
+            Err(err) => match err {
+                DbError::NotExists(_) => None,
+                _ => return Err(EleboxError::DatabaseError(err)),
+            },
+        };
+
+        let mfr = match self.mfr_db.get(&db_part.mfr_id) {
+            Ok(item) => Some(item.name),
+            Err(err) => match err {
+                DbError::NotExists(_) => None,
+                _ => return Err(EleboxError::DatabaseError(err)),
+            },
+        };
 
         let part = Part {
             name: db_part.name,
