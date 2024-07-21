@@ -181,7 +181,18 @@ onMounted(() => {
       <tbody>
         <tr v-for="cf in part.custom_fields" :key="cf.name">
           <td>{{ cf.name }}</td>
-          <td>{{ cf.value }}</td>
+          <td>
+            <a
+              v-if="cf.field_type == 'Link'"
+              :href="cf.value"
+              target="_blank"
+              :title="cf.value"
+              ><v-icon> mdi-open-in-new </v-icon></a
+            >
+            <div v-else>
+              {{ cf.value }}
+            </div>
+          </td>
           <td>{{ cf.field_type }}</td>
         </tr>
       </tbody>
