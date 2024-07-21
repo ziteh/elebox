@@ -1,4 +1,4 @@
-use crate::{comm::*, errors::EleboxError, jamm_db::*};
+use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug};
 
@@ -72,15 +72,14 @@ impl CategoryManager {
         Ok(db_category)
     }
 
-    fn add_recursion(&self, _category: &Category, _cats: &[Category]) -> Result<(), EleboxError> {
-        todo!();
-        // if let Some(parent_name) = &category.parent {
-        //     if let Some(parent_cat) = cats.iter().find(|c| c.name == *parent_name) {
-        //         self.add_recursion(parent_cat, cats);
-        //     }
-        // }
+    fn add_recursion(&self, category: &Category, cats: &[Category]) -> Result<(), EleboxError> {
+        if let Some(parent_name) = &category.parent {
+            if let Some(parent_cat) = cats.iter().find(|c| c.name == *parent_name) {
+                self.add_recursion(parent_cat, cats);
+            }
+        }
 
-        // self.add(category)
+        self.add(category)
     }
 
     fn to_node(&self, name: String, map: &HashMap<String, Vec<String>>) -> TreeNode {
@@ -199,5 +198,28 @@ impl Manager<Category> for CategoryManager {
             items.push(self.to_item(db_item));
         }
         Ok(items)
+    }
+}
+
+impl Transferable for CategoryManager {
+    fn export(&self, filename: &str) -> Result<(), EleboxError> {
+        let items = self.list()?;
+        let _ = write_yaml(filename, items).unwrap();
+        Ok(())
+    }
+
+    fn import(&self, filename: &str) -> Result<(), EleboxError> {
+        let res_items = read_yaml(filename);
+
+        if res_items.is_err() {
+            panic!();
+        }
+
+        let items: Vec<Category> = res_items.unwrap();
+        for item in &items {
+            self.add_recursion(item, &items);
+        }
+
+        Ok(())
     }
 }

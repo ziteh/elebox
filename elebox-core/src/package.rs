@@ -1,8 +1,4 @@
-use crate::{
-    comm::*,
-    jamm_db::*,
-    errors::{EleboxError},
-};
+use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -126,5 +122,30 @@ impl Manager<Package> for PackageManager {
             items.push(self.to_item(db_item));
         }
         Ok(items)
+    }
+}
+
+impl Transferable for PackageManager {
+    fn export(&self, filename: &str) -> Result<(), EleboxError> {
+        let items = self.list()?;
+        let _ = write_yaml(filename, items).unwrap();
+        Ok(())
+    }
+
+    fn import(&self, filename: &str) -> Result<(), EleboxError> {
+        let res_items = read_yaml(filename);
+
+        if res_items.is_err() {
+            panic!();
+        }
+
+        let items: Vec<Package> = res_items.unwrap();
+        for item in items {
+            if let Err(e) = self.add(&item) {
+                panic!("{}", e.to_string())
+            }
+        }
+
+        Ok(())
     }
 }

@@ -237,7 +237,7 @@ fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
 fn export_csv(path: tauri::State<DbPath>, csv_path: &str) {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
-    elebox_core::export(csv_path);
+    elebox_core::export(&p, csv_path);
 }
 
 #[tauri::command(rename_all = "snake_case")]
