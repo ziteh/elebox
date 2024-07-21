@@ -1,9 +1,9 @@
 mod category;
 mod comm;
 mod csv;
-mod db;
 mod default_db;
 mod errors;
+mod jamm_db;
 mod manufacturer;
 mod package;
 mod part;
@@ -12,8 +12,8 @@ mod yaml;
 
 pub use category::*;
 pub use comm::*;
-pub use db::*;
 pub use errors::*;
+pub use jamm_db::*;
 pub use manufacturer::*;
 pub use package::*;
 pub use part::*;

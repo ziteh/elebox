@@ -1,4 +1,4 @@
-use crate::{category::*, db::*, manufacturer::*, package::*, Part, PartManager};
+use crate::{category::*, jamm_db::*, manufacturer::*, package::*, Part, PartManager};
 use std::path::Path;
 
 pub fn create_default_db(path: &str) {
