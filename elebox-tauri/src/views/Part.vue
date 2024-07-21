@@ -293,7 +293,7 @@ onMounted(() => {
             variant="outlined"
             v-model="part.mfr_no"
             placeholder="SC0914(7)"
-            title="Manufacturer part number"
+            hint="Manufacturer part number"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -312,6 +312,7 @@ onMounted(() => {
             variant="outlined"
             v-model="part.location"
             placeholder="Box #1"
+            hint="Storage location"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -337,7 +338,8 @@ onMounted(() => {
             label="Image Link"
             variant="outlined"
             v-model="part.image_link"
-            placeholder="https://"
+            placeholder="https:// or image.jpg"
+            hint="Enter a URL or a filename from the assets folder"
           ></v-text-field>
         </v-col>
       </v-row>
