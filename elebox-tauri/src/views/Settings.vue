@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import DbPath from "../components/DbPath.vue";
+import { useI18n } from "vue-i18n";
 
 const csv_path = ref("");
 const assets_path = ref("");
@@ -20,13 +21,36 @@ async function getAssetsPath() {
   assets_path.value = await invoke("get_assets_path", {});
 }
 
-onMounted(getAssetsPath);
+let languages = reactive(["en", "zh-TW"]);
+const selectedLanguage = ref("en");
+const { locale } = useI18n();
+
+function changeLanguage() {
+  locale.value = selectedLanguage.value;
+  console.log(`Update ${locale.value}`);
+}
+
+onMounted(() => {
+  getAssetsPath();
+  selectedLanguage.value = locale.value;
+});
 </script>
 
 <template>
   <v-container>
     <v-row>
-      <h1 class="my-8">Settings</h1>
+      <h1 class="my-8">{{ $t("settings") }}</h1>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-select
+          variant="outlined"
+          :items="languages"
+          v-model="selectedLanguage"
+          @update:modelValue="changeLanguage"
+          label="Select Language"
+        ></v-select>
+      </v-col>
     </v-row>
     <DbPath />
     <v-row class="align-center">
