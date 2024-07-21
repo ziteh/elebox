@@ -83,7 +83,7 @@ onMounted(() => {
         <v-label>Version</v-label>
       </v-col>
       <v-col cols="auto">
-        <code>1.0.0-beta.3</code>
+        <code>1.0.0-beta.4</code>
       </v-col>
     </v-row>
   </v-container>
