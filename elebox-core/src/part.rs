@@ -50,10 +50,10 @@ impl Part {
 }
 
 pub struct PartManager {
-    db: Box<dyn BaseDatabase<DbPart>>,
-    pkg_db: Box<dyn BaseDatabase<DbPackage>>,
-    mfr_db: Box<dyn BaseDatabase<DbManufacturer>>,
-    cat_db: Box<dyn BaseDatabase<DbCategory>>,
+    db: Box<dyn Database<DbPart>>,
+    pkg_db: Box<dyn Database<DbPackage>>,
+    mfr_db: Box<dyn Database<DbManufacturer>>,
+    cat_db: Box<dyn Database<DbCategory>>,
 }
 
 impl Manager<Part> for PartManager {

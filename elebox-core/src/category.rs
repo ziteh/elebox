@@ -28,7 +28,7 @@ impl Category {
 }
 
 pub struct CategoryManager {
-    db: Box<dyn BaseDatabase<DbCategory>>,
+    db: Box<dyn Database<DbCategory>>,
 }
 
 impl CategoryManager {

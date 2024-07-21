@@ -3,7 +3,7 @@
 
 use dirs;
 use elebox_core::{
-    BaseDatabase, Category, CustomField, Manager, Manufacturer, Package, PackageType, Part,
+    Database, Category, CustomField, Manager, Manufacturer, Package, PackageType, Part,
     Supplier, TreeNode,
 };
 use std::{path::Path, sync::Mutex, task::ready};

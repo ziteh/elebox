@@ -20,7 +20,7 @@ impl Manufacturer {
 }
 
 pub struct ManufacturerManager {
-    db: Box<dyn BaseDatabase<DbManufacturer>>,
+    db: Box<dyn Database<DbManufacturer>>,
 }
 
 impl ManufacturerManager {

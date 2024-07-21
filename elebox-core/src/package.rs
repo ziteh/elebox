@@ -33,7 +33,7 @@ impl Package {
 }
 
 pub struct PackageManager {
-    db: Box<dyn BaseDatabase<DbPackage>>,
+    db: Box<dyn Database<DbPackage>>,
 }
 
 impl PackageManager {

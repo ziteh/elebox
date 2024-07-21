@@ -127,7 +127,7 @@ impl JammDatabase {
 }
 
 // TODO return Err
-impl<T> BaseDatabase<T> for JammDatabase
+impl<T> Database<T> for JammDatabase
 where
     T: Serialize + for<'de> Deserialize<'de> + Named,
 {
