@@ -1,9 +1,9 @@
 use crate::{
-    CategoryManager, Database, JammDatabase, ManufacturerManager, PackageManager, PartManager,
+    CategoryManager, JammDatabase, Manager, ManufacturerManager, PackageManager, PartManager,
+    Transferable,
 };
-use std::path::PathBuf;
 
-pub fn export(db: &dyn Database, path: &str) {
+pub fn export(db: &str, path: &str) {
     let filename_part = format!("{}{}", path, "elebox_export_parts.yaml");
     let _ = PartManager::new(db).export(&filename_part);
 
@@ -18,33 +18,27 @@ pub fn export(db: &dyn Database, path: &str) {
 }
 
 pub fn import(path: &str) -> Result<(), String> {
-    let db_path = format!("{}{}", path, "import_elebox.db");
-    let db = JammDatabase::new(&db_path);
-    db.init();
+    let db = format!("{}{}", path, "import_elebox.db");
 
     let filename_mfr = format!("{}{}", path, "elebox_export_mfrs.yaml");
-    let res = ManufacturerManager::new(&db).import(&filename_mfr);
-    if res.is_err() {
-        return Err("Part".to_string());
-    }
+    let mfr_mgr = ManufacturerManager::new(&db);
+    mfr_mgr.init();
+    mfr_mgr.import(&filename_mfr);
 
     let filename_pkg = format!("{}{}", path, "elebox_export_packages.yaml");
-    let res = PackageManager::new(&db).import(&filename_pkg);
-    if res.is_err() {
-        return Err("Part".to_string());
-    }
+    let mfr_pkg = PackageManager::new(&db);
+    mfr_pkg.init();
+    mfr_pkg.import(&filename_pkg);
 
     let filename_cat = format!("{}{}", path, "elebox_export_categories.yaml");
-    let res = CategoryManager::new(&db).import(&filename_cat);
-    if res.is_err() {
-        return Err("Part".to_string());
-    }
+    let mfr_cat = CategoryManager::new(&db);
+    mfr_cat.init();
+    mfr_cat.import(&filename_cat);
 
     let filename_part = format!("{}{}", path, "elebox_export_parts.yaml");
-    let res = PartManager::new(&db).import(&filename_part);
-    if res.is_err() {
-        return Err("Part".to_string());
-    }
+    let mfr_part = PartManager::new(&db);
+    mfr_part.init();
+    mfr_part.import(&filename_part);
 
     Ok(())
 }

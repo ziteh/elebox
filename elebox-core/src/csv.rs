@@ -3,6 +3,7 @@ use std::fs::File;
 use csv::{ReaderBuilder, WriterBuilder};
 use serde::{Deserialize, Serialize};
 
+#[allow(dead_code)]
 pub fn write_csv<T>(filename: &str, items: Vec<T>, separator: Option<u8>) -> Result<(), ()>
 where
     T: Serialize,
@@ -31,6 +32,7 @@ where
     Ok(())
 }
 
+#[allow(dead_code)]
 pub fn read_csv<T>(filename: &str, separator: Option<u8>) -> Result<Vec<T>, ()>
 where
     T: for<'a> Deserialize<'a>,

@@ -1,5 +1,9 @@
+# Rust
 /target
 Cargo.lock
+
+# Elebox
 *.db
 *.csv
 *.tsv
+elebox_export*

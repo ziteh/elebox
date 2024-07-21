@@ -1,24 +1,28 @@
-mod backup;
 mod category;
+mod comm;
 mod csv;
-mod db;
 mod default_db;
 mod errors;
+mod jamm_db;
 mod manufacturer;
 mod package;
 mod part;
+mod transfer;
 mod yaml;
 
 pub use category::*;
-pub use db::CustomField;
-pub use db::Database;
-pub use db::JammDatabase;
-pub use db::Supplier;
+pub use comm::*;
 pub use errors::*;
+pub use jamm_db::*;
 pub use manufacturer::*;
 pub use package::*;
 pub use part::*;
 
-pub use backup::export;
-pub use backup::import;
 pub use default_db::create_default_db;
+pub use transfer::export;
+pub use transfer::import;
+
+pub fn init(path: &str) {
+    let part_mgr = PartManager::new(path);
+    let _ = part_mgr.init();
+}

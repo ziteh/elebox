@@ -1,4 +1,4 @@
-use crate::{csv::*, db::*, errors::EleboxError, yaml::*};
+use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -19,32 +19,25 @@ impl Manufacturer {
     }
 }
 
-pub struct ManufacturerManager<'a> {
-    db: &'a dyn Database,
+pub struct ManufacturerManager {
+    db: Box<dyn Database<DbManufacturer>>,
 }
 
-impl<'a> ManufacturerManager<'a> {
-    pub fn new(db: &'a dyn Database) -> Self {
-        Self { db }
+impl ManufacturerManager {
+    pub fn new(path: &str) -> Self {
+        Self {
+            db: Box::new(JammDatabase::new(path, MFR_BUCKET)),
+        }
     }
 
-    pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
-        let id = self
-            .db
-            .get_mfr_id(name)
-            .ok_or(EleboxError::NotExists("Mfr".to_string(), name.to_string()))?;
-
-        Ok(self.db.delete_mfr(&id))
-    }
-
-    fn to_db_mfr(&self, mfr: &Manufacturer) -> Result<DbManufacturer, EleboxError> {
+    fn to_db_item(&self, item: &Manufacturer) -> Result<DbManufacturer, EleboxError> {
         let db_mfr = DbManufacturer {
-            name: mfr.name.to_string(),
-            alias: match &mfr.alias {
+            name: item.name.to_string(),
+            alias: match &item.alias {
                 Some(s) => s.to_string(),
                 None => "".to_string(),
             },
-            url: match &mfr.url {
+            url: match &item.url {
                 Some(s) => s.to_string(),
                 None => "".to_string(),
             },
@@ -52,84 +45,90 @@ impl<'a> ManufacturerManager<'a> {
         Ok(db_mfr)
     }
 
-    pub fn add(&self, mfr: &Manufacturer) -> Result<(), EleboxError> {
-        if self.db.get_mfr_id(&mfr.name).is_some() {
-            return Err(EleboxError::AlreadyExists(
-                "Mfr".to_string(),
-                mfr.name.clone(),
-            ));
-        }
-
-        let db_mfr = self.to_db_mfr(mfr)?;
-        self.db.add_mfr(&db_mfr);
-        Ok(())
-    }
-
-    pub fn update(&self, ori_name: &str, new_mfr: &Manufacturer) -> Result<(), EleboxError> {
-        if self.db.get_mfr_id(ori_name).is_none() {
-            return Err(EleboxError::NotExists(
-                "Origin mfr".to_string(),
-                ori_name.to_string(),
-            ));
-        }
-
-        if ori_name != &new_mfr.name && self.db.get_mfr_id(&new_mfr.name).is_some() {
-            return Err(EleboxError::AlreadyExists(
-                "Mfr".to_string(),
-                new_mfr.name.clone(),
-            ));
-        }
-
-        let db_mfr = self.to_db_mfr(new_mfr)?;
-        self.db.update_mfr(ori_name, &db_mfr);
-        Ok(())
-    }
-
-    fn to_mfr(&self, db_mfr: &DbManufacturer) -> Manufacturer {
+    fn to_item(&self, db_item: &DbManufacturer) -> Manufacturer {
         Manufacturer::new(
-            &db_mfr.name,
-            Some(db_mfr.alias.as_str()).filter(|s| !s.is_empty()),
-            Some(db_mfr.url.as_str()).filter(|s| !s.is_empty()),
+            &db_item.name,
+            Some(db_item.alias.as_str()).filter(|s| !s.is_empty()),
+            Some(db_item.url.as_str()).filter(|s| !s.is_empty()),
         )
     }
+}
 
-    pub fn get(&self, name: &str) -> Result<Manufacturer, EleboxError> {
-        let id = self
-            .db
-            .get_mfr_id(name)
-            .ok_or(EleboxError::NotExists("Mfr".to_string(), name.to_string()))?;
-
-        let db_mfr = self
-            .db
-            .get_mfr_from_id(&id)
-            .ok_or(EleboxError::NotExists("Mfr".to_string(), id))?;
-
-        Ok(self.to_mfr(&db_mfr))
+impl Manager<Manufacturer> for ManufacturerManager {
+    fn init(&self) -> Result<(), EleboxError> {
+        let _ = self.db.init()?;
+        Ok(())
     }
 
-    pub fn list(&self) -> Vec<Manufacturer> {
-        self.db
-            .get_mfrs()
-            .into_iter()
-            .filter_map(|db_m| Some(self.to_mfr(&db_m)))
-            .collect()
+    fn delete(&self, name: &str) -> Result<(), EleboxError> {
+        let id = self.db.get_id(name)?;
+        let _ = self.db.delete(&id)?;
+        Ok(())
     }
 
-    pub fn export(&self, filename: &str) -> Result<(), ()> {
-        let mfrs = self.list();
-        let res = write_yaml(filename, mfrs);
-        return res;
-    }
-
-    pub fn import(&self, filename: &str) -> Result<(), ()> {
-        let res_parts = read_yaml(filename);
-        if res_parts.is_err() {
-            return Err(());
+    fn add(&self, item: &Manufacturer) -> Result<(), EleboxError> {
+        if self.db.get_id(&item.name).is_ok() {
+            return Err(EleboxError::AlreadyExists(
+                String::from(ITEM_MFR),
+                item.name.clone(),
+            ));
         }
 
-        let mfrs: Vec<Manufacturer> = res_parts.unwrap();
-        for mfr in mfrs {
-            let _ = self.add(&mfr);
+        let db_item = self.to_db_item(item)?;
+        let _ = self.db.add(&db_item)?;
+        Ok(())
+    }
+
+    fn update(&self, ori_name: &str, new_item: &Manufacturer) -> Result<(), EleboxError> {
+        let ori_id = self.db.get_id(ori_name)?;
+
+        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
+            return Err(EleboxError::AlreadyExists(
+                String::from(ITEM_MFR),
+                new_item.name.clone(),
+            ));
+        }
+
+        let db_item = self.to_db_item(new_item)?;
+        let _ = self.db.update(ori_id.as_str(), &db_item)?;
+        Ok(())
+    }
+
+    fn get(&self, name: &str) -> Result<Manufacturer, EleboxError> {
+        let id = self.db.get_id(name)?;
+        let db_item = self.db.get(&id)?;
+        Ok(self.to_item(&db_item))
+    }
+
+    fn list(&self) -> Result<Vec<Manufacturer>, EleboxError> {
+        let db_items = self.db.list()?;
+        let mut items: Vec<Manufacturer> = vec![];
+        for db_item in db_items {
+            items.push(self.to_item(&db_item));
+        }
+        Ok(items)
+    }
+}
+
+impl Transferable for ManufacturerManager {
+    fn export(&self, filename: &str) -> Result<(), EleboxError> {
+        let items = self.list()?;
+        let _ = write_yaml(filename, items).unwrap();
+        Ok(())
+    }
+
+    fn import(&self, filename: &str) -> Result<(), EleboxError> {
+        let res_items = read_yaml(filename);
+
+        if res_items.is_err() {
+            panic!();
+        }
+
+        let items: Vec<Manufacturer> = res_items.unwrap();
+        for item in items {
+            if let Err(e) = self.add(&item) {
+                panic!("{}", e.to_string())
+            }
         }
 
         Ok(())

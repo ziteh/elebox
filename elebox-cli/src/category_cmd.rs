@@ -1,4 +1,5 @@
 use clap::{Args, Subcommand};
+use elebox_core::Manager;
 
 #[derive(Debug, Args)]
 pub struct CategoryCommand {
@@ -47,8 +48,8 @@ struct ExportCategoryArgs {
     path: String,
 }
 
-pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
-    let manager = elebox_core::CategoryManager::new(db);
+pub fn category_cmd(path: &str, cmd: &CategoryCommand) {
+    let manager = elebox_core::CategoryManager::new(path);
 
     match &cmd.command {
         Some(CategorySubCommand::New(args)) => {
@@ -57,30 +58,23 @@ pub fn category_cmd(db: &dyn elebox_core::Database, cmd: &CategoryCommand) {
                 args.parent_cat.as_deref(),
                 None, // TODO
             )) {
-                println!("{err}");
+                println!("ERR: {err}");
             };
         }
         Some(CategorySubCommand::Delete(args)) => {
             if let Err(err) = manager.delete(&args.name) {
-                print!("{err}");
+                println!("ERR: {err}");
             };
         }
-        Some(CategorySubCommand::Update(args)) => {
-            // TODO
-            // if let Err(err) = manager.update(
-            //     &args.old_name,
-            //     args.new_name.as_deref(),
-            //     args.parent_cat.as_deref(),
-            // ) {
-            //     println!("{err}");
-            // };
+        Some(CategorySubCommand::Update(_args)) => {
+            todo!();
         }
-        Some(CategorySubCommand::Export(args)) => {
-            let _ = manager.export(&args.path);
+        Some(CategorySubCommand::Export(_args)) => {
+            todo!();
         }
         None => {
             println!("List part category");
-            let pts = manager.list();
+            let pts = manager.list().unwrap();
             for pt in pts {
                 println!("{}  {:?}", pt.name, pt.parent);
             }

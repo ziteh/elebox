@@ -1,7 +1,7 @@
-use std::sync::atomic;
+
 
 use clap::{Args, Parser, Subcommand};
-use elebox_core::{self, Database};
+use elebox_core::{self};
 
 mod category_cmd;
 mod part_cmd;
@@ -46,16 +46,13 @@ enum EntityType {
 fn main() {
     let cli = Cli::parse();
 
-    println!("{}", cli.db_path);
-    let db = elebox_core::JammDatabase::new(&cli.db_path);
+    println!("Database: {}", cli.db_path);
 
     match &cli.entity_type {
-        EntityType::Init => db.init(),
-        EntityType::Part(cmd) => part_cmd(&db, cmd),
-        EntityType::Category(cmd) => category_cmd(&db, cmd),
-        EntityType::Export(args) => elebox_core::export(&db, &args.path),
-        EntityType::Import(args) => {
-            let _ = elebox_core::import(&args.path);
-        }
+        EntityType::Init => elebox_core::init(&cli.db_path),
+        EntityType::Part(cmd) => part_cmd(&cli.db_path, cmd),
+        EntityType::Category(cmd) => category_cmd(&cli.db_path, cmd),
+        EntityType::Export(_args) => todo!(),
+        EntityType::Import(_args) => todo!(),
     };
 }
