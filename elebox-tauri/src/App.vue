@@ -11,8 +11,7 @@ const isSmall = computed(() => sm.value);
 const { locale } = useI18n();
 
 async function loadLanguage() {
-  let cfg = await invoke("load_config"); // TODO cfg type
-  locale.value = cfg[0] ?? "en";
+  locale.value = await invoke("get_language"); // TODO cfg type
 }
 
 onMounted(loadLanguage);

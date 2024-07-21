@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import DbPath from "../components/DbPath.vue";
 import { useI18n } from "vue-i18n";
 import { Config } from "../interface";
 
@@ -20,20 +19,6 @@ async function import_csv() {
 
 const config = ref<Config>({});
 
-async function saveConfig() {
-  await invoke("save_config", {
-    lang: config.value.language,
-    db: config.value.database, // FIXME null type
-  });
-  console.log(`Save`);
-}
-
-async function loadConfig() {
-  let cfg = await invoke("load_config"); // FIXME cfg type
-  config.value.language = cfg[0];
-  config.value.database = cfg[1];
-}
-
 async function getAssetsPath() {
   assets_path.value = await invoke("get_assets_path", {});
 }
@@ -41,14 +26,32 @@ async function getAssetsPath() {
 let languages = reactive(["en", "zh-TW"]);
 const { locale } = useI18n();
 
-function changeLanguage() {
+async function changeLanguage() {
   locale.value = config.value.language ?? "en";
-  saveConfig();
+  await invoke("set_language", { new_lang: locale.value }); // FIXME cfg type
+  // saveConfig();
+}
+
+const path = ref("");
+
+async function getPath() {
+  path.value = await invoke("get_db_path", {});
+  console.debug(`DB path: ${path.value}`);
+}
+
+async function setPath() {
+  await invoke("set_db_path", { new_path: path.value });
+  console.debug(`DB path: ${path.value}`);
+}
+
+async function loadLanguage() {
+  config.value.language = await invoke("get_language"); // TODO cfg type
 }
 
 onMounted(() => {
   getAssetsPath();
-  loadConfig(); // FIXME no load language
+  getPath();
+  loadLanguage();
 });
 </script>
 
@@ -68,7 +71,19 @@ onMounted(() => {
         ></v-select>
       </v-col>
     </v-row>
-    <DbPath />
+    <v-row class="align-center">
+      <v-col>
+        <v-text-field
+          label="Database Path"
+          variant="outlined"
+          v-model="path"
+          placeholder="elebox.db"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="auto" class="mb-6">
+        <v-btn @click="setPath" text="Apply"></v-btn>
+      </v-col>
+    </v-row>
     <v-row class="align-center">
       <v-col>
         <v-text-field

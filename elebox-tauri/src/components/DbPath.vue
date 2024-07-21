@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// TODO this file unused
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 
