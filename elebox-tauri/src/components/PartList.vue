@@ -4,6 +4,8 @@ import { Part } from "../interface";
 import { useRouter, useRoute } from "vue-router";
 import { DbPart } from "../db_cmd_part";
 import PartQty from "../components/PartQty.vue";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 let parts = reactive<Part[]>([]);
 
@@ -12,11 +14,11 @@ const route = useRoute();
 
 const search = ref("");
 const headers = ref([
-  { key: "name", title: "Name", sortable: true },
-  { key: "quantity", title: "Quantity" },
-  { key: "category", title: "Category" },
-  { key: "package", title: "Package" },
-  { key: "mfr", title: "Manufacturer" },
+  { key: "name", title: t("name"), sortable: true },
+  { key: "quantity", title: t("quantity") },
+  { key: "category", title: t("category") },
+  { key: "package", title: t("package") },
+  { key: "mfr", title: t("mfr") },
 ]);
 
 async function getParts() {

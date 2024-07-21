@@ -69,7 +69,7 @@ onMounted(() => {
     <v-table>
       <thead>
         <tr>
-          <th>Name</th>
+          <th>{{ $t("name") }}</th>
           <th>
             {{ part.name
             }}<v-icon v-if="part.starred" color="#fcba03" title="Starred" end
@@ -81,35 +81,39 @@ onMounted(() => {
 
       <tbody>
         <tr>
-          <td>Category</td>
+          <td>{{ $t("category") }}</td>
           <td>{{ part.category }}</td>
         </tr>
         <tr>
-          <td>Quantity</td>
+          <td>{{ $t("quantity") }}</td>
           <td>{{ part.quantity }}</td>
         </tr>
         <tr>
-          <td>Alias</td>
+          <td>{{ $t("alias") }}</td>
           <td>{{ part.alias }}</td>
         </tr>
         <tr>
-          <td>Location</td>
+          <td>{{ $t("location") }}</td>
           <td>{{ part.location }}</td>
         </tr>
         <tr>
-          <td>Package</td>
+          <td>{{ $t("package") }}</td>
           <td>{{ part.package }}</td>
         </tr>
         <tr>
-          <td>Package Detail</td>
+          <td>{{ $t("package_detail") }}</td>
           <td>{{ part.package_detail }}</td>
         </tr>
         <tr>
-          <td>Description</td>
+          <td>{{ $t("description") }}</td>
           <td>{{ part.description }}</td>
         </tr>
         <tr>
-          <td>Manufacturer #</td>
+          <td>{{ $t("manufacturer") }}</td>
+          <td>{{ part.mfr }}</td>
+        </tr>
+        <tr>
+          <td>{{ $t("manufacturer_no") }}</td>
           <td>
             <div v-if="part.mfr_no">
               {{ part.mfr_no }}
@@ -133,11 +137,7 @@ onMounted(() => {
           </td>
         </tr>
         <tr>
-          <td>Manufacturer</td>
-          <td>{{ part.mfr }}</td>
-        </tr>
-        <tr>
-          <td>Datasheet</td>
+          <td>{{ $t("datasheet") }}</td>
           <td>
             <a target="_blank" :href="part.datasheet_link">{{
               part.datasheet_link
@@ -145,7 +145,7 @@ onMounted(() => {
           </td>
         </tr>
         <tr>
-          <td>Product</td>
+          <td>{{ $t("product_link") }}</td>
           <td>
             <a target="_blank" :href="part.product_link">{{
               part.product_link
@@ -153,7 +153,7 @@ onMounted(() => {
           </td>
         </tr>
         <tr>
-          <td>Image</td>
+          <td>{{ $t("image") }}</td>
           <td>
             <a
               v-if="image_link"
@@ -168,7 +168,7 @@ onMounted(() => {
       </tbody>
     </v-table>
 
-    <v-label class="mt-8">Custom Fields</v-label>
+    <v-label class="mt-8">{{ $t("custom_fields") }}</v-label>
     <v-table>
       <thead>
         <tr>
@@ -198,7 +198,7 @@ onMounted(() => {
       </tbody>
     </v-table>
 
-    <v-label class="mt-8">Suppliers</v-label>
+    <v-label class="mt-8">{{ $t("suppliers") }}</v-label>
     <v-table>
       <thead>
         <tr>
