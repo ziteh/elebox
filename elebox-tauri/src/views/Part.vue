@@ -5,7 +5,7 @@ import { DbPart } from "../db_cmd_part";
 import { DbCategory } from "../db_cmd_category";
 import { DbPackage } from "../db_cmd_package";
 import { DbManufacturer as DbMfr } from "../db_cmd_manufacturer";
-import { CustomField, PkgType, Supplier } from "../interface";
+import { CustomField, Supplier } from "../interface";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
 
