@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import DbPath from "../components/DbPath.vue";
 
 const csv_path = ref("");
+const assets_path = ref("");
 
 async function export_csv() {
   await invoke("export_csv", { csv_path: csv_path.value });
@@ -14,6 +15,12 @@ async function import_csv() {
   await invoke("import_csv", { csv_path: csv_path.value });
   console.debug(`Import path: ${csv_path.value}`);
 }
+
+async function getAssetsPath() {
+  assets_path.value = await invoke("get_assets_path", {});
+}
+
+onMounted(getAssetsPath);
 </script>
 
 <template>
@@ -39,7 +46,15 @@ async function import_csv() {
       </v-col>
     </v-row>
     <v-row class="align-center">
-      <v-spacer></v-spacer>
+      <v-col cols="auto">
+        <v-label>Assets Folder</v-label>
+      </v-col>
+      <v-col>
+        <code>{{ assets_path }}</code>
+      </v-col>
+    </v-row>
+    <v-row class="align-center">
+      <!-- <v-spacer></v-spacer> -->
       <v-col cols="auto">
         <v-label>Version</v-label>
       </v-col>
