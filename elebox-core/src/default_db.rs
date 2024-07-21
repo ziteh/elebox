@@ -323,7 +323,7 @@ pub fn create_default_db(path: &str) {
         mfr_no: Some("RT9183-33GG".to_string()),
         datasheet_link: Some("https://www.richtek.com/assets/product_file/RT9183/DS9183-24.pdf".to_string()),
         product_link: Some("https://www.richtek.com/Products/Linear%20Regulator/Single%20Output%20Linear%20Regulator/RT9183".to_string()),
-        image_link: Some("https://www.richtek.com/~/media/Richtek/Products/ProductSpecs/RT9183/en/Version1/40038ommuf.jpg?bc=White&h=109&la=zh-TW&mh=280&mw=320&w=320".to_string()),
+        image_link: Some("https://www.richtek.com/~/media/Richtek/Products/ProductSpecs/RT9183/en/Version1/40038ommuf.jpg".to_string()),
         starred: false,
         custom_fields: vec![
             CustomField {
