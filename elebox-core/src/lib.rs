@@ -24,5 +24,5 @@ pub use transfer::import;
 
 pub fn init(path: &str) {
     let part_mgr = PartManager::new(path);
-    part_mgr.init();
+    let _ = part_mgr.init();
 }

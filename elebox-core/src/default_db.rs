@@ -5,7 +5,7 @@ pub fn create_default_db(path: &str) {
     let exists = Path::new(&path).exists();
 
     let part_mgr = PartManager::new(path);
-    part_mgr.init();
+    let _ = part_mgr.init();
 
     if exists {
         return;
