@@ -1,9 +1,7 @@
-use crate::{comm::*, jamm_db::*, errors::*, yaml::*};
+use crate::{comm::*, errors::*, jamm_db::*, yaml::*};
 
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt::{Debug},
-};
+use std::fmt::Debug;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
@@ -238,23 +236,19 @@ impl PartManager {
         Ok(db_part)
     }
 
-    pub fn update_part_quantity(&self, _name: &str, _increment: i16) -> Result<(), EleboxError> {
-        todo!();
-        // let id = self.db.get_part_id(name);
-        // if id.is_none() {
-        //     return Err(EleboxError::NotExists("Part".to_string(), name.to_string()));
-        // }
+    pub fn update_part_quantity(&self, name: &str, increment: i16) -> Result<(), EleboxError> {
+        let id = self.db.get_id(name)?;
+        let mut db_item = self.db.get(id.as_str())?;
 
-        // let mut db_part = self.db.get_part_from_id(id.as_ref().unwrap()).unwrap();
-        // let new_q = db_part.quantity as i16 + increment;
-        // if new_q < 0 {
-        //     return Err(EleboxError::InventoryShortage(name.to_string()));
-        // } else {
-        //     db_part.quantity = new_q as u16;
-        // }
+        let new_qty = db_item.quantity as i16 + increment;
+        if new_qty < 0 {
+            return Err(EleboxError::InventoryShortage(name.to_string()));
+        } else {
+            db_item.quantity = new_qty as u16;
+        }
 
-        // self.db.update_part(name, &db_part);
-        // return Ok(());
+        self.db.update(name, &db_item)?;
+        Ok(())
     }
 }
 
