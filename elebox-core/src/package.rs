@@ -1,9 +1,7 @@
 use crate::{
     comm::*,
-    csv::*,
     jamm_db::*,
-    errors::{self, EleboxError},
-    yaml::*,
+    errors::{EleboxError},
 };
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -101,7 +99,7 @@ impl Manager<Package> for PackageManager {
     }
 
     fn update(&self, ori_name: &str, new_item: &Package) -> Result<(), EleboxError> {
-        let id = self.db.get_id(ori_name)?;
+        let _id = self.db.get_id(ori_name)?;
 
         if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(

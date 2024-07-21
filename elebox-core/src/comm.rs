@@ -1,6 +1,6 @@
-use serde::{ser::SerializeMap, Deserialize, Serialize};
 
-use crate::{Category, DbError, EleboxError, Part};
+
+use crate::{DbError, EleboxError};
 
 pub const ITEM_PART: &str = "part";
 pub const ITEM_CAT: &str = "category";

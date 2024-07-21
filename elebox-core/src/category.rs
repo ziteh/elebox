@@ -1,4 +1,4 @@
-use crate::{comm::*, csv::*, jamm_db::*, errors::EleboxError, yaml::*};
+use crate::{comm::*, jamm_db::*, errors::EleboxError};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug};
 
@@ -72,7 +72,7 @@ impl CategoryManager {
         Ok(db_category)
     }
 
-    fn add_recursion(&self, category: &Category, cats: &[Category]) -> Result<(), EleboxError> {
+    fn add_recursion(&self, _category: &Category, _cats: &[Category]) -> Result<(), EleboxError> {
         todo!();
         // if let Some(parent_name) = &category.parent {
         //     if let Some(parent_cat) = cats.iter().find(|c| c.name == *parent_name) {
@@ -83,7 +83,7 @@ impl CategoryManager {
         // self.add(category)
     }
 
-    fn to_node(&self, name: String, map: &HashMap<String, Vec<String>>) -> TreeNode {
+    fn to_node(&self, _name: String, _map: &HashMap<String, Vec<String>>) -> TreeNode {
         todo!();
         // let mut children = vec![];
 
@@ -144,7 +144,7 @@ impl Manager<Category> for CategoryManager {
         }
 
         // Normalize
-        let mut cat = Category {
+        let cat = Category {
             name: item.name.clone(),
             alias: item.alias.clone(),
             parent: match &item.parent {
@@ -161,7 +161,7 @@ impl Manager<Category> for CategoryManager {
     }
 
     fn update(&self, ori_name: &str, new_item: &Category) -> Result<(), EleboxError> {
-        let id = self.db.get_id(ori_name)?;
+        let _id = self.db.get_id(ori_name)?;
 
         if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
@@ -171,7 +171,7 @@ impl Manager<Category> for CategoryManager {
         }
 
         // Normalize
-        let mut cat = Category {
+        let cat = Category {
             name: new_item.name.clone(),
             alias: new_item.alias.clone(),
             parent: match &new_item.parent {

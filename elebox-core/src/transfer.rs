@@ -1,7 +1,7 @@
-use crate::{CategoryManager, JammDatabase, ManufacturerManager, PackageManager, PartManager};
-use std::path::PathBuf;
 
-pub fn export(path: &str) {
+
+
+pub fn export(_path: &str) {
     // let filename_part = format!("{}{}", path, "elebox_export_parts.yaml");
     // let _ = PartManager::new(db).export(&filename_part);
 
@@ -15,7 +15,7 @@ pub fn export(path: &str) {
     // let _ = ManufacturerManager::new(db).export(&filename_mfr);
 }
 
-pub fn import(path: &str) -> Result<(), String> {
+pub fn import(_path: &str) -> Result<(), String> {
     // let db_path = format!("{}{}", path, "import_elebox.db");
     // let db = JammDatabase::new(&db_path);
     // db.init();

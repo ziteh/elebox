@@ -1,12 +1,10 @@
 use std::{
     fmt::Debug,
-    io::Read,
-    marker::PhantomData,
     path::PathBuf,
     str::{self, from_utf8},
 };
 
-use jammdb::{Bucket, Tx, DB};
+use jammdb::{DB};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -216,7 +214,7 @@ where
 
 // TODO
 impl From<jammdb::Error> for DbError {
-    fn from(err: jammdb::Error) -> DbError {
+    fn from(_err: jammdb::Error) -> DbError {
         DbError::AccessFailed("jammdb error".to_string())
     }
 }

@@ -1,9 +1,8 @@
-use crate::{category, comm::*, csv::*, jamm_db::*, errors::*, package, transfer::*, yaml::*};
-use jammdb::BucketName;
+use crate::{comm::*, jamm_db::*, errors::*, yaml::*};
+
 use serde::{Deserialize, Serialize};
 use std::{
-    env::set_current_dir,
-    fmt::{format, Debug},
+    fmt::{Debug},
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -85,7 +84,7 @@ impl Manager<Part> for PartManager {
     }
 
     fn update(&self, ori_name: &str, new_item: &Part) -> Result<(), EleboxError> {
-        let id = self.db.get_id(ori_name)?;
+        let _id = self.db.get_id(ori_name)?;
 
         if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
@@ -239,7 +238,7 @@ impl PartManager {
         Ok(db_part)
     }
 
-    pub fn update_part_quantity(&self, name: &str, increment: i16) -> Result<(), EleboxError> {
+    pub fn update_part_quantity(&self, _name: &str, _increment: i16) -> Result<(), EleboxError> {
         todo!();
         // let id = self.db.get_part_id(name);
         // if id.is_none() {

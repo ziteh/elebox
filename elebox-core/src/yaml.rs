@@ -1,6 +1,6 @@
-use std::fs::{self, File};
+use std::fs::{self};
 
-use csv::{ReaderBuilder, WriterBuilder};
+
 use serde::{Deserialize, Serialize};
 
 use serde_yaml;
