@@ -41,6 +41,7 @@ onMounted(getDefaultPath);
           <v-checkbox
             label="Use default path"
             v-model="use_default"
+            disabled
           ></v-checkbox>
         </v-row>
         <v-row>
