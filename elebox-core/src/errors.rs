@@ -30,15 +30,6 @@ impl fmt::Display for EleboxError {
     }
 }
 
-impl From<DbError> for EleboxError {
-    fn from(err: DbError) -> EleboxError {
-        match err {
-            DbError::NotExists(name) => EleboxError::NotExists("".to_string(), name.to_string()), // TODO
-            _ => EleboxError::DatabaseError(err),
-        }
-    }
-}
-
 #[derive(fmt::Debug)]
 pub enum DbError {
     CannotOpenDb(String),
@@ -68,8 +59,11 @@ impl fmt::Display for DbError {
     }
 }
 
-impl From<jammdb::Error> for DbError {
-    fn from(err: jammdb::Error) -> DbError {
-        DbError::AccessFailed("jammdb error".to_string()) // TODO
+impl From<DbError> for EleboxError {
+    fn from(err: DbError) -> EleboxError {
+        match err {
+            DbError::NotExists(name) => EleboxError::NotExists("".to_string(), name.to_string()), // TODO
+            _ => EleboxError::DatabaseError(err),
+        }
     }
 }

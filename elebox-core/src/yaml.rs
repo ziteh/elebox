@@ -10,13 +10,13 @@ where
     T: Serialize,
 {
     let contents = serde_yaml::to_string(&items).unwrap();
-    fs::write(filename, contents);
+    fs::write(filename, contents).unwrap();
     Ok(())
 }
 
 pub fn read_yaml<T>(filename: &str) -> Result<Vec<T>, ()>
 where
-    T: for<'a> Deserialize<'a>,
+    T: for<'de> Deserialize<'de>,
 {
     let content = fs::read_to_string(filename).unwrap();
     let items: Vec<T> = serde_yaml::from_str(&content).unwrap();

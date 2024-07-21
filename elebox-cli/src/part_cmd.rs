@@ -1,5 +1,5 @@
 use clap::{Args, Subcommand};
-use elebox_core::Manager;
+use elebox_core::{Manager, Transferable};
 
 #[derive(Debug, Args)]
 pub struct PartCommand {
@@ -69,7 +69,7 @@ struct DeletePartArgs {
 
 #[derive(Debug, Args)]
 struct CsvPartArgs {
-    #[arg(default_value = "elebox_export_parts.tsv")]
+    #[arg(default_value = "elebox_export_parts.yaml")]
     path: String,
 }
 
@@ -109,12 +109,14 @@ pub fn part_cmd(path: &str, cmd: &PartCommand) {
                     println!("ERR: {err}");
                 }
             }
-            PartSubCommand::Export(args) => {
-                todo!();
-            }
-            PartSubCommand::Import(args) => {
-                todo!();
-            }
+            PartSubCommand::Export(args) => match manager.export(&args.path) {
+                Ok(_) => println!("Export success: {}", args.path),
+                Err(_) => println!("Export error: {}", args.path),
+            },
+            PartSubCommand::Import(args) => match manager.import(&args.path) {
+                Ok(_) => println!("Import success: {}", args.path),
+                Err(_) => println!("Import error: {}", args.path),
+            },
         },
         None => {
             println!("List part");

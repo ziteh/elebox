@@ -79,7 +79,7 @@ impl Manager<Part> for PartManager {
             ));
         }
 
-        let db_item = self.to_db_part(item)?;
+        let db_item = self.to_db_item(item)?;
         let _ = self.db.add(&db_item)?;
         Ok(())
     }
@@ -94,7 +94,7 @@ impl Manager<Part> for PartManager {
             ));
         }
 
-        let db_part = self.to_db_part(new_item)?;
+        let db_part = self.to_db_item(new_item)?;
         let _ = self.db.update(ori_name, &db_part)?;
         Ok(())
     }
@@ -102,14 +102,14 @@ impl Manager<Part> for PartManager {
     fn get(&self, name: &str) -> Result<Part, EleboxError> {
         let id = self.db.get_id(name)?;
         let db_part = self.db.get(&id)?;
-        self.from_db_part(db_part)
+        self.to_item(db_part)
     }
 
     fn list(&self) -> Result<Vec<Part>, EleboxError> {
         let db_items = self.db.list()?;
         let mut items: Vec<Part> = vec![];
         for db_item in db_items {
-            match self.from_db_part(db_item) {
+            match self.to_item(db_item) {
                 Ok(item) => items.push(item),
                 Err(err) => return Err(err),
             }
@@ -128,17 +128,59 @@ impl PartManager {
         }
     }
 
-    // pub fn delete(&self, name: &str) -> Result<String, EleboxError> {
-    //     let id = self
-    //         .db
-    //         .get_id(name)
-    //         .ok_or(EleboxError::NotExists("Part".to_string(), name.to_string()))?;
+    fn to_item(&self, db_part: DbPart) -> Result<Part, EleboxError> {
+        let category = match self.cat_db.get(&db_part.category_id) {
+            Ok(item) => item.name,
+            Err(err) => match err {
+                DbError::NotExists(_) => {
+                    return Err(EleboxError::NotExists(
+                        String::from(ITEM_CAT),
+                        db_part.category_id,
+                    ))
+                }
+                _ => return Err(EleboxError::DatabaseError(err)),
+            },
+        };
 
-    //     self.db.delete(&id).unwrap();
-    //     return Ok("ok".to_string());
-    // }
+        let package = match self.pkg_db.get(&db_part.package_id) {
+            Ok(item) => Some(item.name),
+            Err(err) => match err {
+                DbError::NotExists(_) => None,
+                _ => return Err(EleboxError::DatabaseError(err)),
+            },
+        };
 
-    fn to_db_part(&self, item: &Part) -> Result<DbPart, EleboxError> {
+        let mfr = match self.mfr_db.get(&db_part.mfr_id) {
+            Ok(item) => Some(item.name),
+            Err(err) => match err {
+                DbError::NotExists(_) => None,
+                _ => return Err(EleboxError::DatabaseError(err)),
+            },
+        };
+
+        let part = Part {
+            name: db_part.name,
+            category,
+            quantity: db_part.quantity,
+            package,
+            package_detail: Some(db_part.package_detail),
+            mfr,
+            alias: Some(db_part.alias),
+            description: Some(db_part.description),
+            location: Some(db_part.location),
+            mfr_no: Some(db_part.mfr_no),
+            datasheet_link: Some(db_part.datasheet_link),
+            product_link: Some(db_part.product_link),
+            image_link: Some(db_part.image_link),
+            custom_fields: db_part.custom_fields,
+            suppliers: db_part.suppliers,
+            starred: db_part.starred,
+        };
+
+        return Ok(part);
+    }
+
+    fn to_db_item(&self, item: &Part) -> Result<DbPart, EleboxError> {
         let category_id = self.cat_db.get_id(&item.category)?;
 
         let package_id = match &item.package {
@@ -197,27 +239,6 @@ impl PartManager {
         Ok(db_part)
     }
 
-    // pub fn update(&self, ori_name: &str, new_part: &Part) -> Result<(), EleboxError> {
-    //     todo!();
-    //     // if self.db.get_part_id(ori_name).is_none() {
-    //     //     return Err(EleboxError::NotExists(
-    //     //         "Origin part".to_string(),
-    //     //         ori_name.to_string(),
-    //     //     ));
-    //     // }
-
-    //     // if ori_name != &new_part.name && self.db.get_part_id(&new_part.name).is_some() {
-    //     //     return Err(EleboxError::AlreadyExists(
-    //     //         "Part".to_string(),
-    //     //         new_part.name.clone(),
-    //     //     ));
-    //     // }
-
-    //     // let db_part = self.to_db_part(new_part)?;
-    //     // self.db.update_part(ori_name, &db_part);
-    //     // Ok(())
-    // }
-
     pub fn update_part_quantity(&self, name: &str, increment: i16) -> Result<(), EleboxError> {
         todo!();
         // let id = self.db.get_part_id(name);
@@ -236,145 +257,29 @@ impl PartManager {
         // self.db.update_part(name, &db_part);
         // return Ok(());
     }
-
-    // pub fn add(&self, part: &Part) -> Result<(), EleboxError> {
-    //     // if self.db.get_part_id(&part.name).is_some() {
-    //     //     return Err(EleboxError::AlreadyExists(
-    //     //         "Part".to_string(),
-    //     //         part.name.clone(),
-    //     //     ));
-    //     // }
-
-    //     // let db_part = self.to_db_part(part)?;
-    //     self.db.init();
-
-    //     let dp = DbPart {
-    //         name: "test".to_string(),
-    //         quantity: 22,
-    //         category_id: "asdf".to_string(),
-    //         package_id: "".to_string(),
-    //         package_detail: "".to_string(),
-    //         mfr_id: "".to_string(),
-    //         alias: "".to_string(),
-    //         description: "".to_string(),
-    //         location: "".to_string(),
-    //         mfr_no: "".to_string(),
-    //         datasheet_link: "".to_string(),
-    //         product_link: "".to_string(),
-    //         image_link: "".to_string(),
-    //         custom_fields: vec![],
-    //         suppliers: vec![],
-    //         starred: false,
-    //     };
-    //     self.db.add(&dp);
-    //     Ok(())
-    // }
-
-    fn from_db_part(&self, db_part: DbPart) -> Result<Part, EleboxError> {
-        let category = match self.cat_db.get(&db_part.category_id) {
-            Ok(item) => item.name,
-            Err(err) => match err {
-                DbError::NotExists(_) => {
-                    return Err(EleboxError::NotExists(
-                        String::from(ITEM_CAT),
-                        db_part.category_id,
-                    ))
-                }
-                _ => return Err(EleboxError::DatabaseError(err)),
-            },
-        };
-
-        let package = match self.pkg_db.get(&db_part.package_id) {
-            Ok(item) => Some(item.name),
-            Err(err) => match err {
-                DbError::NotExists(_) => None,
-                _ => return Err(EleboxError::DatabaseError(err)),
-            },
-        };
-
-        let mfr = match self.mfr_db.get(&db_part.mfr_id) {
-            Ok(item) => Some(item.name),
-            Err(err) => match err {
-                DbError::NotExists(_) => None,
-                _ => return Err(EleboxError::DatabaseError(err)),
-            },
-        };
-
-        let part = Part {
-            name: db_part.name,
-            category,
-            quantity: db_part.quantity,
-            package,
-            package_detail: Some(db_part.package_detail),
-            mfr,
-            alias: Some(db_part.alias),
-            description: Some(db_part.description),
-            location: Some(db_part.location),
-            mfr_no: Some(db_part.mfr_no),
-            datasheet_link: Some(db_part.datasheet_link),
-            product_link: Some(db_part.product_link),
-            image_link: Some(db_part.image_link),
-            custom_fields: db_part.custom_fields,
-            suppliers: db_part.suppliers,
-            starred: db_part.starred,
-        };
-
-        return Ok(part);
-    }
-
-    // pub fn get(&self, name: &str) -> Result<Part, EleboxError> {
-    //     todo!();
-    //     // let id = self
-    //     //     .db
-    //     //     .get_part_id(name)
-    //     //     .ok_or(EleboxError::NotExists("Part".to_string(), name.to_string()))?;
-
-    //     // let db_part = self
-    //     //     .db
-    //     //     .get_part_from_id(&id)
-    //     //     .ok_or(EleboxError::NotExists("Part".to_string(), id))?;
-
-    //     // self.from_db_part(db_part)
-    // }
-
-    // pub fn list(&self) -> Vec<Part> {
-    //     // self.db
-    //     //     .get_parts()
-    //     //     .into_iter()
-    //     //     .filter_map(|db_p| self.from_db_part(db_p).ok())
-    //     //     .collect()
-    //     let dbs = self.db.list();
-    //     let mut parts: Vec<Part> = vec![];
-    //     for d in dbs {
-    //         let pp = Part::new(&d.name, "cat", 122);
-    //         parts.push(pp);
-    //     }
-    //     parts
-    // }
 }
 
-// impl Transferable for PartManager {
-//     fn export(&self, filename: &str) -> Result<(), EleboxError> {
-//         Ok(())
-//         // let parts = self.list();
-//         // let res = write_yaml(filename, parts);
-//         // return res;
-//     }
+impl Transferable for PartManager {
+    fn export(&self, filename: &str) -> Result<(), EleboxError> {
+        let parts = self.list()?;
+        let _ = write_yaml(filename, parts).unwrap();
+        Ok(())
+    }
 
-//     fn import(&self, filename: &str) -> Result<(), EleboxError> {
-//         // let res_parts = read_yaml(filename);
+    fn import(&self, filename: &str) -> Result<(), EleboxError> {
+        let res_parts = read_yaml(filename);
 
-//         // if res_parts.is_err() {
-//         //     panic!();
-//         // }
+        if res_parts.is_err() {
+            panic!();
+        }
 
-//         // let parts: Vec<Part> = res_parts.unwrap();
-//         // for part in parts {
-//         //     if let Err(e) = self.add(&part) {
-//         //         panic!("{}", e.to_string())
-//         //     }
-//         // }
+        let parts: Vec<Part> = res_parts.unwrap();
+        for part in parts {
+            if let Err(e) = self.add(&part) {
+                panic!("{}", e.to_string())
+            }
+        }
 
-//         Ok(())
-//     }
-// }
+        Ok(())
+    }
+}
