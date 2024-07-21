@@ -82,7 +82,7 @@ impl Manager<Part> for PartManager {
     }
 
     fn update(&self, ori_name: &str, new_item: &Part) -> Result<(), EleboxError> {
-        let _id = self.db.get_id(ori_name)?;
+        let ori_id = self.db.get_id(ori_name)?;
 
         if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
@@ -92,7 +92,7 @@ impl Manager<Part> for PartManager {
         }
 
         let db_part = self.to_db_item(new_item)?;
-        let _ = self.db.update(ori_name, &db_part)?;
+        let _ = self.db.update(ori_id.as_str(), &db_part)?;
         Ok(())
     }
 
@@ -247,7 +247,7 @@ impl PartManager {
             db_item.quantity = new_qty as u16;
         }
 
-        self.db.update(name, &db_item)?;
+        self.db.update(&id, &db_item)?;
         Ok(())
     }
 }

@@ -64,8 +64,10 @@ fn increment_part(path: tauri::State<DbPath>, name: &str, increment: i16) -> Res
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&p);
-    mgr.update_part_quantity(name, increment)
-        .map_err(|e| e.to_string())
+    if let Err(err) = mgr.update_part_quantity(name, increment) {
+        return Err(err.to_string());
+    }
+    Ok(())
 }
 
 #[tauri::command(rename_all = "snake_case")]

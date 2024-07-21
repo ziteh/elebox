@@ -95,7 +95,7 @@ impl Manager<Package> for PackageManager {
     }
 
     fn update(&self, ori_name: &str, new_item: &Package) -> Result<(), EleboxError> {
-        let _id = self.db.get_id(ori_name)?;
+        let ori_id = self.db.get_id(ori_name)?;
 
         if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
             return Err(EleboxError::AlreadyExists(
@@ -105,7 +105,7 @@ impl Manager<Package> for PackageManager {
         }
 
         let db_item = self.to_db_item(new_item)?;
-        let _ = self.db.update(ori_name, &db_item)?;
+        let _ = self.db.update(ori_id.as_str(), &db_item)?;
         Ok(())
     }
 

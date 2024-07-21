@@ -4,7 +4,7 @@ use std::{
     str::{self, from_utf8},
 };
 
-use jammdb::{DB};
+use jammdb::DB;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
