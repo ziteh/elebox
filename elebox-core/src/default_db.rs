@@ -141,6 +141,11 @@ pub fn create_default_db(path: &str) {
 
     let pkgs: Vec<Package> = vec![
         Package {
+            name: "SMD 01005".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: Some("Metric 0402".to_string()),
+        },
+        Package {
             name: "SMD 0201".to_string(),
             pkg_type: PackageType::Smt,
             alias: Some("Metric 0603".to_string()),
@@ -161,9 +166,39 @@ pub fn create_default_db(path: &str) {
             alias: Some("Metric 2012".to_string()),
         },
         Package {
+            name: "SMD 1008".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: Some("Metric 2520".to_string()),
+        },
+        Package {
             name: "SMD 1206".to_string(),
             pkg_type: PackageType::Smt,
             alias: Some("Metric 3216".to_string()),
+        },
+        Package {
+            name: "SMD 1210".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: Some("Metric 3225".to_string()),
+        },
+        Package {
+            name: "SMD 1806".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: Some("Metric 4516".to_string()),
+        },
+        Package {
+            name: "SMD 1812".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: Some("Metric 4532".to_string()),
+        },
+        Package {
+            name: "SMD 2010".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: Some("Metric 5025".to_string()),
+        },
+        Package {
+            name: "SMD 2512".to_string(),
+            pkg_type: PackageType::Smt,
+            alias: Some("Metric 6332".to_string()),
         },
         Package {
             name: "SOT-23".to_string(),
