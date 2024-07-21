@@ -127,13 +127,11 @@ async function getCategories() {
 async function getMfrs() {
   const date = await DbMfr.list();
   Object.assign(mfrs, date);
-  mfrs.splice(0, 0, { name: "" });
 }
 
 async function getPackages() {
   const data = await DbPackage.list();
   Object.assign(packages, data);
-  packages.splice(0, 0, { name: "", pkg_type: PkgType.Others });
 }
 
 async function getPart(name: string) {
@@ -269,6 +267,7 @@ onMounted(() => {
             variant="outlined"
             v-model="part.package"
             :items="Object.values(packages).map((pck) => pck.name)"
+            clearable
           ></v-autocomplete>
         </v-col>
         <v-col>
@@ -285,6 +284,7 @@ onMounted(() => {
             variant="outlined"
             v-model="part.mfr"
             :items="Object.values(mfrs).map((mfr) => mfr.name)"
+            clearable
           ></v-autocomplete>
         </v-col>
         <v-col>
