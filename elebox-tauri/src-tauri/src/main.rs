@@ -3,11 +3,11 @@
 
 use dirs;
 use elebox_core::{
-    Database, Category, CustomField, Manager, Manufacturer, Package, PackageType, Part,
-    Supplier, TreeNode,
+    Category, CustomField, Database, Manager, Manufacturer, Package, PackageType, Part, Supplier,
+    TreeNode,
 };
 use std::{path::Path, sync::Mutex, task::ready};
-use tauri::Manager;
+use tauri::Manager as TauriManager;
 
 macro_rules! GET {
     ($db:expr) => {
@@ -31,7 +31,7 @@ fn get_parts(path: tauri::State<DbPath>) -> Vec<Part> {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&p);
-    mgr.list()
+    mgr.list().unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -55,7 +55,8 @@ fn del_part(path: tauri::State<DbPath>, name: &str) -> Result<String, String> {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PartManager::new(&p);
-    mgr.delete(name).map_err(|e| e.to_string())
+    mgr.delete(name);
+    Ok("ok".to_string())
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -81,7 +82,7 @@ fn get_categories(path: tauri::State<DbPath>) -> Vec<Category> {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&p);
-    mgr.list()
+    mgr.list().unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -109,7 +110,8 @@ fn del_category(path: tauri::State<DbPath>, name: &str) -> Result<String, String
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::CategoryManager::new(&p);
-    mgr.delete(name).map_err(|e| e.to_string())
+    mgr.delete(name);
+    Ok("ok".to_string())
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -134,7 +136,7 @@ fn get_packages(path: tauri::State<DbPath>) -> Vec<Package> {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PackageManager::new(&p);
-    mgr.list()
+    mgr.list().unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -162,7 +164,8 @@ fn del_package(path: tauri::State<DbPath>, name: &str) -> Result<(), String> {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::PackageManager::new(&p);
-    mgr.delete(name).map_err(|e| e.to_string())
+    mgr.delete(name);
+    Ok(())
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -179,7 +182,7 @@ fn get_mfrs(path: tauri::State<DbPath>) -> Vec<Manufacturer> {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::ManufacturerManager::new(&p);
-    mgr.list()
+    mgr.list().unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -207,7 +210,8 @@ fn del_mfr(path: tauri::State<DbPath>, name: &str) -> Result<String, String> {
     let p = GET!(path);
     //  let db = elebox_core::JammDatabase::new(&p);
     let mgr = elebox_core::ManufacturerManager::new(&p);
-    Ok(mgr.delete(name).map_err(|e| e.to_string())?)
+    let _ = mgr.delete(name);
+    Ok("ok".to_string())
 }
 
 #[tauri::command(rename_all = "snake_case")]
