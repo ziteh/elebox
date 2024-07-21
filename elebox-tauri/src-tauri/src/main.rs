@@ -230,6 +230,22 @@ fn get_default_db_path() -> String {
 }
 
 #[tauri::command(rename_all = "snake_case")]
+fn get_assets_path() -> Result<String, String> {
+    if let Some(mut dir) = dirs::data_local_dir() {
+        dir.push("elebox");
+        dir.push("assets");
+        dir.push(""); // Add ending '/'
+
+        if let Err(err) = std::fs::create_dir_all(&dir) {
+            return Err(format!("Unable to creating directory. {}", err));
+        }
+        return Ok(dir.to_string_lossy().into_owned());
+    } else {
+        return Err("Unable to determine user's local data directory.".to_string());
+    }
+}
+
+#[tauri::command(rename_all = "snake_case")]
 fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
     update_db_path(path, new_path);
     init_db(new_path);
@@ -297,6 +313,7 @@ fn main() {
             update_mfr,
             del_mfr,
             get_db_path,
+            get_assets_path,
             get_default_db_path,
             set_db_path,
             export_csv,

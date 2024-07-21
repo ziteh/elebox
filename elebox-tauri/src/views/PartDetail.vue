@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { DbPart } from "../db_cmd_part";
+import { invoke } from "@tauri-apps/api/tauri";
 import ItemEditButton from "../components/ItemEditButton.vue";
 import ItemDeleteButton from "../components/ItemDeleteButton.vue";
 
@@ -16,11 +17,23 @@ const part = ref<DbPart.Part>({
   suppliers: [],
   starred: false,
 });
+const default_path = ref("");
+
+async function getDefaultPath() {
+  default_path.value = await invoke("get_assets_path", {});
+}
+
+const image_link = ref("");
 
 async function getPart(name: string) {
   const partData = await DbPart.get(name);
   part.value = partData as DbPart.Part;
   console.log(partData);
+
+  image_link.value = part.value.image_link ?? "";
+  if (!image_link.value.startsWith("http")) {
+    image_link.value = "/@fs/" + default_path.value + image_link.value;
+  }
 }
 
 async function removePart() {
@@ -30,6 +43,7 @@ async function removePart() {
 
 onMounted(() => {
   name.value = route.params.name;
+  getDefaultPath();
   getPart(name.value);
 });
 </script>
@@ -142,12 +156,12 @@ onMounted(() => {
           <td>Image</td>
           <td>
             <a
-              v-if="part.image_link"
+              v-if="image_link"
               target="_blank"
-              :href="part.image_link"
-              :title="part.image_link"
+              :href="image_link"
+              :title="image_link"
             >
-              <v-img :src="part.image_link" height="250"></v-img>
+              <v-img :src="image_link" height="250"></v-img>
             </a>
           </td>
         </tr>
@@ -167,7 +181,18 @@ onMounted(() => {
       <tbody>
         <tr v-for="cf in part.custom_fields" :key="cf.name">
           <td>{{ cf.name }}</td>
-          <td>{{ cf.value }}</td>
+          <td>
+            <a
+              v-if="cf.field_type == 'Link'"
+              :href="cf.value"
+              target="_blank"
+              :title="cf.value"
+              ><v-icon> mdi-open-in-new </v-icon></a
+            >
+            <div v-else>
+              {{ cf.value }}
+            </div>
+          </td>
           <td>{{ cf.field_type }}</td>
         </tr>
       </tbody>

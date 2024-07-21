@@ -3,7 +3,7 @@ import { onMounted, ref, reactive } from "vue";
 import { DbCategory as Db } from "../db_cmd_category";
 
 const props = defineProps<{ origin_name?: string }>();
-const category = ref<Db.Category>({ name: "", parent: "", alias: "" });
+const category = ref<Db.Category>({ name: "", parent: undefined, alias: "" });
 let categories = reactive<Db.Category[]>([]);
 
 const snackbar = ref(false);
@@ -48,7 +48,6 @@ async function update() {
 async function list() {
   const data = await Db.list();
 
-  data.splice(0, 0, { name: "" }); // Root
   Object.assign(categories, data);
 
   // The parent category cannot be itself
@@ -103,6 +102,7 @@ onMounted(() => {
           :items="Object.values(categories).map((c) => c.name)"
           variant="outlined"
           v-model="category.parent"
+          clearable
         ></v-select>
       </v-col>
       <v-col cols="auto" class="mb-6">

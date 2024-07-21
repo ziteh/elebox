@@ -11,6 +11,12 @@
   },
   "tauri": {
     "allowlist": {
+      "protocol": {
+        "asset": true,
+        "assetScope": [
+          "$LocalAppData/assets/*"
+        ]
+      },
       "all": false,
       "shell": {
         "all": false,
@@ -27,7 +33,7 @@
       ]
     },
     "security": {
-      "csp": null
+    "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
     },
     "windows": [
       {
