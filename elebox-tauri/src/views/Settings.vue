@@ -41,7 +41,11 @@ async function getPath() {
 }
 
 async function setPath() {
-  await invoke("set_db_path", { new_path: path.value });
+  try {
+    await invoke("set_db_path", { new_path: path.value });
+  } catch (err) {
+    console.warn(`${err}`);
+  }
   console.debug(`DB path: ${path.value}`);
 }
 

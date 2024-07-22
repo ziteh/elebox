@@ -265,6 +265,10 @@ fn set_db_path(
         return Err("not found".to_string());
     }
 
+    if !check_db(&new_path) {
+        return Err("not database".to_string());
+    }
+
     update_db_path(path.clone(), new_path);
     set_config(dir, lang, path);
     Ok(())
@@ -450,4 +454,14 @@ fn set_config(dir: tauri::State<UserDir>, lang: tauri::State<Language>, db: taur
         database: Some(GET!(db).to_string()),
     };
     config::save_config(&dir, &config);
+}
+
+fn check_db(path: &str) -> bool {
+    return elebox_core::check_db(&path).is_ok();
+    // if path.is_none() {
+    //     let db_path = GET!(db);
+    //     return elebox_core::check_db(&db_path).is_ok();
+    // } else {
+    //     return elebox_core::check_db(&path.unwrap()).is_ok();
+    // }
 }
