@@ -108,6 +108,10 @@ impl Manager<Manufacturer> for ManufacturerManager {
         }
         Ok(items)
     }
+
+    fn check(&self) -> Result<(), EleboxError> {
+        Ok(self.db.check()?)
+    }
 }
 
 impl Transferable for ManufacturerManager {

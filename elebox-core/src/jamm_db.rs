@@ -1,5 +1,6 @@
 use std::{
     fmt::Debug,
+    panic,
     path::PathBuf,
     str::{self, from_utf8},
 };
@@ -208,6 +209,23 @@ where
 
         bkt.delete(id).unwrap();
         let _ = tx.commit();
+        Ok(())
+    }
+
+    fn check(&self) -> Result<(), DbError> {
+        let result = panic::catch_unwind(|| {
+            println!("Db");
+            let db = DB::open(&self.path).unwrap();
+            println!("Tx");
+            let tx = db.tx(false).unwrap();
+            println!("Bk");
+            let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
+            println!("ok");
+        });
+
+        if result.is_err() {
+            return Err(DbError::AccessFailed("".to_string()));
+        }
         Ok(())
     }
 }

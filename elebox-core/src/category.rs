@@ -199,6 +199,10 @@ impl Manager<Category> for CategoryManager {
         }
         Ok(items)
     }
+
+    fn check(&self) -> Result<(), EleboxError> {
+        Ok(self.db.check()?)
+    }
 }
 
 impl Transferable for CategoryManager {

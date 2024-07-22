@@ -1,7 +1,7 @@
 use crate::{comm::*, errors::*, jamm_db::*, yaml::*};
 
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::{fmt::Debug, thread::sleep};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
@@ -112,6 +112,10 @@ impl Manager<Part> for PartManager {
             }
         }
         Ok(items)
+    }
+
+    fn check(&self) -> Result<(), EleboxError> {
+        Ok(self.db.check()?)
     }
 }
 

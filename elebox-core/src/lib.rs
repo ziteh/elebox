@@ -26,3 +26,19 @@ pub fn init(path: &str) {
     let part_mgr = PartManager::new(path);
     let _ = part_mgr.init();
 }
+
+pub fn check_db(path: &str) -> Result<(), String> {
+    if let Err(err) = PackageManager::new(path).check() {
+        return Err(ITEM_PART.to_string());
+    }
+    if let Err(err) = CategoryManager::new(path).check() {
+        return Err(ITEM_CAT.to_string());
+    }
+    if let Err(err) = ManufacturerManager::new(path).check() {
+        return Err(ITEM_MFR.to_string());
+    }
+    if let Err(err) = PackageManager::new(path).check() {
+        return Err(ITEM_PKG.to_string());
+    }
+    Ok(())
+}
