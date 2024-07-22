@@ -5,17 +5,17 @@ import { useI18n } from "vue-i18n";
 import { Config } from "../interface";
 import { dialog } from "@tauri-apps/api";
 
-const csv_path = ref("");
+const ex_import_path = ref("");
 const assets_path = ref("");
 
 async function export_csv() {
-  await invoke("export_csv", { csv_path: csv_path.value });
-  console.debug(`Export path: ${csv_path.value}`);
+  await invoke("export_csv", { csv_path: ex_import_path.value });
+  console.debug(`Export path: ${ex_import_path.value}`);
 }
 
 async function import_csv() {
-  await invoke("import_csv", { csv_path: csv_path.value });
-  console.debug(`Import path: ${csv_path.value}`);
+  await invoke("import_csv", { csv_path: ex_import_path.value });
+  console.debug(`Import path: ${ex_import_path.value}`);
 }
 
 const config = ref<Config>({});
@@ -71,6 +71,32 @@ async function openDb() {
   }
 }
 
+async function openExImportDir() {
+  const file = await dialog.open({
+    title: "Export or import",
+    directory: true,
+    multiple: false,
+    // filters: [
+    //   {
+    //     name: "Database",
+    //     extensions: ["db"],
+    //   },
+    //   {
+    //     name: "All Files",
+    //     extensions: ["*"],
+    //   },
+    // ],
+  });
+
+  if (file) {
+    if (Array.isArray(file)) {
+      ex_import_path.value = file[0];
+    } else {
+      ex_import_path.value = file;
+    }
+  }
+}
+
 async function loadLanguage() {
   config.value.language = await invoke("get_language"); // TODO cfg type
 }
@@ -115,10 +141,11 @@ onMounted(() => {
     <v-row class="align-center">
       <v-col>
         <v-text-field
-          label="CSV Path"
+          label="Export/Import Path"
           variant="outlined"
-          v-model="csv_path"
+          v-model="ex_import_path"
           placeholder="path\to\folder\"
+          @click:control="openExImportDir"
         ></v-text-field>
       </v-col>
       <v-col cols="auto" class="mb-6">
