@@ -262,11 +262,11 @@ fn set_db_path(
 ) -> Result<(), String> {
     let p = PathBuf::from(new_path);
     if !p.exists() {
-        return Err("not found".to_string());
+        return Err("File does not exist".to_string());
     }
 
     if !check_db(&new_path) {
-        return Err("not database".to_string());
+        return Err("This file is not an database".to_string());
     }
 
     update_db_path(path.clone(), new_path);

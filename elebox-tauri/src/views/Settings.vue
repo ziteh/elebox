@@ -5,6 +5,9 @@ import { useI18n } from "vue-i18n";
 import { Config } from "../interface";
 import { dialog } from "@tauri-apps/api";
 
+const snackbar = ref(false);
+const snackbar_msg = ref("");
+
 const ex_import_path = ref("");
 const assets_path = ref("");
 
@@ -30,7 +33,8 @@ const { locale } = useI18n();
 async function changeLanguage() {
   locale.value = config.value.language ?? "en";
   await invoke("set_language", { new_lang: locale.value }); // FIXME cfg type
-  // saveConfig();
+  snackbar.value = true;
+  snackbar_msg.value = "Saved";
 }
 
 const path = ref("");
@@ -45,8 +49,12 @@ async function setPath() {
     await invoke("set_db_path", { new_path: path.value });
   } catch (err) {
     console.warn(`${err}`);
+    snackbar.value = true;
+    snackbar_msg.value = err as string;
   }
   console.debug(`DB path: ${path.value}`);
+  snackbar.value = true;
+  snackbar_msg.value = "Saved";
 }
 
 async function openDb() {
@@ -177,4 +185,12 @@ onMounted(() => {
       </v-col>
     </v-row>
   </v-container>
+  <v-snackbar v-model="snackbar">
+    {{ snackbar_msg }}
+    <template v-slot:actions>
+      <v-btn color="pink" variant="text" @click="snackbar = false">
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
