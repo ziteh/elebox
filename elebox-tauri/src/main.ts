@@ -3,7 +3,7 @@ import router from "./router.js";
 import App from "./App.vue";
 import { createI18n } from "vue-i18n";
 import en from "./locales/en.js";
-import zhTw from "./locales/zh-TW.js";
+import zhHant from "./locales/zhHant.js";
 
 // Vuetify
 import "vuetify/styles";
@@ -22,12 +22,12 @@ const vuetify = createVuetify({
 
 const messages = {
   en,
-  "zh-TW": zhTw,
+  "zh-Hant": zhHant,
 };
 
 const i18n = createI18n({
   legacy: false,
-  locale: "zh-TW",
+  locale: "en",
   fallbackLocale: "en",
   messages,
 });

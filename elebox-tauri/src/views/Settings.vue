@@ -23,7 +23,7 @@ async function getAssetsPath() {
   assets_path.value = await invoke("get_assets_path", {});
 }
 
-let languages = reactive(["en", "zh-TW"]);
+let languages = reactive(["en", "zh-Hant"]);
 const { locale } = useI18n();
 
 async function changeLanguage() {
