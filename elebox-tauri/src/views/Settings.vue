@@ -88,16 +88,6 @@ async function openExImportDir() {
     title: "Export or import",
     directory: true,
     multiple: false,
-    // filters: [
-    //   {
-    //     name: "Database",
-    //     extensions: ["db"],
-    //   },
-    //   {
-    //     name: "All Files",
-    //     extensions: ["*"],
-    //   },
-    // ],
   });
 
   if (file) {
@@ -105,6 +95,13 @@ async function openExImportDir() {
       ex_import_path.value = file[0];
     } else {
       ex_import_path.value = file;
+    }
+  }
+
+  // TODO move to core
+  if (!ex_import_path.value.endsWith("/")) {
+    if (!ex_import_path.value.endsWith("\\")) {
+      ex_import_path.value += "/";
     }
   }
 }
