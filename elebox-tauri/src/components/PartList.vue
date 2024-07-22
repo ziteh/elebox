@@ -15,6 +15,7 @@ const route = useRoute();
 const search = ref("");
 const headers = ref([
   { key: "name", title: t("name"), sortable: true },
+  { key: "alias", title: t("alias") },
   { key: "quantity", title: t("quantity") },
   { key: "category", title: t("category") },
   { key: "package", title: t("package") },
