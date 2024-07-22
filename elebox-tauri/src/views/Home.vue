@@ -4,24 +4,21 @@ import { invoke } from "@tauri-apps/api/tauri";
 import PartList from "../components/PartList.vue";
 import NewDatabase from "../components/NewDatabase.vue";
 
-const isPath = ref(false);
+const db_exists = ref(false);
 
-async function getDbPath() {
-  const path = await invoke("get_db_path", {});
-  if (path !== "") {
-    isPath.value = true;
-  }
+async function checkDb() {
+  db_exists.value = await invoke("is_db_exists");
 }
 
-onMounted(getDbPath);
+onMounted(checkDb);
 </script>
 
 <template>
   <v-container>
     <v-row>
       <v-container>
-        <PartList v-if="isPath" />
-        <NewDatabase v-else @update="getDbPath" />
+        <PartList v-if="db_exists" />
+        <NewDatabase v-else @update="checkDb" />
       </v-container>
     </v-row>
   </v-container>

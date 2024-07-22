@@ -285,6 +285,12 @@ fn create_db(
 }
 
 #[tauri::command(rename_all = "snake_case")]
+fn is_db_exists(db: tauri::State<DbPath>) -> bool {
+    let db_path = GET!(db);
+    PathBuf::from(db_path.to_string()).exists()
+}
+
+#[tauri::command(rename_all = "snake_case")]
 fn get_language(lang: tauri::State<Language>) -> String {
     GET!(lang).to_string()
 }
@@ -324,7 +330,7 @@ fn main() {
             Err(err) => panic!("{}", err), // TODO
         };
     }
-    init_db(&config.database.clone().unwrap());
+    // init_db(&config.database.clone().unwrap());
 
     if config.language.is_none() {
         config.language = Some("en".to_string());
@@ -375,6 +381,7 @@ fn main() {
             get_assets_path,
             get_default_db_path,
             set_db_path,
+            is_db_exists,
             set_language,
             get_language,
             create_db,
