@@ -3,6 +3,7 @@ import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useI18n } from "vue-i18n";
 import { Config } from "../interface";
+import { dialog } from "@tauri-apps/api";
 
 const csv_path = ref("");
 const assets_path = ref("");
@@ -44,6 +45,32 @@ async function setPath() {
   console.debug(`DB path: ${path.value}`);
 }
 
+async function openDb() {
+  const file = await dialog.open({
+    title: "Open database",
+    directory: false,
+    multiple: false,
+    filters: [
+      {
+        name: "Database",
+        extensions: ["db"],
+      },
+      {
+        name: "All Files",
+        extensions: ["*"],
+      },
+    ],
+  });
+
+  if (file) {
+    if (Array.isArray(file)) {
+      path.value = file[0];
+    } else {
+      path.value = file;
+    }
+  }
+}
+
 async function loadLanguage() {
   config.value.language = await invoke("get_language"); // TODO cfg type
 }
@@ -78,6 +105,7 @@ onMounted(() => {
           variant="outlined"
           v-model="path"
           placeholder="elebox.db"
+          @click:control="openDb"
         ></v-text-field>
       </v-col>
       <v-col cols="auto" class="mb-6">
