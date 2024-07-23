@@ -1,3 +1,5 @@
+// i18n 繁體中文
+
 export default {
   home: "主頁面",
   settings: "設定",
