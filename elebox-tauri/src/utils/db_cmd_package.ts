@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { Package as PackageInterface } from "../types/package";
+import { Package as PackageInterface } from "@/types/package";
 
 export namespace DbPackage {
   export type Package = PackageInterface;

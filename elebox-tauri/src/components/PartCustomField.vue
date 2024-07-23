@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { CustomField } from "../types/part";
-import { makeRules } from "../input_rules";
+import { makeRules } from "@/utils/input_rules";
 
 const props = defineProps<{
   current?: CustomField;

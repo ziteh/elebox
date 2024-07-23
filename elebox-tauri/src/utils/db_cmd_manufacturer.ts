@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { Manufacturer as MfrInterface } from "../types/manufacturer";
+import { Manufacturer as MfrInterface } from "@/types/manufacturer";
 
 export namespace DbManufacturer {
   export type Manufacturer = MfrInterface;

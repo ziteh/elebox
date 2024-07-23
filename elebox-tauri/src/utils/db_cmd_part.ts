@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { Part as PartInterface } from "../types/part";
+import { Part as PartInterface } from "@/types/part";
 
 export namespace DbPart {
   export type Part = PartInterface;
