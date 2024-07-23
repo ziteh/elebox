@@ -1,38 +1,38 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { DbPart as Db } from "../utils/db_cmd_part";
+import { DbPart as Db } from "@/utils/db_cmd_part";
 
 const props = defineProps<{ part: string }>();
 const qty = ref<number | undefined>(undefined);
 
-async function modifyQty(inc: number) {
-  await Db.modifyQty(props.part, inc);
-  await refreshQty();
+async function modifyQty(increment: number) {
+  await Db.modifyQty(props.part, increment);
+  await fetchQty();
 }
 
-async function refreshQty() {
+async function fetchQty() {
   const data = await Db.get(props.part);
   const part = data as Db.Part;
   qty.value = part.quantity;
 }
 
-onMounted(refreshQty);
+onMounted(fetchQty);
 </script>
 
 <template>
   <v-btn
     density="comfortable"
     variant="text"
-    icon="mdi-minus"
     size="small"
+    icon="mdi-minus"
     @click="modifyQty(-1)"
   ></v-btn>
   {{ qty }}
   <v-btn
     density="comfortable"
     variant="text"
-    icon="mdi-plus"
     size="small"
+    icon="mdi-plus"
     @click="modifyQty(1)"
   ></v-btn>
 </template>

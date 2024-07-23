@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
-import { DbManufacturer as Db } from "../utils/db_cmd_manufacturer";
-import ItemEditButton from "./ItemEditButton.vue";
-import ItemDeleteButton from "./ItemDeleteButton.vue";
+import { DbManufacturer as Db } from "@/utils/db_cmd_manufacturer";
+import ItemEditButton from "@/components/ItemEditButton.vue";
+import ItemDeleteButton from "@/components/ItemDeleteButton.vue";
 
 const search = ref("");
 const headers = ref([
   { key: "name", title: "Name", sortable: true },
-  { key: "alias", title: "Alias" },
+  { key: "alias", title: "Alias", sortable: true },
   { key: "edit", title: "Edit", sortable: false },
 ]);
 
-let mfrs = reactive<Db.Manufacturer[]>([]);
+const existing = reactive<Db.Manufacturer[]>([]);
 
-async function list() {
+async function fetchExisting() {
   const data = await Db.list();
-  Object.assign(mfrs, data);
+  Object.assign(existing, data);
 }
 
 async function deleteItem(name: string) {
   await Db.remove(name);
 }
 
-onMounted(list);
+onMounted(fetchExisting);
 </script>
 
 <template>
@@ -38,7 +38,7 @@ onMounted(list);
       ></v-text-field>
     </template>
 
-    <v-data-table :headers="headers" :items="mfrs" :search="search">
+    <v-data-table :headers="headers" :items="existing" :search="search">
       <template v-slot:item.name="{ item }">
         {{ item.name }}
         <a v-if="item.url" :title="item.url" :href="item.url" target="_blank"

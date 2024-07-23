@@ -1,77 +1,79 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
-import { DbCategory as Db } from "../utils/db_cmd_category";
+import { DbCategory as Db } from "@/utils/db_cmd_category";
 
-const props = defineProps<{ origin_name?: string }>();
-const category = ref<Db.Category>({ name: "", parent: undefined, alias: "" });
-let categories = reactive<Db.Category[]>([]);
+const props = defineProps<{
+  ori_name?: string; // If ori_name undefined: create mode, otherwise edit mode
+}>();
+
+const current = ref<Db.Category>({ name: "", parent: undefined, alias: "" });
+const existing = reactive<string[]>([]);
 
 const snackbar = ref(false);
 const snackbar_msg = ref("");
-const rules = ref({
-  required: (v: any) => !!v || "Required",
-  duplicate: (v: any) =>
-    !categories.some((cat) => cat.name === v) || "Already exists",
-});
 
-async function add() {
-  if (category.value === undefined) {
-    console.warn("undefined");
+const rules = {
+  required: (val: any) => !!val || "Required",
+  duplicate: (val: any) => !existing.some((i) => i === val) || "Already exists",
+};
+
+async function createNew() {
+  if (current.value == undefined) {
     return;
   }
 
-  await Db.add(category.value)
+  await Db.add(current.value)
     .then(() => {
       snackbar.value = true;
       snackbar_msg.value = "Success";
-      list();
     })
-    .catch((e) => {
+    .catch((err) => {
       snackbar.value = true;
-      snackbar_msg.value = e;
+      snackbar_msg.value = err;
     });
 }
 
-async function update() {
-  if (props.origin_name === undefined || category.value === undefined) {
+async function updateOriginal() {
+  if (props.ori_name == undefined || current.value == undefined) {
     return;
   }
 
-  if (category.value.parent === "") {
-    category.value.parent = undefined; // To root
+  if (current.value.parent === "") {
+    current.value.parent = undefined; // Set to root category
   }
 
-  await Db.update(props.origin_name, category.value);
-  await list();
+  await Db.update(props.ori_name, current.value);
+  await fetchExisting(); // TODO go back
 }
 
-async function list() {
+async function fetchExisting() {
   const data = await Db.list();
+  Object.assign(
+    existing,
+    data.map((i) => i.name)
+  );
 
-  Object.assign(categories, data);
+  console.debug(`Get categories: ${existing.length}`);
 
-  // The parent category cannot be itself
-  if (props.origin_name) {
-    const index = categories.findIndex((s) => s.name === props.origin_name);
-    if (index !== -1) {
-      categories.splice(index, 1);
+  // The parent category cannot be itself, and rules duplicate
+  if (props.ori_name) {
+    const self_index = existing.findIndex((i) => i === props.ori_name);
+    if (self_index !== -1) {
+      existing.splice(self_index, 1); // Remove self from existing categories
     }
   }
-
-  console.debug(`get categories: ${categories.length}`);
 }
 
-async function get(name: string) {
-  const data = await Db.get(name);
-  category.value = data as Db.Category;
+async function fetchCurrent() {
+  if (props.ori_name) {
+    const data = await Db.get(props.ori_name);
+    current.value = data as Db.Category;
+  }
 }
 
 onMounted(() => {
-  if (props.origin_name !== undefined) {
-    get(props.origin_name);
-  }
-
-  list();
+  fetchCurrent();
+  fetchExisting();
 });
 </script>
 
@@ -82,7 +84,7 @@ onMounted(() => {
         <v-text-field
           label="Name"
           variant="outlined"
-          v-model="category.name"
+          v-model="current.name"
           placeholder="MCU"
           :rules="[rules.required, rules.duplicate]"
           required
@@ -92,30 +94,30 @@ onMounted(() => {
         <v-text-field
           label="Alias"
           variant="outlined"
-          v-model="category.alias"
-          placeholder=""
+          v-model="current.alias"
         ></v-text-field>
       </v-col>
       <v-col>
         <v-select
           label="Parent"
-          :items="Object.values(categories).map((c) => c.name)"
+          :items="existing"
           variant="outlined"
-          v-model="category.parent"
+          v-model="current.parent"
           clearable
         ></v-select>
       </v-col>
       <v-col cols="auto" class="mb-6">
         <v-btn
-          v-if="props.origin_name === undefined"
-          @click="add"
+          v-if="props.ori_name === undefined"
           type="submit"
-          text="Add"
-        ></v-btn>
-        <v-btn v-else @click="update" type="submit" text="Update"></v-btn>
+          @click="createNew"
+          >Add</v-btn
+        >
+        <v-btn v-else type="submit" @click="updateOriginal">Update</v-btn>
       </v-col>
     </v-row>
   </v-form>
+
   <v-snackbar v-model="snackbar">
     {{ snackbar_msg }}
     <template v-slot:actions>

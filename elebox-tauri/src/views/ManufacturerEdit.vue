@@ -14,6 +14,6 @@ onMounted(() => {
 <template>
   <v-container v-if="name !== undefined">
     <h1 class="mb-8">Edit Manufacturer</h1>
-    <ManufacturerField :origin_name="name" />
+    <ManufacturerField :ori_name="name" />
   </v-container>
 </template>

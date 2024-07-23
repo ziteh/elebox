@@ -1,25 +1,25 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
-import { DbPackage as Db } from "../utils/db_cmd_package";
-import { PkgType } from "../types/package"; // TODO to db_cmd_package
+import { DbPackage as Db } from "@/utils/db_cmd_package";
+import { PkgType } from "@/types/package"; // TODO to db_cmd_package
 
-const props = defineProps<{ origin_name?: string }>();
-const pkg = ref<Db.Package>({ name: "", pkg_type: PkgType.Smt, alias: "" });
+const props = defineProps<{
+  ori_name?: string; // If ori_name undefined: create mode, otherwise edit mode
+}>();
+
+const current = ref<Db.Package>({ name: "", pkg_type: PkgType.Smt, alias: "" });
+const existing = reactive<string[]>([]);
 const pkg_type_input = ref<string>("SMT");
-let pkgs = reactive<Db.Package[]>([]);
 
 const snackbar = ref(false);
 const snackbar_msg = ref("");
-const rules = ref({
-  required: (v: any) => !!v || "Required",
-  duplicate: (v: any) =>
-    !pkgs.some((pkg) => pkg.name === v) || "Already exists",
-});
 
-function setPkgType(input: string): PkgType {
-  // --noImplicitAny
-  // pkg.value.pkg_type = PkgType[pkg_type.value as keyof typeof PkgType];
+const rules = {
+  required: (val: any) => !!val || "Required",
+  duplicate: (val: any) => !existing.some((i) => i === val) || "Already exists",
+};
 
+function toPkgType(input: string): PkgType {
   if (input === "SMT") {
     return PkgType.Smt;
   } else if (input === "THT") {
@@ -29,57 +29,76 @@ function setPkgType(input: string): PkgType {
   return PkgType.Others;
 }
 
-async function add() {
-  if (pkg.value === undefined) {
-    console.warn("undefined");
+async function createNew() {
+  if (current.value == undefined) {
     return;
   }
 
-  pkg.value.pkg_type = setPkgType(pkg_type_input.value);
-  await Db.add(pkg.value)
+  current.value.pkg_type = toPkgType(pkg_type_input.value);
+
+  await Db.add(current.value)
     .then(() => {
       snackbar.value = true;
       snackbar_msg.value = "Success";
+      fetchExisting();
     })
-    .catch((e) => {
+    .catch((err) => {
       snackbar.value = true;
-      snackbar_msg.value = e;
+      snackbar_msg.value = err;
     });
 }
 
-async function update() {
-  if (props.origin_name === undefined || pkg.value === undefined) {
+async function updateOriginal() {
+  if (props.ori_name == undefined || current.value == undefined) {
     return;
   }
 
-  pkg.value.pkg_type = setPkgType(pkg_type_input.value);
-  await Db.update(props.origin_name, pkg.value);
+  current.value.pkg_type = toPkgType(pkg_type_input.value);
+  await Db.update(props.ori_name, current.value);
 }
 
-async function list() {
+async function fetchExisting() {
   const data = await Db.list();
-  Object.assign(pkgs, data);
+  Object.assign(
+    existing,
+    data.map((i) => i.name)
+  );
+
+  console.debug(`Get packages: ${existing.length}`);
+
+  // For rules duplicate
+  if (props.ori_name) {
+    const self_index = existing.findIndex((i) => i === props.ori_name);
+    if (self_index !== -1) {
+      existing.splice(self_index, 1); // Remove self from existing categories
+    }
+  }
 }
 
-async function get(name: string) {
-  const data = await Db.get(name);
-  pkg.value = data as Db.Package;
+async function fetchCurrent() {
+  if (props.ori_name) {
+    const data = await Db.get(props.ori_name);
+    current.value = data as Db.Package;
+  }
 
-  if (pkg.value.pkg_type == PkgType.Smt) {
-    pkg_type_input.value = "SMT";
-  } else if (pkg.value.pkg_type == PkgType.Tht) {
-    pkg_type_input.value = "THT";
-  } else {
-    pkg_type_input.value = "Others";
+  switch (current.value.pkg_type) {
+    case PkgType.Smt:
+      pkg_type_input.value = "SMT";
+      break;
+
+    case PkgType.Tht:
+      pkg_type_input.value = "THT";
+      break;
+
+    default:
+      pkg_type_input.value = "Others";
+      break;
   }
 }
 
 onMounted(() => {
-  if (props.origin_name !== undefined) {
-    get(props.origin_name);
-  }
-
-  list();
+  fetchCurrent();
+  fetchExisting();
 });
 </script>
 
@@ -89,10 +108,10 @@ onMounted(() => {
       <v-col>
         <v-select
           label="Type"
-          :items="['SMT', 'THT', 'Others']"
           variant="outlined"
+          :items="['SMT', 'THT', 'Others']"
           v-model="pkg_type_input"
-          :rules="[(v: any) => !!v || 'Required']"
+          :rules="[rules.required]"
           required
         ></v-select>
       </v-col>
@@ -100,7 +119,7 @@ onMounted(() => {
         <v-text-field
           label="Name"
           variant="outlined"
-          v-model.trim="pkg.name"
+          v-model.trim="current.name"
           placeholder="SOT-23"
           :rules="[rules.required, rules.duplicate]"
           required
@@ -110,21 +129,21 @@ onMounted(() => {
         <v-text-field
           label="Alias"
           variant="outlined"
-          v-model.trim="pkg.alias"
-          placeholder=""
+          v-model.trim="current.alias"
         ></v-text-field>
       </v-col>
       <v-col cols="auto" class="mb-6">
         <v-btn
-          v-if="props.origin_name === undefined"
-          @click="add"
+          v-if="props.ori_name == undefined"
           type="submit"
-          text="Add"
-        ></v-btn>
-        <v-btn v-else @click="update" type="submit" text="Update"></v-btn>
+          @click="createNew"
+          >Add</v-btn
+        >
+        <v-btn v-else type="submit" @click="updateOriginal">Update</v-btn>
       </v-col>
     </v-row>
   </v-form>
+
   <v-snackbar v-model="snackbar">
     {{ snackbar_msg }}
     <template v-slot:actions>

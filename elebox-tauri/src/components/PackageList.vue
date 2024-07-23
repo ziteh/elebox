@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
-import { DbPackage as Db } from "../utils/db_cmd_package";
-import ItemEditButton from "./ItemEditButton.vue";
-import ItemDeleteButton from "./ItemDeleteButton.vue";
+import { DbPackage as Db } from "@/utils/db_cmd_package";
+import ItemEditButton from "@/components/ItemEditButton.vue";
+import ItemDeleteButton from "@/components/ItemDeleteButton.vue";
 
 const search = ref("");
 const headers = ref([
@@ -12,18 +12,18 @@ const headers = ref([
   { key: "edit", title: "Edit", sortable: false },
 ]);
 
-let pkgs = reactive<Db.Package[]>([]);
+const existing = reactive<Db.Package[]>([]);
 
-async function list() {
+async function fetchExisting() {
   const data = await Db.list();
-  Object.assign(pkgs, data);
+  Object.assign(existing, data);
 }
 
 async function deleteItem(name: string) {
   await Db.remove(name);
 }
 
-onMounted(list);
+onMounted(fetchExisting);
 </script>
 
 <template>
@@ -39,7 +39,7 @@ onMounted(list);
       ></v-text-field>
     </template>
 
-    <v-data-table :headers="headers" :items="pkgs" :search="search">
+    <v-data-table :headers="headers" :items="existing" :search="search">
       <template v-slot:item.pkg_type="{ item }">
         {{ item.pkg_type.toUpperCase() }}
       </template>

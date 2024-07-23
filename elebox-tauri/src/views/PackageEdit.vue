@@ -14,6 +14,6 @@ onMounted(() => {
 <template>
   <v-container v-if="name !== undefined">
     <h1 class="mb-8">Edit Package</h1>
-    <PackageField :origin_name="name" />
+    <PackageField :ori_name="name" />
   </v-container>
 </template>

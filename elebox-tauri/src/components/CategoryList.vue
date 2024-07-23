@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
-import { DbCategory as Db } from "../utils/db_cmd_category";
-import ItemEditButton from "./ItemEditButton.vue";
-import ItemDeleteButton from "./ItemDeleteButton.vue";
+import { DbCategory as Db } from "@/utils/db_cmd_category";
+import ItemEditButton from "@/components/ItemEditButton.vue";
+import ItemDeleteButton from "@/components/ItemDeleteButton.vue";
 
 const search = ref("");
 const headers = ref([
   { key: "name", title: "Name", sortable: true },
-  { key: "alias", title: "Alias" },
-  { key: "parent", title: "Parent" },
+  { key: "alias", title: "Alias", sortable: true },
+  { key: "parent", title: "Parent", sortable: true },
   { key: "edit", title: "Edit", sortable: false },
 ]);
 
-let categories = reactive<Db.Category[]>([]);
+const existing = reactive<Db.Category[]>([]);
 
-async function list() {
+async function fetchExisting() {
   const data = await Db.list();
-  Object.assign(categories, data);
+  Object.assign(existing, data);
 }
 
 async function deleteItem(name: string) {
   await Db.remove(name);
 }
 
-onMounted(list);
+onMounted(fetchExisting);
 </script>
 
 <template>
@@ -39,7 +39,7 @@ onMounted(list);
       ></v-text-field>
     </template>
 
-    <v-data-table :headers="headers" :items="categories" :search="search">
+    <v-data-table :headers="headers" :items="existing" :search="search">
       <template v-slot:item.edit="{ item }">
         <ItemEditButton :path_name="'update_category'" :item_name="item.name" />
         <ItemDeleteButton :name="item.name" @delete="deleteItem(item.name)" />

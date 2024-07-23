@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import TreeItem from "../components/TreeItem.vue";
-import { TreeNode } from "../types/category";
+import { TreeNode } from "@/types/category";
+import TreeItem from "@/components/TreeItem.vue";
 
-const catNodes = ref<TreeNode[]>([]);
+const tree_nodes = ref<TreeNode[]>([]);
 
-async function getCategories() {
-  // const cs = await invoke("get_tree", {});
-  // console.log(cs);
-  // catNodes.value = cs;
-  catNodes.value = await invoke("get_tree", {});
+async function getTreeNodes() {
+  tree_nodes.value = await invoke("get_tree");
 }
 
-onMounted(async () => {
-  getCategories();
-});
+onMounted(getTreeNodes);
 </script>
 
 <template>
-  <TreeItem v-if="catNodes.length > 0" :nodes="catNodes" />
+  <TreeItem v-if="tree_nodes.length > 0" :nodes="tree_nodes" />
 </template>
