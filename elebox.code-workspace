@@ -30,6 +30,16 @@
 			"Jamm",
 			"jammdb",
 			"tauri",
+			"vuetify"
 		],
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			"**/Thumbs.db": true,
+			"**/vite.config.ts.timestamp-*.mjs": true
+		}
 	}
 }
