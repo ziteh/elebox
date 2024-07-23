@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DbPart as Db } from "../db_cmd_part";
+import { DbPart as Db } from "../utils/db_cmd_part";
 
 const props = defineProps<{ part: string }>();
 

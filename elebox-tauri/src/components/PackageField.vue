@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
-import { DbPackage as Db } from "../db_cmd_package";
-import { PkgType } from "../interface"; // TODO to db_cmd_package
+import { DbPackage as Db } from "../utils/db_cmd_package";
+import { PkgType } from "../types/package"; // TODO to db_cmd_package
 
 const props = defineProps<{ origin_name?: string }>();
 const pkg = ref<Db.Package>({ name: "", pkg_type: PkgType.Smt, alias: "" });

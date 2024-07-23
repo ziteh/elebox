@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { DbPart } from "../db_cmd_part";
-import { DbCategory } from "../db_cmd_category";
-import { DbPackage } from "../db_cmd_package";
-import { DbManufacturer as DbMfr } from "../db_cmd_manufacturer";
-import { CustomField, Supplier } from "../interface";
+import { DbPart } from "../utils/db_cmd_part";
+import { DbCategory } from "../utils/db_cmd_category";
+import { DbPackage } from "../utils/db_cmd_package";
+import { DbManufacturer as DbMfr } from "../utils/db_cmd_manufacturer";
+import { CustomField, Supplier } from "../types/part";
 import PartCustomField from "../components/PartCustomField.vue";
 import PartSupplier from "../components/PartSupplier.vue";
 

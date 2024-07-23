@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
-import { DbPackage as Db } from "../db_cmd_package";
+import { DbPackage as Db } from "../utils/db_cmd_package";
 import ItemEditButton from "./ItemEditButton.vue";
 import ItemDeleteButton from "./ItemDeleteButton.vue";
 

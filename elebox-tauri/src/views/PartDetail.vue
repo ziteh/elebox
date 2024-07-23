@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { DbPart } from "../db_cmd_part";
+import { DbPart } from "../utils/db_cmd_part";
 import { invoke } from "@tauri-apps/api/tauri";
 import ItemEditButton from "../components/ItemEditButton.vue";
 import ItemDeleteButton from "../components/ItemDeleteButton.vue";

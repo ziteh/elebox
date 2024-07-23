@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
-import { Supplier } from "../interface";
+import { Supplier } from "../types/part";
 import { makeRules } from "../input_rules";
 
 const props = defineProps<{

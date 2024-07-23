@@ -2,7 +2,7 @@
 import { onMounted, ref, reactive } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useI18n } from "vue-i18n";
-import { Config } from "../interface";
+import { Config } from "../types/common";
 import { dialog } from "@tauri-apps/api";
 
 const snackbar = ref(false);

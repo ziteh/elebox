@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TreeNode } from "../interface";
+import { TreeNode } from "../types/category";
 
 defineProps({
   nodes: Array as () => TreeNode[],

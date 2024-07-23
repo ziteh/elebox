@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
-import { DbCategory as Db } from "../db_cmd_category";
+import { DbCategory as Db } from "../utils/db_cmd_category";
 
 const props = defineProps<{ origin_name?: string }>();
 const category = ref<Db.Category>({ name: "", parent: undefined, alias: "" });

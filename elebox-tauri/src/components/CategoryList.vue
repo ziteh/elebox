@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
-import { DbCategory as Db } from "../db_cmd_category";
+import { DbCategory as Db } from "../utils/db_cmd_category";
 import ItemEditButton from "./ItemEditButton.vue";
 import ItemDeleteButton from "./ItemDeleteButton.vue";
 

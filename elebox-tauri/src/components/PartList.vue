@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
-import { Part } from "../interface";
+import { Part } from "../types/part";
 import { useRouter, useRoute } from "vue-router";
-import { DbPart } from "../db_cmd_part";
+import { DbPart } from "../utils/db_cmd_part";
 import PartQty from "../components/PartQty.vue";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();

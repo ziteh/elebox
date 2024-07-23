@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { Manufacturer as ManufacturerInterface } from "./interface";
+import { Manufacturer as MfrInterface } from "../types/manufacturer";
 
 export namespace DbManufacturer {
-  export type Manufacturer = ManufacturerInterface;
+  export type Manufacturer = MfrInterface;
 
   export async function get(name: string) {
     return invoke("get_mfr", { name }).catch((err) =>
@@ -10,11 +10,11 @@ export namespace DbManufacturer {
     );
   }
 
-  export async function list(): Promise<ManufacturerInterface[]> {
+  export async function list(): Promise<MfrInterface[]> {
     return invoke("get_mfrs", {});
   }
 
-  export async function add(item: ManufacturerInterface) {
+  export async function add(item: MfrInterface) {
     try {
       const msg = await invoke("add_mfr", { item });
       console.log(`Add manufacturer, ${msg}`);
@@ -25,10 +25,7 @@ export namespace DbManufacturer {
     }
   }
 
-  export async function update(
-    ori_name: string,
-    new_item: ManufacturerInterface
-  ) {
+  export async function update(ori_name: string, new_item: MfrInterface) {
     try {
       const msg = await invoke("update_mfr", { ori_name, new_item });
       console.log(`Update manufacturer, ${msg}`);

@@ -29,37 +29,3 @@ export interface Part {
   suppliers: Supplier[];
   starred: boolean;
 }
-
-export interface Category {
-  name: string;
-  parent?: string;
-  alias?: string;
-}
-
-export enum PkgType {
-  Smt = "Smt",
-  Tht = "Tht",
-  Others = "Others",
-}
-
-export interface Package {
-  name: string;
-  pkg_type: PkgType;
-  alias?: string;
-}
-
-export interface Manufacturer {
-  name: string;
-  alias?: string;
-  url?: string;
-}
-
-export interface TreeNode {
-  name: string;
-  children: TreeNode[];
-}
-
-export interface Config {
-  language?: string;
-  database?: string;
-}

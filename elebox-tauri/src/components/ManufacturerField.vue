@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
-import { DbManufacturer as Db } from "../db_cmd_manufacturer";
+import { DbManufacturer as Db } from "../utils/db_cmd_manufacturer";
 
 const props = defineProps<{ origin_name?: string }>();
 const mfr = ref<Db.Manufacturer>({ name: "", url: "", alias: "" });

@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import {
   Category as CategoryInterface,
   TreeNode as TreeNodeInterface,
-} from "./interface";
+} from "../types/category";
 
 export namespace DbCategory {
   export type Category = CategoryInterface;
