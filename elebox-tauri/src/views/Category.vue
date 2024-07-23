@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import CategoryField from "../components/CategoryField.vue";
-import CategoryList from "../components/CategoryList.vue";
-import CategoriesTree from "./CategoriesTree.vue";
+import CategoryField from "@/components/CategoryField.vue";
+import CategoryList from "@/components/CategoryList.vue";
+import CategoriesTree from "@/components/CategoryTree.vue";
 
 const displayTree = ref(false);
 </script>
@@ -19,7 +19,7 @@ const displayTree = ref(false);
       class="my-n4"
     ></v-switch>
 
-    <CategoryList v-if="!displayTree" />
-    <CategoriesTree v-else />
+    <CategoriesTree v-if="displayTree" />
+    <CategoryList v-else />
   </v-container>
 </template>
