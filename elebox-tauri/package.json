@@ -21,6 +21,7 @@
   "devDependencies": {
     "@mdi/font": "^7.4.47",
     "@tauri-apps/cli": "^1.5.8",
+    "@types/node": "^20.14.11",
     "@vitejs/plugin-vue": "^4.2.3",
     "typescript": "^5.0.2",
     "vite": "^5.0.12",
