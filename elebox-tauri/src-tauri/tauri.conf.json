@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "elebox",
+    "productName": "Elebox",
     "version": "1.0.0"
   },
   "tauri": {
