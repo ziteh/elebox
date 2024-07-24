@@ -2,7 +2,7 @@
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import { TreeNode } from "@/types/category";
-import TreeItem from "@/components/TreeItem.vue";
+import TreeItem from "@/components/Category/TreeItem.vue";
 
 const tree_nodes = ref<TreeNode[]>([]);
 

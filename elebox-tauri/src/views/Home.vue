@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import PartList from "../components/PartList.vue";
-import NewDatabase from "../components/NewDatabase.vue";
+import PartList from "@/components/Part/List.vue";
+import NewDatabase from "@/components/NewDatabase.vue";
 
 const db_exists = ref(false);
 

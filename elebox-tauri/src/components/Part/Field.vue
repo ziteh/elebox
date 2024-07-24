@@ -6,8 +6,8 @@ import { DbCategory } from "@/utils/db_cmd_category";
 import { DbPackage } from "@/utils/db_cmd_package";
 import { DbManufacturer as DbMfr } from "@/utils/db_cmd_manufacturer";
 import { CustomField, Supplier } from "@/types/part";
-import PartCustomField from "@/components/PartCustomField.vue";
-import PartSupplier from "@/components/PartSupplier.vue";
+import PartCustomField from "@/components/Part/CustomField.vue";
+import PartSupplier from "@/components/Part/Supplier.vue";
 
 const props = defineProps<{
   ori_name?: string; // If ori_name undefined: create mode, otherwise edit mode

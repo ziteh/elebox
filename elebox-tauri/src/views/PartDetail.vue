@@ -2,10 +2,10 @@
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { DbPart as Db } from "@/utils/db_cmd_part";
-import Bar from "@/components/PartDetail/Bar.vue";
-import MainTable from "@/components/PartDetail/MainTable.vue";
-import CustomFieldTable from "@/components/PartDetail/CustomFieldTable.vue";
-import SupplierTable from "@/components/PartDetail/SupplierTable.vue";
+import Bar from "@/components/Part/Detail/Bar.vue";
+import MainTable from "@/components/Part/Detail/MainTable.vue";
+import CustomFieldTable from "@/components/Part/Detail/CustomFieldTable.vue";
+import SupplierTable from "@/components/Part/Detail/SupplierTable.vue";
 
 const route = useRoute();
 

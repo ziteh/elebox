@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
-import PartField from "@/components/PartField.vue";
-import CategoryField from "@/components/CategoryField.vue";
-import PackageField from "@/components/PackageField.vue";
-import ManufacturerField from "@/components/ManufacturerField.vue";
+import PartField from "@/components/Part/Field.vue";
+import CategoryField from "@/components/Category/Field.vue";
+import PackageField from "@/components/Package/Field.vue";
+import ManufacturerField from "@/components/Manufacturer/Field.vue";
 
 const route = useRoute();
 

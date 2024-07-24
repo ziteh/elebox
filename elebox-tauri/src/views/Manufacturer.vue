@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ManufacturerField from "@/components/ManufacturerField.vue";
-import ManufacturerList from "@/components/ManufacturerList.vue";
+import ManufacturerField from "@/components/Manufacturer/Field.vue";
+import ManufacturerList from "@/components/Manufacturer/List.vue";
 </script>
 
 <template>

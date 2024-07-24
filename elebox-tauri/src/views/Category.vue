@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import CategoryField from "@/components/CategoryField.vue";
-import CategoryList from "@/components/CategoryList.vue";
-import CategoriesTree from "@/components/CategoryTree.vue";
+import CategoryField from "@/components/Category/Field.vue";
+import CategoryList from "@/components/Category/List.vue";
+import CategoriesTree from "@/components/Category/Tree.vue";
 
 const displayTree = ref(false);
 </script>

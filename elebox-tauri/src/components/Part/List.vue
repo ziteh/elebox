@@ -3,7 +3,7 @@ import { onMounted, ref, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { DbPart as Db } from "@/utils/db_cmd_part";
-import PartQty from "@/components/PartQty.vue";
+import PartQty from "@/components/Part/Quantity.vue";
 
 const { t } = useI18n();
 const router = useRouter();

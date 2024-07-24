@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PartField from "@/components/PartField.vue";
+import PartField from "@/components/Part/Field.vue";
 </script>
 
 <template>
