@@ -18,7 +18,7 @@ onMounted(checkDb);
     <v-row>
       <v-container>
         <PartList v-if="db_exists" />
-        <NewDatabase v-else @update="checkDb" />
+        <NewDatabase v-else @notify="checkDb" />
       </v-container>
     </v-row>
   </v-container>
