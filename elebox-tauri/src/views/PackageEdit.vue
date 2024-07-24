@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import PackageField from "../components/PackageField.vue";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+import PackageField from "@/components/PackageField.vue";
 
 const route = useRoute();
 const name = ref();
@@ -12,7 +12,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container v-if="name !== undefined">
+  <v-container v-if="name != undefined">
     <h1 class="mb-8">Edit Package</h1>
     <PackageField :ori_name="name" />
   </v-container>
