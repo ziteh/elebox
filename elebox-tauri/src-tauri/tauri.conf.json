@@ -7,10 +7,15 @@
   },
   "package": {
     "productName": "elebox",
-    "version": "0.1.0"
+    "version": "1.0.0-beta.4"
   },
   "tauri": {
     "allowlist": {
+      "app": {
+        "all": false,
+        "hide": false,
+        "show": false
+      },
       "protocol": {
         "asset": true,
         "assetScope": [
@@ -41,7 +46,7 @@
       ]
     },
     "security": {
-    "csp": null
+      "csp": null
     },
     "windows": [
       {
