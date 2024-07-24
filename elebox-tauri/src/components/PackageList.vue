@@ -44,7 +44,7 @@ onMounted(fetchExisting);
         {{ item.pkg_type.toUpperCase() }}
       </template>
       <template v-slot:item.edit="{ item }">
-        <ItemEditButton :path_name="'update_package'" :item_name="item.name" />
+        <ItemEditButton :item="'package'" :name="item.name" />
         <ItemDeleteButton :name="item.name" @delete="deleteItem(item.name)" />
       </template>
     </v-data-table>

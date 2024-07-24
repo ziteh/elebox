@@ -44,19 +44,9 @@ const router = createRouter({
       component: () => import("./views/Part.vue"),
     },
     {
-      path: "/update_category:origin_name",
-      name: "update_category",
-      component: () => import("./views/CategoryEdit.vue"),
-    },
-    {
-      path: "/update_package:origin_name",
-      name: "update_package",
-      component: () => import("./views/PackageEdit.vue"),
-    },
-    {
-      path: "/update_manufacturer:origin_name",
-      name: "update_manufacturer",
-      component: () => import("./views/ManufacturerEdit.vue"),
+      path: "/edit:item:name",
+      name: "edit",
+      component: () => import("@/views/EditItem.vue"),
     },
   ],
 });

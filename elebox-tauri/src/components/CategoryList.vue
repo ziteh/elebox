@@ -41,7 +41,7 @@ onMounted(fetchExisting);
 
     <v-data-table :headers="headers" :items="existing" :search="search">
       <template v-slot:item.edit="{ item }">
-        <ItemEditButton :path_name="'update_category'" :item_name="item.name" />
+        <ItemEditButton :item="'category'" :name="item.name" />
         <ItemDeleteButton :name="item.name" @delete="deleteItem(item.name)" />
       </template>
     </v-data-table>
