@@ -5,7 +5,10 @@ import { useI18n } from "vue-i18n";
 
 const { locale } = useI18n();
 const language = ref("en");
-const languages = reactive(["en", "zh-Hant"]);
+const languages = reactive([
+  { title: "English", value: "en" },
+  { title: "繁體中文", value: "zh-Hant" },
+]);
 
 const emit = defineEmits(["notify"]);
 
