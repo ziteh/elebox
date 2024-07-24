@@ -1,6 +1,6 @@
 # Elebox
 
-![](https://i.imgur.com/fqdDK1d.png)
+![](https://i.imgur.com/i6ihU9o.png)
 
 🌐[中文](https://github.com/ziteh/elebox/blob/main/README-zh.md)
 
@@ -12,9 +12,38 @@ It aims to remain simple, intuitive, zero configuration and works out-of-the-box
 
 ## Features
 
-- Category tree.
-    ![](https://i.imgur.com/RvYJg8k.png)
-- Export as CSV, import from CSV.
+- Category tree
+    ![](https://i.imgur.com/phWJwdP.png)
+- Custom fields
+    ![](https://i.imgur.com/XFL17i5.png)
+- YAML export and import
+- i18n internationalization (🚧)
+- Part field:
+    - Name
+    - Category
+    - Quantity
+    - Package
+    - Package detail
+    - Manufacturer
+    - Manufacturer part number
+    - Alias
+    - Location
+    - Product link
+    - Datasheet link
+    - Image link
+    - Description
+    - Starred
+    - n× Custom fields
+        - Type
+        - Name
+        - Value
+    - n× Suppliers
+        - Name
+        - Link
+        - Price
+        - Note
+
+> [More screenshot](https://imgur.com/a/D1NnbBg)
 
 ## Usage
 
