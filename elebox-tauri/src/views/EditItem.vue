@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
+import PartField from "@/components/PartField.vue";
 import CategoryField from "@/components/CategoryField.vue";
 import PackageField from "@/components/PackageField.vue";
 import ManufacturerField from "@/components/ManufacturerField.vue";
@@ -16,14 +17,21 @@ function toString(value: string | string[]) {
 </script>
 
 <template>
-  <v-container v-if="item === 'category'">
+  <v-container v-if="item === 'part'">
+    <h1 class="mb-8">Edit Part</h1>
+    <PartField :ori_name="name" />
+  </v-container>
+
+  <v-container v-else-if="item === 'category'">
     <h1 class="mb-8">Edit Category</h1>
     <CategoryField :ori_name="name" />
   </v-container>
+
   <v-container v-else-if="item === 'package'">
     <h1 class="mb-8">Edit Package</h1>
     <PackageField :ori_name="name" />
   </v-container>
+
   <v-container v-else-if="item === 'manufacturer'">
     <h1 class="mb-8">Edit Manufacturer</h1>
     <ManufacturerField :ori_name="name" />

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  item: "category" | "package" | "manufacturer";
+  item: "part" | "category" | "package" | "manufacturer";
   name: string;
 }>();
 </script>

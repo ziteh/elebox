@@ -22,7 +22,7 @@ async function deleteCurrent() {
       <v-btn :to="{ name: 'home' }">Back</v-btn>
     </template>
     <template v-slot:append>
-      <ItemEditButton :item="'update_part'" :name="props.name" />
+      <ItemEditButton :item="'part'" :name="props.name" />
       <ItemDeleteButton :name="props.name" @delete="deleteCurrent" />
     </template>
   </v-app-bar>
