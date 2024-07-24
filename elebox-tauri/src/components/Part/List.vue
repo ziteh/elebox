@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, reactive } from "vue";
+import { onMounted, ref, reactive, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useDisplay } from "vuetify";
 import { useI18n } from "vue-i18n";
 import { DbPart as Db } from "@/utils/db_cmd_part";
 import PartQty from "@/components/Part/Quantity.vue";
@@ -8,6 +9,7 @@ import PartQty from "@/components/Part/Quantity.vue";
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
+const { smAndDown } = useDisplay();
 
 const search = ref("");
 const headers = ref([
@@ -18,6 +20,13 @@ const headers = ref([
   { key: "package", title: t("package"), sortable: true },
   { key: "mfr", title: t("mfr"), sortable: true },
 ]);
+
+const responsive_headers = computed(() => {
+  if (smAndDown.value) {
+    return headers.value.filter((h) => h.key !== "alias");
+  }
+  return headers.value;
+});
 
 const existing = reactive<Db.Part[]>([]);
 
@@ -67,7 +76,7 @@ onMounted(fetchExisting);
 
     <v-data-table
       v-if="existing.length > 0"
-      :headers="headers"
+      :headers="responsive_headers"
       :items="existing"
       :search="search"
     >
