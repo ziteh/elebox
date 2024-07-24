@@ -1,30 +1,29 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import { DbPackage as Db } from "@/utils/db_cmd_package";
 import ItemEditButton from "@/components/ItemEditButton.vue";
 import ItemDeleteButton from "@/components/ItemDeleteButton.vue";
 
+const props = defineProps<{
+  existing: Db.Package[];
+}>();
+
+const existing = reactive(props.existing);
+
+const emit = defineEmits(["update"]);
+
 const search = ref("");
 const headers = ref([
   { key: "name", title: "Name", sortable: true },
-  { key: "pkg_type", title: "Type" },
-  { key: "alias", title: "Alias" },
+  { key: "pkg_type", title: "Type", sortable: true },
+  { key: "alias", title: "Alias", sortable: true },
   { key: "edit", title: "Edit", sortable: false },
 ]);
 
-const existing = reactive<Db.Package[]>([]);
-
-async function fetchExisting() {
-  const data = await Db.list();
-  Object.assign(existing, data);
-}
-
 async function deleteItem(name: string) {
   await Db.remove(name);
-  await fetchExisting();
+  emit("update");
 }
-
-onMounted(fetchExisting);
 </script>
 
 <template>

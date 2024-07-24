@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import { DbCategory as Db } from "@/utils/db_cmd_category";
 import ItemEditButton from "@/components/ItemEditButton.vue";
 import ItemDeleteButton from "@/components/ItemDeleteButton.vue";
+
+const props = defineProps<{
+  existing: Db.Category[];
+}>();
+
+const existing = reactive(props.existing);
+
+const emit = defineEmits(["update"]);
 
 const search = ref("");
 const headers = ref([
@@ -12,19 +20,10 @@ const headers = ref([
   { key: "edit", title: "Edit", sortable: false },
 ]);
 
-const existing = reactive<Db.Category[]>([]);
-
-async function fetchExisting() {
-  const data = await Db.list();
-  Object.assign(existing, data);
-}
-
 async function deleteItem(name: string) {
   await Db.remove(name);
-  await fetchExisting();
+  emit("update");
 }
-
-onMounted(fetchExisting);
 </script>
 
 <template>

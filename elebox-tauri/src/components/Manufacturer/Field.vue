@@ -6,7 +6,10 @@ const props = defineProps<{
   ori_name?: string; // If ori_name undefined: create mode, otherwise edit mode
 }>();
 
+const emit = defineEmits(["update"]);
+
 const current = ref<Db.Manufacturer>({ name: "", url: "", alias: "" });
+// const existing = reactive<string[]>([]);
 const existing = reactive<string[]>([]);
 
 const snackbar = ref(false);
@@ -21,12 +24,12 @@ async function createNew() {
   if (current.value == undefined) {
     return;
   }
-
   await Db.add(current.value)
     .then(() => {
       snackbar.value = true;
       snackbar_msg.value = "Success";
       fetchExisting();
+      emit("update");
     })
     .catch((err) => {
       snackbar.value = true;

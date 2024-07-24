@@ -6,6 +6,8 @@ const props = defineProps<{
   ori_name?: string; // If ori_name undefined: create mode, otherwise edit mode
 }>();
 
+const emit = defineEmits(["update"]);
+
 const current = ref<Db.Category>({ name: "", parent: undefined, alias: "" });
 const existing = reactive<string[]>([]);
 
@@ -26,6 +28,7 @@ async function createNew() {
     .then(() => {
       snackbar.value = true;
       snackbar_msg.value = "Success";
+      emit("update");
     })
     .catch((err) => {
       snackbar.value = true;

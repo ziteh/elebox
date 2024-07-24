@@ -7,6 +7,8 @@ const props = defineProps<{
   ori_name?: string; // If ori_name undefined: create mode, otherwise edit mode
 }>();
 
+const emit = defineEmits(["update"]);
+
 const current = ref<Db.Package>({ name: "", pkg_type: PkgType.Smt, alias: "" });
 const existing = reactive<string[]>([]);
 const pkg_type_input = ref<string>("SMT");
@@ -41,6 +43,7 @@ async function createNew() {
       snackbar.value = true;
       snackbar_msg.value = "Success";
       fetchExisting();
+      emit("update");
     })
     .catch((err) => {
       snackbar.value = true;
