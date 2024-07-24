@@ -8,7 +8,7 @@ const default_path = ref("");
 const use_default = ref(true);
 const empty_db = ref(false);
 
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["notify"]);
 
 async function getDefaultPath() {
   default_path.value = await invoke("get_default_db_path", {});
@@ -20,7 +20,7 @@ async function createDb() {
     new_path: use_default ? default_path.value : path.value,
     empty: empty_db.value,
   });
-  emit("update");
+  emit("notify");
 }
 
 async function newDb() {
@@ -73,7 +73,7 @@ async function openDb() {
     console.log(file);
 
     await invoke("set_db_path", { new_path: path.value });
-    emit("update");
+    emit("notify");
   }
 }
 
