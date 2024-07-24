@@ -1,37 +1,12 @@
 import { createApp } from "vue";
-import router from "./router.js";
-import App from "./App.vue";
-import { createI18n } from "vue-i18n";
-import en from "./locales/en.js";
-import zhTw from "./locales/zh-TW.js";
+import App from "@/App.vue";
+import router from "@/router";
+import i18n from "@/plugins/i18n";
+import vuetify from "@/plugins/vuetify";
+import "@/styles.css";
 
-// Vuetify
-import "vuetify/styles";
-import { createVuetify } from "vuetify";
-import * as components from "vuetify/components";
-import * as directives from "vuetify/directives";
-import "@mdi/font/css/materialdesignicons.css"; // icon
-
-const vuetify = createVuetify({
-  theme: {
-    defaultTheme: "dark",
-  },
-  components,
-  directives,
-});
-
-const messages = {
-  en,
-  "zh-TW": zhTw,
-};
-
-const i18n = createI18n({
-  legacy: false,
-  locale: "zh-TW",
-  fallbackLocale: "en",
-  messages,
-});
-
-import "./styles.css";
-
-createApp(App).use(i18n).use(vuetify).use(router).mount("#app");
+const app = createApp(App);
+app.use(router);
+app.use(i18n);
+app.use(vuetify);
+app.mount("#app");

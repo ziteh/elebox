@@ -1,5 +1,3 @@
-
-
 use crate::{DbError, EleboxError};
 
 pub const ITEM_PART: &str = "part";
@@ -15,6 +13,7 @@ pub trait Database<T> {
     fn add(&self, item: &T) -> Result<(), DbError>;
     fn update(&self, ori_id: &str, new_item: &T) -> Result<(), DbError>;
     fn delete(&self, id: &str) -> Result<(), DbError>;
+    fn check(&self) -> Result<(), DbError>;
 }
 
 pub trait Manager<T> {
@@ -24,6 +23,7 @@ pub trait Manager<T> {
     fn update(&self, ori_name: &str, new_item: &T) -> Result<(), EleboxError>;
     fn get(&self, name: &str) -> Result<T, EleboxError>;
     fn list(&self) -> Result<Vec<T>, EleboxError>;
+    fn check(&self) -> Result<(), EleboxError>;
 }
 
 pub trait Transferable {

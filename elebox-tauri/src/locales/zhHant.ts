@@ -1,0 +1,26 @@
+// i18n 繁體中文
+
+export default {
+  home: "主頁面",
+  settings: "設定",
+  name: "名稱",
+  quantity: "數量",
+  part: "零件",
+  new_part: "新零件",
+  category: "類別",
+  package: "封裝",
+  package_detail: "詳細封裝",
+  mfr: "製造商",
+  manufacturer: "製造商",
+  manufacturer_no: "製造商料號",
+  alias: "別名",
+  location: "位置",
+  description: "描述",
+  datasheet: "數據表",
+  product_link: "產品連結",
+  image: "圖片",
+  custom_field: "自定欄位",
+  custom_fields: "自定欄位",
+  supplier: "供應商",
+  suppliers: "供應商",
+};

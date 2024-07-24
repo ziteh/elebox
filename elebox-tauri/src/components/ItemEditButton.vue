@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-  path_name: string;
-  item_name: string;
+  item: "part" | "category" | "package" | "manufacturer";
+  name: string;
 }>();
 </script>
 
@@ -10,6 +10,12 @@ const props = defineProps<{
     density="comfortable"
     icon="mdi-square-edit-outline"
     title="Edit"
-    :to="{ name: props.path_name, params: { origin_name: props.item_name } }"
+    :to="{
+      name: 'edit',
+      params: {
+        item: props.item,
+        name: props.name,
+      },
+    }"
   ></v-btn>
 </template>

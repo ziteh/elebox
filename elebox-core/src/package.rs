@@ -123,6 +123,10 @@ impl Manager<Package> for PackageManager {
         }
         Ok(items)
     }
+
+    fn check(&self) -> Result<(), EleboxError> {
+        Ok(self.db.check()?)
+    }
 }
 
 impl Transferable for PackageManager {

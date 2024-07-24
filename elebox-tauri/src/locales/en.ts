@@ -1,3 +1,5 @@
+// i18n English
+
 export default {
   home: "Home",
   settings: "Settings",

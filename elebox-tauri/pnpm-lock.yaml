@@ -28,6 +28,9 @@ devDependencies:
   '@tauri-apps/cli':
     specifier: ^1.5.8
     version: 1.5.12
+  '@types/node':
+    specifier: ^20.14.11
+    version: 20.14.11
   '@vitejs/plugin-vue':
     specifier: ^4.2.3
     version: 4.6.2(vite@5.2.10)(vue@3.4.25)
@@ -36,7 +39,7 @@ devDependencies:
     version: 5.4.5
   vite:
     specifier: ^5.0.12
-    version: 5.2.10
+    version: 5.2.10(@types/node@20.14.11)
   vue-tsc:
     specifier: ^1.8.5
     version: 1.8.27(typescript@5.4.5)
@@ -545,6 +548,12 @@ packages:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
     dev: true
 
+  /@types/node@20.14.11:
+    resolution: {integrity: sha512-kprQpL8MMeszbz6ojB5/tU8PLN4kesnN8Gjzw349rDlNgsSzg90lAVj3llK99Dh7JON+t9AuscPPFW6mPbTnSA==}
+    dependencies:
+      undici-types: 5.26.5
+    dev: true
+
   /@vitejs/plugin-vue@4.6.2(vite@5.2.10)(vue@3.4.25):
     resolution: {integrity: sha512-kqf7SGFoG+80aZG6Pf+gsZIVvGSCKE98JbiWqcCV9cThtg91Jav0yvYFC9Zb+jKetNGF6ZKeoaxgZfND21fWKw==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -552,7 +561,7 @@ packages:
       vite: ^4.0.0 || ^5.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 5.2.10
+      vite: 5.2.10(@types/node@20.14.11)
       vue: 3.4.25(typescript@5.4.5)
     dev: true
 
@@ -825,7 +834,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  /vite@5.2.10:
+  /undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+    dev: true
+
+  /vite@5.2.10(@types/node@20.14.11):
     resolution: {integrity: sha512-PAzgUZbP7msvQvqdSD+ErD5qGnSFiGOoWmV5yAKUEI0kdhjbH6nMWVyZQC/hSc4aXwc0oJ9aEdIiF9Oje0JFCw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -853,6 +866,7 @@ packages:
       terser:
         optional: true
     dependencies:
+      '@types/node': 20.14.11
       esbuild: 0.20.2
       postcss: 8.4.38
       rollup: 4.16.4

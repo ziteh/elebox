@@ -6,11 +6,16 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "elebox",
-    "version": "0.1.0"
+    "productName": "Elebox",
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {
+      "app": {
+        "all": false,
+        "hide": false,
+        "show": false
+      },
       "protocol": {
         "asset": true,
         "assetScope": [
@@ -21,6 +26,14 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "dialog": {
+        "all": false,
+        "ask": false,
+        "confirm": false,
+        "message": false,
+        "open": true,
+        "save": true
       }
     },
     "bundle": {
@@ -33,7 +46,7 @@
       ]
     },
     "security": {
-    "csp": null
+      "csp": null
     },
     "windows": [
       {

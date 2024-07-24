@@ -1,12 +1,18 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod config;
+
 use dirs;
 use elebox_core::{
     Category, CustomField, Database, Manager, Manufacturer, Package, PackageType, Part, Supplier,
     TreeNode,
 };
-use std::{path::Path, sync::Mutex, task::ready};
+use std::{
+    path::{Path, PathBuf},
+    sync::Mutex,
+    task::ready,
+};
 use tauri::Manager as TauriManager;
 
 macro_rules! GET {
@@ -15,7 +21,9 @@ macro_rules! GET {
     };
 }
 
+struct UserDir(Mutex<String>);
 struct DbPath(Mutex<String>);
+struct Language(Mutex<String>);
 
 #[tauri::command(rename_all = "snake_case")]
 fn get_part(path: tauri::State<DbPath>, name: &str) -> Option<Part> {
@@ -246,9 +254,60 @@ fn get_assets_path() -> Result<String, String> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-fn set_db_path(path: tauri::State<DbPath>, new_path: &str) {
-    update_db_path(path, new_path);
+fn set_db_path(
+    dir: tauri::State<UserDir>,
+    lang: tauri::State<Language>,
+    path: tauri::State<DbPath>,
+    new_path: &str,
+) -> Result<(), String> {
+    let p = PathBuf::from(new_path);
+    if !p.exists() {
+        return Err("File does not exist".to_string());
+    }
+
+    if !check_db(&new_path) {
+        return Err("This file is not an database".to_string());
+    }
+
+    update_db_path(path.clone(), new_path);
+    set_config(dir, lang, path);
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn create_db(
+    dir: tauri::State<UserDir>,
+    lang: tauri::State<Language>,
+    path: tauri::State<DbPath>,
+    new_path: &str,
+    empty: bool,
+) -> Result<(), String> {
+    update_db_path(path.clone(), new_path);
     init_db(new_path);
+    set_config(dir, lang, path);
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn is_db_exists(db: tauri::State<DbPath>) -> bool {
+    let db_path = GET!(db);
+    PathBuf::from(db_path.to_string()).exists()
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_language(lang: tauri::State<Language>) -> String {
+    GET!(lang).to_string()
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn set_language(
+    dir: tauri::State<UserDir>,
+    lang: tauri::State<Language>,
+    path: tauri::State<DbPath>,
+    new_lang: &str,
+) {
+    set_config_language(lang.clone(), new_lang);
+    set_config(dir, lang, path);
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -264,16 +323,24 @@ fn import_csv(csv_path: &str) -> Result<(), String> {
 }
 
 fn main() {
-    let mut db_path = match get_default_path() {
-        Ok(path) => path,
-        Err(err) => panic!("{}", err),
-    };
+    let user_dir = get_user_dir().unwrap();
 
-    if Path::new(&db_path).exists() {
-        init_db(&db_path);
-    } else {
-        db_path = "".to_string();
+    config::create_config(&user_dir);
+    let mut config = config::load_config(&user_dir).unwrap();
+
+    if config.database.is_none() {
+        config.database = match get_default_path() {
+            Ok(path) => Some(path),
+            Err(err) => panic!("{}", err), // TODO
+        };
     }
+    // init_db(&config.database.clone().unwrap());
+
+    if config.language.is_none() {
+        config.language = Some("en".to_string());
+    }
+
+    config::save_config(&user_dir, &config);
 
     tauri::Builder::default()
         .setup(|app| {
@@ -288,7 +355,9 @@ fn main() {
                 Ok(())
             }
         })
-        .manage(DbPath(Mutex::new(db_path)))
+        .manage(UserDir(Mutex::new(user_dir)))
+        .manage(DbPath(Mutex::new(config.database.unwrap())))
+        .manage(Language(Mutex::new(config.language.unwrap())))
         .invoke_handler(tauri::generate_handler![
             get_part,
             get_parts,
@@ -316,6 +385,10 @@ fn main() {
             get_assets_path,
             get_default_db_path,
             set_db_path,
+            is_db_exists,
+            set_language,
+            get_language,
+            create_db,
             export_csv,
             import_csv,
         ])
@@ -338,13 +411,57 @@ fn get_default_path() -> Result<String, String> {
     }
 }
 
+fn get_user_dir() -> Result<String, String> {
+    if let Some(mut dir) = dirs::data_local_dir() {
+        dir.push("elebox");
+        dir.push(""); // Keep ending '/'
+
+        if let Err(err) = std::fs::create_dir_all(&dir) {
+            return Err(format!("Unable to creating directory. {}", err));
+        }
+
+        return Ok(dir.to_string_lossy().into_owned());
+    } else {
+        return Err("Unable to determine user's local data directory.".to_string());
+    }
+}
+
 fn update_db_path(db: tauri::State<DbPath>, new_path: &str) {
     let mut p = GET!(db);
     *p = String::from(new_path);
+}
+
+fn set_config_language(state: tauri::State<Language>, language: &str) {
+    let mut mutex = GET!(state);
+    *mutex = String::from(language);
+}
+
+fn set_user_dir(state: tauri::State<UserDir>, dir: &str) {
+    let mut mutex = GET!(state);
+    *mutex = String::from(dir);
 }
 
 fn init_db(path: &str) {
     elebox_core::create_default_db(path);
     // let db = elebox_core::JammDatabase::new(path);
     // db.init();
+}
+
+fn set_config(dir: tauri::State<UserDir>, lang: tauri::State<Language>, db: tauri::State<DbPath>) {
+    let dir = GET!(dir).to_string();
+    let config = config::Config {
+        language: Some(GET!(lang).to_string()),
+        database: Some(GET!(db).to_string()),
+    };
+    config::save_config(&dir, &config);
+}
+
+fn check_db(path: &str) -> bool {
+    return elebox_core::check_db(&path).is_ok();
+    // if path.is_none() {
+    //     let db_path = GET!(db);
+    //     return elebox_core::check_db(&db_path).is_ok();
+    // } else {
+    //     return elebox_core::check_db(&path.unwrap()).is_ok();
+    // }
 }

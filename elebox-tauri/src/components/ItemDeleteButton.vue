@@ -6,6 +6,9 @@ const emit = defineEmits(["delete"]);
 function deleteItem() {
   if (props.name) {
     emit("delete");
+    console.log(`Delete item. ${props.name}`);
+  } else {
+    console.error(`Delete empty/undefined item. ${props.name}`);
   }
 }
 </script>
@@ -17,7 +20,7 @@ function deleteItem() {
         v-bind="activatorProps"
         density="comfortable"
         icon="mdi-trash-can-outline"
-        title="Delete"
+        :title="`Delete: ${props.name}`"
       ></v-btn>
     </template>
 
@@ -34,21 +37,18 @@ function deleteItem() {
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            text="Delete"
-            variant="text"
             color="red"
+            variant="text"
             @click="
               {
                 deleteItem();
                 isActive.value = false;
               }
             "
-          ></v-btn>
-          <v-btn
-            text="Cancel"
-            variant="tonal"
-            @click="isActive.value = false"
-          ></v-btn>
+          >
+            Delete
+          </v-btn>
+          <v-btn variant="tonal" @click="isActive.value = false">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </template>
