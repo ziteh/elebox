@@ -103,7 +103,7 @@ async function updateOriginal() {
   }
 
   await DbPart.update(props.ori_name, current.value)
-    .then(() => router.replace("/")) // Back to home
+    .then(() => router.go(-1)) // Go back
     .catch((err) => {
       show_notify.value = true;
       notify_message.value = err;

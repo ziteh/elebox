@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
+import { useRouter } from "vue-router";
 import { DbPackage as Db } from "@/utils/db_cmd_package";
 import { PkgType } from "@/types/package"; // TODO to db_cmd_package
 
@@ -8,6 +9,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["update"]);
+const router = useRouter();
 
 const current = ref<Db.Package>({ name: "", pkg_type: PkgType.Smt, alias: "" });
 const existing = reactive<string[]>([]);
@@ -58,6 +60,7 @@ async function updateOriginal() {
 
   current.value.pkg_type = toPkgType(pkg_type_input.value);
   await Db.update(props.ori_name, current.value);
+  router.go(-1);
 }
 
 async function fetchExisting() {

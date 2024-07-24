@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
+import { useRouter } from "vue-router";
 import { DbManufacturer as Db } from "@/utils/db_cmd_manufacturer";
 
 const props = defineProps<{
@@ -7,6 +8,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["update"]);
+const router = useRouter();
 
 const current = ref<Db.Manufacturer>({ name: "", url: "", alias: "" });
 // const existing = reactive<string[]>([]);
@@ -43,6 +45,7 @@ async function updateOriginal() {
   }
 
   await Db.update(props.ori_name, current.value);
+  router.go(-1);
 }
 
 async function fetchExisting() {

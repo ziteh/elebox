@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from "vue";
+import { useRouter } from "vue-router";
 import { DbCategory as Db } from "@/utils/db_cmd_category";
 
 const props = defineProps<{
@@ -7,6 +8,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["update"]);
+const router = useRouter();
 
 const current = ref<Db.Category>({ name: "", parent: undefined, alias: "" });
 const existing = reactive<string[]>([]);
@@ -46,7 +48,8 @@ async function updateOriginal() {
   }
 
   await Db.update(props.ori_name, current.value);
-  await fetchExisting(); // TODO go back
+  await fetchExisting();
+  router.go(-1);
 }
 
 async function fetchExisting() {
