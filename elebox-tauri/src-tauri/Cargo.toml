@@ -1,6 +1,6 @@
 [package]
 name = "elebox"
-version = "1.0.0-beta.4"
+version = "1.0.0"
 license = "MIT OR Apache-2.0"
 description = "Lightweight personal electronic parts inventory management tool"
 repository = "https://github.com/ziteh/elebox"
