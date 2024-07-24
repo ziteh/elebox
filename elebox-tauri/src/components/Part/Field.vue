@@ -161,8 +161,12 @@ async function fetchCurrent() {
   Object.assign(suppliers, current.value.suppliers);
 }
 
-function handleCustomFieldUpdate(data: { new: CustomField }) {
-  new_custom_field.value = data.new;
+function handleCustomFieldUpdate(data: { new: CustomField; index?: number }) {
+  if (data.index == undefined || data.index < 0) {
+    new_custom_field.value = data.new;
+  } else {
+    custom_fields[data.index] = data.new;
+  }
 }
 
 function handleCustomFieldAdd(data: { new: CustomField }) {
@@ -176,8 +180,12 @@ function handleCustomFieldDel(data: { name: string }) {
   }
 }
 
-function handleSupplierUpdate(data: { new: Supplier }) {
-  new_supplier.value = data.new;
+function handleSupplierUpdate(data: { new: Supplier; index?: number }) {
+  if (data.index == undefined || data.index < 0) {
+    new_supplier.value = data.new;
+  } else {
+    suppliers[data.index] = data.new;
+  }
 }
 
 function handleSupplierAdd(data: { new: Supplier }) {
@@ -360,16 +368,18 @@ onMounted(() => {
           <v-card title="Custom Fields" variant="text">
             <v-spacer class="my-2"></v-spacer>
             <PartCustomField
-              v-for="cf in custom_fields"
+              v-for="(cf, i) in custom_fields"
               :current="cf"
-              :existing="undefined"
+              :index="i"
+              :existing="custom_fields.map((c) => c.name)"
               @del="handleCustomFieldDel"
+              @update="handleCustomFieldUpdate"
             />
             <PartCustomField
               :current="new_custom_field"
-              :existing="custom_fields"
-              @update="handleCustomFieldUpdate"
+              :existing="custom_fields.map((c) => c.name)"
               @add="handleCustomFieldAdd"
+              @update="handleCustomFieldUpdate"
             />
           </v-card>
         </v-col>
@@ -380,16 +390,18 @@ onMounted(() => {
           <v-card title="Suppliers" variant="text">
             <v-spacer class="my-2"></v-spacer>
             <PartSupplier
-              v-for="s in suppliers"
+              v-for="(s, i) in suppliers"
               :current="s"
-              :existing="undefined"
+              :index="i"
+              :existing="suppliers.map((s) => s.name)"
               @del="handleSupplierDel"
+              @update="handleSupplierUpdate"
             />
             <PartSupplier
               :current="new_supplier"
-              :existing="suppliers"
-              @update="handleSupplierUpdate"
+              :existing="suppliers.map((s) => s.name)"
               @add="handleSupplierAdd"
+              @update="handleSupplierUpdate"
             />
           </v-card>
         </v-col>

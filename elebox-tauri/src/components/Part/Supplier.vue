@@ -1,44 +1,48 @@
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
+import { watch, computed, reactive } from "vue";
 import { Supplier } from "@/types/part";
-import { makeRules } from "@/utils/input_rules";
 
 const props = defineProps<{
-  current?: Supplier;
-  existing?: Supplier[]; // if undefined: readonly
+  current: Supplier;
+  existing: string[];
+  index?: number;
 }>();
 
-const supplier = ref<Supplier>(
-  props.current ?? {
-    name: "",
-    link: "",
-    price: undefined,
-    note: "",
-  }
-);
+const supplier = reactive<Supplier>({
+  name: props.current.name ?? "",
+  link: props.current.link ?? "",
+  note: props.current.note ?? "",
+  price: props.current.price,
+});
 
-const rules = makeRules(props.existing);
+const rules = {
+  required: (val: any) => !!val || "Required",
+  duplicate: (val: any) =>
+    props.existing.every((i, idx) => idx === props.index || i !== val) ||
+    "Already exists",
+};
 
 const formatted_price = computed({
   get() {
-    if (supplier.value.price === undefined) {
+    if (supplier.price == undefined) {
       return "";
     }
 
     if (props.existing == undefined) {
-      return supplier.value.price.toFixed(3);
+      return supplier.price.toFixed(3);
     }
-    return supplier.value.price.toString();
+    return supplier.price.toString();
   },
   set(value: string) {
-    supplier.value.price = parseFloat(value);
+    supplier.price = parseFloat(value);
   },
 });
 
 const emit = defineEmits(["update", "add", "del"]);
 
 watch([supplier], ([new_supplier]) => {
-  emit("update", { new: new_supplier });
+  console.debug(props.existing);
+  emit("update", { new: new_supplier, index: props.index });
 });
 
 function emitDel() {
@@ -47,27 +51,24 @@ function emitDel() {
 
 function emitAdd() {
   // Required value
-  if (
-    !supplier.value.name ||
-    rules.value.duplicate(supplier.value.name) !== true
-  ) {
+  if (!supplier.name || rules.duplicate(supplier.name) !== true) {
     return;
   }
 
   const clone: Supplier = {
-    name: supplier.value.name,
-    link: supplier.value.link ?? "",
-    note: supplier.value.note ?? "",
-    price: supplier.value.price,
+    name: supplier.name,
+    link: supplier.link ?? "",
+    note: supplier.note ?? "",
+    price: supplier.price,
   };
 
   // Clear
-  supplier.value = {
+  Object.assign(supplier, {
     name: "",
     link: "",
     note: "",
     price: undefined,
-  };
+  });
 
   emit("add", { new: clone });
 }
@@ -84,7 +85,6 @@ function emitAdd() {
           placeholder=""
           :rules="[rules.required, rules.duplicate]"
           required
-          :readonly="props.existing == undefined"
         ></v-text-field>
       </v-col>
       <v-col cols="3">
@@ -93,8 +93,6 @@ function emitAdd() {
           variant="outlined"
           v-model.trim="supplier.link"
           placeholder="https://"
-          :readonly="props.existing == undefined"
-          :dirty="props.existing == undefined"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
@@ -104,8 +102,6 @@ function emitAdd() {
           v-model="formatted_price"
           type="number"
           min="0"
-          :readonly="props.existing == undefined"
-          :dirty="props.existing == undefined"
         ></v-text-field>
       </v-col>
       <v-col>
@@ -114,13 +110,11 @@ function emitAdd() {
           variant="outlined"
           v-model.trim="supplier.note"
           placeholder=""
-          :readonly="props.existing == undefined"
-          :dirty="props.existing == undefined"
         ></v-text-field>
       </v-col>
       <v-col cols="auto" class="mb-6">
         <v-btn
-          v-if="props.existing == undefined"
+          v-if="props.index != undefined"
           density="comfortable"
           icon="mdi-trash-can-outline"
           title="Delete"
