@@ -36,8 +36,4 @@ function toString(value: string | string[]) {
     <h1 class="mb-8">Edit Manufacturer</h1>
     <ManufacturerField :ori_name="name" />
   </v-container>
-
-  <v-container v-else>
-    <v-empty-state headline="404" title="Page not found"></v-empty-state>
-  </v-container>
 </template>
