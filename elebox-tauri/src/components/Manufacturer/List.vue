@@ -20,6 +20,7 @@ async function fetchExisting() {
 
 async function deleteItem(name: string) {
   await Db.remove(name);
+  await fetchExisting();
 }
 
 onMounted(fetchExisting);
