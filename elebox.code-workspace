@@ -13,6 +13,10 @@
 			"path": "./elebox-cli"
 		},
 		{
+			"name": "website",
+			"path": "./website"
+		},
+		{
 			"name": "root",
 			"path": "."
 		},
@@ -30,7 +34,8 @@
 			"Jamm",
 			"jammdb",
 			"tauri",
-			"vuetify"
+			"vuetify",
+			"nextra"
 		],
 		"files.exclude": {
 			"**/.git": true,
