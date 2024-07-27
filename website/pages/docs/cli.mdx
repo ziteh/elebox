@@ -1,0 +1,101 @@
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+import Box from "@mui/material/Box";
+
+# CLI
+
+Command line edition of Elebox, powered by [clap](https://docs.rs/clap/latest/clap/).
+
+<Box mt={4}>
+  <Alert severity="warning">CLI currently has limited functionality.</Alert>
+</Box>
+
+## Usage
+
+<Box mt={4}>
+  <Alert severity="info">
+    If you're run via Cargo workspace (i.e. not using the released executable),
+    replace `elebox` with `cargo run -p elebox-cli --` in the following command.
+    For example, use `cargo run -p elebox-cli -- help` instead of `elebox help`.
+  </Alert>
+</Box>
+
+### Basic
+
+Print help message:
+
+```bash copy
+elebox help
+```
+
+Use and operate on the default database path and filename `./elebox.db`:
+
+```bash copy
+elebox COMMAND
+```
+
+or a specified `./my_box.db`:
+
+```bash copy
+elebox my_box.db COMMAND
+```
+
+where `COMMAND` can be `init`, `part`, `category`, `export` or `import`.
+
+### Init
+
+You need to initialize a database before you can proceed with the next steps.
+
+Create and initialize a new database with the default path:
+
+```bash copy
+elebox init
+```
+
+### Category
+
+List part categories:
+
+```bash copy
+elebox category
+```
+
+Create a new part category named `MCU`:
+
+```bash copy
+elebox category new MCU
+```
+
+Create new part category named `ARM` and `RISC-V`, and designate them as a subcategory of `MCU`:
+
+```bash copy
+elebox category new ARM -p MCU
+elebox category new "RISC-V" -p MCU
+```
+
+### Part
+
+List parts:
+
+```bash copy
+elebox part
+```
+
+Create a new part named `RP2040` with a part category of `ARM`, and a quantity of `25`:
+
+```bash copy
+elebox part new RP2040 25 ARM
+```
+
+Consume or restock 10 `RP2040`:
+
+```bash copy
+elebox part use RP2040 10
+elebox part add RP2040 10
+```
+
+Rename `RP2040` to `rpi-RP2040`:
+
+```bash copy
+elebox part update RP2040 "rpi-RP2040"
+```

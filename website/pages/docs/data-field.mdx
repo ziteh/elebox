@@ -1,0 +1,360 @@
+import * as React from "react";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
+
+# Data Field
+
+## Part
+
+<TableContainer component={Box}>
+  <Table size="small">
+    <TableHead>
+      <TableRow>
+        <TableCell>Field</TableCell>
+        <TableCell>Description</TableCell>
+        <TableCell>Type</TableCell>
+        <TableCell>Example</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <TableRow>
+        <TableCell>Name*</TableCell>
+        <TableCell>User friendly name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>TLV771 3.3v</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Category*</TableCell>
+        <TableCell>Part category</TableCell>
+        <TableCell>
+          <Link href="#category" underline="none">
+            Category
+          </Link>
+        </TableCell>
+        <TableCell>LDO</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Quantity*</TableCell>
+        <TableCell>Stock quantity</TableCell>
+        <TableCell>Integer</TableCell>
+        <TableCell>32</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Package</TableCell>
+        <TableCell>Part package type</TableCell>
+        <TableCell>
+          <Link href="#package" underline="none">
+            Package
+          </Link>
+        </TableCell>
+        <TableCell>SOT-23</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Package detail</TableCell>
+        <TableCell>More detail about package</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>5 Pin, TI DBV package</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Manufacturer</TableCell>
+        <TableCell>Part manufacturer</TableCell>
+        <TableCell>
+          <Link href="#manufacturer" underline="none">
+            Manufacturer
+          </Link>
+        </TableCell>
+        <TableCell>Texas Instruments</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Manufacturer #</TableCell>
+        <TableCell>Manufacturer part number</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>TLV77133PDBVR</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Alias</TableCell>
+        <TableCell>Alternative name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>TLV771</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Location</TableCell>
+        <TableCell>Storage location</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>Box #1</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Product link</TableCell>
+        <TableCell>URL of the part product page</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>
+          <Link
+            href="https://www.ti.com/product/TLV771/part-details/TLV77133PDBVR"
+            underline="none"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://...
+          </Link>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Datasheet link</TableCell>
+        <TableCell>URL of the datasheet for this part</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>
+          <Link
+            href="https://www.ti.com/document-viewer/TLV771/datasheet"
+            underline="none"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://...
+          </Link>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Image link</TableCell>
+        <TableCell>URL of the image of this part</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>
+          <Link
+            href="https://www.ti.com/content/dam/ticom/images/products/package/d/dbv0005a.png"
+            underline="none"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://...
+          </Link>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Description</TableCell>
+        <TableCell>Additional details about this part</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>150mA, high-PSRR</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Custom fields</TableCell>
+        <TableCell>User-defined fields for extra info</TableCell>
+        <TableCell>
+          <Typography component="span">
+            Array of&nbsp;
+            <Link href="#custom-field" underline="none">
+              Custom field
+            </Link>
+          </Typography>
+        </TableCell>
+        <TableCell>*See the following*</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Suppliers</TableCell>
+        <TableCell>Vendors where this part can be purchased</TableCell>
+        <TableCell>
+          <Typography component="span">
+            Array of&nbsp;
+            <Link href="#supplier" underline="none">
+              Supplier
+            </Link>
+          </Typography>
+        </TableCell>
+        <TableCell>*See the following*</TableCell>
+      </TableRow>
+    </TableBody>
+  </Table>
+</TableContainer>
+
+### Custom field
+
+<TableContainer component={Box}>
+  <Table size="small">
+    <TableHead>
+      <TableRow>
+        <TableCell>Field</TableCell>
+        <TableCell>Description</TableCell>
+        <TableCell>Type</TableCell>
+        <TableCell>Example</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <TableRow>
+        <TableCell>Type*</TableCell>
+        <TableCell>Value type</TableCell>
+        <TableCell>`Normal` or `Link`</TableCell>
+        <TableCell>Normal</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Name*</TableCell>
+        <TableCell>Name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>Quiescent Current</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Value</TableCell>
+        <TableCell>Field content</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>80μA</TableCell>
+      </TableRow>
+    </TableBody>
+  </Table>
+</TableContainer>
+
+### Supplier
+
+<TableContainer component={Box}>
+  <Table size="small">
+    <TableHead>
+      <TableRow>
+        <TableCell>Field</TableCell>
+        <TableCell>Description</TableCell>
+        <TableCell>Type</TableCell>
+        <TableCell>Example</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <TableRow>
+        <TableCell>Name*</TableCell>
+        <TableCell>Supplier name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>Mouser</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Link</TableCell>
+        <TableCell>URL of the purchase page</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>https://...</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Price</TableCell>
+        <TableCell>Part price</TableCell>
+        <TableCell>Number</TableCell>
+        <TableCell>1.85</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Note</TableCell>
+        <TableCell>Remark</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>Price per 10 pieces</TableCell>
+      </TableRow>
+    </TableBody>
+  </Table>
+</TableContainer>
+
+## Category
+
+<TableContainer component={Box}>
+  <Table size="small">
+    <TableHead>
+      <TableRow>
+        <TableCell>Field</TableCell>
+        <TableCell>Description</TableCell>
+        <TableCell>Type</TableCell>
+        <TableCell>Example</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <TableRow>
+        <TableCell>Name*</TableCell>
+        <TableCell>Category name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>LDO</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Alias</TableCell>
+        <TableCell>Alternative name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>Low Dropout Regulator</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Parent</TableCell>
+        <TableCell>The parent category</TableCell>
+        <TableCell>
+          <Link href="#category" underline="none">
+            Category
+          </Link>
+        </TableCell>
+        <TableCell>Voltage regulator</TableCell>
+      </TableRow>
+    </TableBody>
+  </Table>
+</TableContainer>
+
+## Package
+
+<TableContainer component={Box}>
+  <Table size="small">
+    <TableHead>
+      <TableRow>
+        <TableCell>Field</TableCell>
+        <TableCell>Description</TableCell>
+        <TableCell>Type</TableCell>
+        <TableCell>Example</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <TableRow>
+        <TableCell>Type*</TableCell>
+        <TableCell>Package technology</TableCell>
+        <TableCell>`SMT`, `THT` or `Others`</TableCell>
+        <TableCell>SMT</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Name*</TableCell>
+        <TableCell>Package name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>SOT-23</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Alias</TableCell>
+        <TableCell>Alternative name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>TI DBV</TableCell>
+      </TableRow>
+    </TableBody>
+  </Table>
+</TableContainer>
+
+`SMT` is Surface Mount Technology, `THT` is Through Hole Technology.
+
+## Manufacturer
+
+<TableContainer component={Box}>
+  <Table size="small">
+    <TableHead>
+      <TableRow>
+        <TableCell>Field</TableCell>
+        <TableCell>Description</TableCell>
+        <TableCell>Type</TableCell>
+        <TableCell>Example</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <TableRow>
+        <TableCell>Name*</TableCell>
+        <TableCell>Manufacturer name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>Texas Instruments</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Alias</TableCell>
+        <TableCell>Alternative name</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>TI</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>Link</TableCell>
+        <TableCell>URL of the manufacturer</TableCell>
+        <TableCell>Text</TableCell>
+        <TableCell>https://...</TableCell>
+      </TableRow>
+    </TableBody>
+  </Table>
+</TableContainer>
