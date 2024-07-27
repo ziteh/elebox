@@ -2,10 +2,17 @@
   "index": {
     "title": "Home",
     "type": "page",
-    "display": "hidden"
+    "display": "hidden",
+    "theme": {
+      "layout": "raw"
+    }
   },
   "docs": {
     "title": "Docs",
+    "type": "page"
+  },
+  "screenshots": {
+    "title": "Screenshots",
     "type": "page"
   },
   "about": {

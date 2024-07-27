@@ -8,4 +8,14 @@ module.exports = withNextra({
     locales: ["en", "zh"],
     defaultLocale: "en",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.imgur.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 });
