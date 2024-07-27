@@ -4,11 +4,17 @@ const withNextra = require("nextra")({
 });
 
 module.exports = withNextra({
-  i18n: {
-    locales: ["en", "zh"],
-    defaultLocale: "en",
-  },
+  output: "export",
+  // i18n: {
+  //   locales: ["en", "zh"],
+  //   defaultLocale: "en",
+  // },
+  assetPrefix: "./",
+  basePath: "https://github.com/ziteh/elebox",
   images: {
+    loader: "akamai",
+    path: "",
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
