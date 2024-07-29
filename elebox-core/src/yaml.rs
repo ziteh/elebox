@@ -1,11 +1,13 @@
-use std::fs::{self};
-
+use std::{
+    fs::{self},
+    path::PathBuf,
+};
 
 use serde::{Deserialize, Serialize};
 
 use serde_yaml;
 
-pub fn write_yaml<T>(filename: &str, items: Vec<T>) -> Result<(), ()>
+pub fn write_yaml<T>(filename: &PathBuf, items: Vec<T>) -> Result<(), ()>
 where
     T: Serialize,
 {
@@ -14,7 +16,7 @@ where
     Ok(())
 }
 
-pub fn read_yaml<T>(filename: &str) -> Result<Vec<T>, ()>
+pub fn read_yaml<T>(filename: &PathBuf) -> Result<Vec<T>, ()>
 where
     T: for<'de> Deserialize<'de>,
 {

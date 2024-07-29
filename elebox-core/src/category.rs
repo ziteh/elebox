@@ -1,6 +1,6 @@
 use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fmt::Debug};
+use std::{collections::HashMap, fmt::Debug, path::PathBuf};
 
 const ROOT_CATEGORY: &str = "__root__";
 
@@ -27,17 +27,11 @@ impl Category {
     }
 }
 
-pub struct CategoryManager {
-    db: Box<dyn Database<DbCategory>>,
+pub struct CategoryHandler<'a> {
+    pub(crate) db: &'a dyn Database<DbCategory>,
 }
 
-impl CategoryManager {
-    pub fn new(path: &str) -> Self {
-        Self {
-            db: Box::new(JammDatabase::new(path, CATEGORIES_BUCKET)),
-        }
-    }
-
+impl CategoryHandler<'_> {
     fn to_item(&self, db_category: DbCategory) -> Category {
         let db_parent = match self.db.get(&db_category.parent_id) {
             Ok(db_item) => Some(db_item.name),
@@ -120,12 +114,7 @@ impl CategoryManager {
     }
 }
 
-impl Manager<Category> for CategoryManager {
-    fn init(&self) -> Result<(), EleboxError> {
-        let _ = self.db.init()?;
-        Ok(())
-    }
-
+impl<'a> Handler<Category> for CategoryHandler<'_> {
     fn delete(&self, name: &str) -> Result<(), EleboxError> {
         let id = self.db.get_id(name)?;
         let _ = self.db.delete(&id)?;
@@ -199,24 +188,20 @@ impl Manager<Category> for CategoryManager {
         }
         Ok(items)
     }
-
-    fn check(&self) -> Result<(), EleboxError> {
-        Ok(self.db.check()?)
-    }
 }
 
-impl Transferable for CategoryManager {
-    fn export(&self, filename: &str) -> Result<(), EleboxError> {
+impl Transferable for CategoryHandler<'_> {
+    fn export(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let items = self.list()?;
         let _ = write_yaml(filename, items).unwrap();
         Ok(())
     }
 
-    fn import(&self, filename: &str) -> Result<(), EleboxError> {
+    fn import(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let res_items = read_yaml(filename);
 
         if res_items.is_err() {
-            panic!();
+            todo!()
         }
 
         let items: Vec<Category> = res_items.unwrap();

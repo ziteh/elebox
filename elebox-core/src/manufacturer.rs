@@ -1,6 +1,6 @@
 use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::{fmt::Debug, path::PathBuf};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Manufacturer {
@@ -19,17 +19,11 @@ impl Manufacturer {
     }
 }
 
-pub struct ManufacturerManager {
-    db: Box<dyn Database<DbManufacturer>>,
+pub struct ManufacturerHandler<'a> {
+    pub(crate) db: &'a dyn Database<DbManufacturer>,
 }
 
-impl ManufacturerManager {
-    pub fn new(path: &str) -> Self {
-        Self {
-            db: Box::new(JammDatabase::new(path, MFR_BUCKET)),
-        }
-    }
-
+impl ManufacturerHandler<'_> {
     fn to_db_item(&self, item: &Manufacturer) -> Result<DbManufacturer, EleboxError> {
         let db_mfr = DbManufacturer {
             name: item.name.to_string(),
@@ -54,12 +48,7 @@ impl ManufacturerManager {
     }
 }
 
-impl Manager<Manufacturer> for ManufacturerManager {
-    fn init(&self) -> Result<(), EleboxError> {
-        let _ = self.db.init()?;
-        Ok(())
-    }
-
+impl<'a> Handler<Manufacturer> for ManufacturerHandler<'_> {
     fn delete(&self, name: &str) -> Result<(), EleboxError> {
         let id = self.db.get_id(name)?;
         let _ = self.db.delete(&id)?;
@@ -108,24 +97,20 @@ impl Manager<Manufacturer> for ManufacturerManager {
         }
         Ok(items)
     }
-
-    fn check(&self) -> Result<(), EleboxError> {
-        Ok(self.db.check()?)
-    }
 }
 
-impl Transferable for ManufacturerManager {
-    fn export(&self, filename: &str) -> Result<(), EleboxError> {
+impl Transferable for ManufacturerHandler<'_> {
+    fn export(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let items = self.list()?;
         let _ = write_yaml(filename, items).unwrap();
         Ok(())
     }
 
-    fn import(&self, filename: &str) -> Result<(), EleboxError> {
+    fn import(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let res_items = read_yaml(filename);
 
         if res_items.is_err() {
-            panic!();
+            todo!()
         }
 
         let items: Vec<Manufacturer> = res_items.unwrap();

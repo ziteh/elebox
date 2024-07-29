@@ -16,8 +16,9 @@ pub const PACKAGES_BUCKET: &str = "packages";
 pub const MFR_BUCKET: &str = "manufacturers";
 pub const CATEGORIES_BUCKET: &str = "categories";
 
-pub trait Named {
+pub trait DatabaseItem {
     fn get_name(&self) -> String;
+    fn get_bucket() -> String;
 }
 
 pub type Id = String;
@@ -63,9 +64,13 @@ pub struct DbPart {
     pub starred: bool,
 }
 
-impl Named for DbPart {
+impl DatabaseItem for DbPart {
     fn get_name(&self) -> String {
         self.name.clone()
+    }
+
+    fn get_bucket() -> String {
+        String::from(PARTS_BUCKET)
     }
 }
 
@@ -76,9 +81,13 @@ pub struct DbCategory {
     pub alias: String,
 }
 
-impl Named for DbCategory {
+impl DatabaseItem for DbCategory {
     fn get_name(&self) -> String {
         self.name.clone()
+    }
+
+    fn get_bucket() -> String {
+        String::from(CATEGORIES_BUCKET)
     }
 }
 
@@ -89,9 +98,13 @@ pub struct DbPackage {
     pub alias: String,
 }
 
-impl Named for DbPackage {
+impl DatabaseItem for DbPackage {
     fn get_name(&self) -> String {
         self.name.clone()
+    }
+
+    fn get_bucket() -> String {
+        String::from(PACKAGES_BUCKET)
     }
 }
 
@@ -102,46 +115,46 @@ pub struct DbManufacturer {
     pub url: String,
 }
 
-impl Named for DbManufacturer {
+impl DatabaseItem for DbManufacturer {
     fn get_name(&self) -> String {
         self.name.clone()
+    }
+
+    fn get_bucket() -> String {
+        String::from(MFR_BUCKET)
     }
 }
 
 pub struct JammDatabase {
     /// Database file path.
     path: PathBuf,
-
-    /// Database bucket name.
-    bucket: String,
 }
 
 impl JammDatabase {
-    pub fn new(path: &str, bucket: &str) -> Self {
+    pub fn new(path: &str) -> Self {
         Self {
             path: PathBuf::from(path),
-            bucket: String::from(bucket),
         }
     }
 }
 
 // TODO return Err
-impl<T> Database<T> for JammDatabase
+impl<DI> Database<DI> for JammDatabase
 where
-    T: Serialize + for<'de> Deserialize<'de> + Named,
+    DI: Serialize + for<'de> Deserialize<'de> + DatabaseItem,
 {
     fn init(&self) -> Result<(), DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(true).unwrap();
-        tx.get_or_create_bucket(self.bucket.as_str()).unwrap();
+        tx.get_or_create_bucket(DI::get_bucket()).unwrap();
         let _ = tx.commit().unwrap();
         Ok(())
     }
 
-    fn add(&self, item: &T) -> Result<(), DbError> {
+    fn add(&self, item: &DI) -> Result<(), DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(true).unwrap();
-        let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
+        let bkt = tx.get_bucket(DI::get_bucket()).unwrap();
 
         let value = rmp_serde::to_vec(&item).unwrap();
         let id = Uuid::new_v4().to_string();
@@ -150,10 +163,10 @@ where
         Ok(())
     }
 
-    fn update(&self, ori_id: &str, new_item: &T) -> Result<(), DbError> {
+    fn update(&self, ori_id: &str, new_item: &DI) -> Result<(), DbError> {
         let db = DB::open(&self.path)?;
         let tx = db.tx(true).unwrap();
-        let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
+        let bkt = tx.get_bucket(DI::get_bucket()).unwrap();
 
         let value = rmp_serde::to_vec(&new_item).unwrap();
         bkt.put(ori_id, value).unwrap();
@@ -165,38 +178,38 @@ where
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(false).unwrap();
 
-        let bkt = tx.get_bucket(self.bucket.as_str()).expect(&self.bucket);
+        let bkt = tx.get_bucket(DI::get_bucket()).expect(&DI::get_bucket());
 
         for data in bkt.cursor() {
-            let item: T = rmp_serde::from_slice(data.kv().value()).unwrap();
+            let item: DI = rmp_serde::from_slice(data.kv().value()).unwrap();
 
             if &item.get_name() == name {
                 let id = from_utf8(data.kv().key()).unwrap();
                 return Ok(id.to_string());
             };
         }
-        Err(DbError::NotExists(self.bucket.to_string())) // TODO
+        Err(DbError::NotExists(DI::get_bucket())) // TODO
     }
 
-    fn get(&self, id: &str) -> Result<T, DbError> {
+    fn get(&self, id: &str) -> Result<DI, DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(false).unwrap();
-        let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
+        let bkt = tx.get_bucket(DI::get_bucket()).unwrap();
 
         if let Some(data) = bkt.get(id) {
             return Ok(rmp_serde::from_slice(data.kv().value()).unwrap());
         }
-        Err(DbError::NotExists(self.bucket.to_string())) // TODO
+        Err(DbError::NotExists(DI::get_bucket())) // TODO
     }
 
-    fn list(&self) -> Result<Vec<T>, DbError> {
+    fn list(&self) -> Result<Vec<DI>, DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(false).unwrap();
-        let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
+        let bkt = tx.get_bucket(DI::get_bucket()).unwrap();
 
-        let mut items: Vec<T> = Vec::new();
+        let mut items: Vec<DI> = Vec::new();
         for data in bkt.cursor() {
-            let item: T = rmp_serde::from_slice::<T>(data.kv().value()).unwrap();
+            let item: DI = rmp_serde::from_slice::<DI>(data.kv().value()).unwrap();
             items.push(item);
         }
         Ok(items)
@@ -205,7 +218,7 @@ where
     fn delete(&self, id: &str) -> Result<(), DbError> {
         let db = DB::open(&self.path).unwrap();
         let tx = db.tx(true).unwrap();
-        let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
+        let bkt = tx.get_bucket(DI::get_bucket()).unwrap();
 
         bkt.delete(id).unwrap();
         let _ = tx.commit();
@@ -219,7 +232,7 @@ where
             println!("Tx");
             let tx = db.tx(false).unwrap();
             println!("Bk");
-            let bkt = tx.get_bucket(self.bucket.as_str()).unwrap();
+            let bkt = tx.get_bucket(DI::get_bucket()).unwrap();
             println!("ok");
         });
 

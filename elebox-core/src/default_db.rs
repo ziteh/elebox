@@ -1,11 +1,16 @@
-use crate::{category::*, jamm_db::*, manufacturer::*, package::*, Manager, Part, PartManager};
+use crate::{category::*, jamm_db::*, manufacturer::*, package::*, Handler, Manager, Part};
 use std::path::Path;
 
 pub fn create_default_db(path: &str) {
     let exists = Path::new(&path).exists();
 
-    let part_mgr = PartManager::new(path);
-    let _ = part_mgr.init();
+    let part_db = Box::new(JammDatabase::new(&path));
+    let pkg_db = Box::new(JammDatabase::new(&path));
+    let cat_db = Box::new(JammDatabase::new(&path));
+    let mfr_db = Box::new(JammDatabase::new(&path));
+    let manager = Manager::new(part_db, pkg_db, cat_db, mfr_db);
+
+    manager.init();
 
     if exists {
         return;
@@ -134,9 +139,9 @@ pub fn create_default_db(path: &str) {
         },
     ];
 
-    let cat_mgr = CategoryManager::new(path);
+    let cat_handler = manager.category();
     for c in cats {
-        let _ = cat_mgr.add(&c);
+        let _ = cat_handler.add(&c);
     }
 
     let pkgs: Vec<Package> = vec![
@@ -237,9 +242,9 @@ pub fn create_default_db(path: &str) {
         },
     ];
 
-    let pkg_mgr = PackageManager::new(path);
+    let pkg_handler = manager.package();
     for p in pkgs {
-        let _ = pkg_mgr.add(&p);
+        let _ = pkg_handler.add(&p);
     }
 
     let mfrs: Vec<Manufacturer> = vec![
@@ -290,9 +295,9 @@ pub fn create_default_db(path: &str) {
         },
     ];
 
-    let mfr_mgr = ManufacturerManager::new(&path);
+    let mfr_handler = manager.manufacturer();
     for m in mfrs {
-        let _ = mfr_mgr.add(&m);
+        let _ = mfr_handler.add(&m);
     }
 
     let rp2040 = Part {
@@ -400,6 +405,6 @@ pub fn create_default_db(path: &str) {
         suppliers: vec![],
     };
 
-    let _ = part_mgr.add(&rp2040);
-    let _ = part_mgr.add(&rt9183);
+    manager.part().add(&rp2040);
+    manager.part().add(&rt9183);
 }

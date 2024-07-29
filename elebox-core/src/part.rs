@@ -1,7 +1,7 @@
 use crate::{comm::*, errors::*, jamm_db::*, yaml::*};
 
 use serde::{Deserialize, Serialize};
-use std::{fmt::Debug, thread::sleep};
+use std::{fmt::Debug, path::PathBuf, thread::sleep};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
@@ -46,89 +46,14 @@ impl Part {
     }
 }
 
-pub struct PartManager {
-    db: Box<dyn Database<DbPart>>,
-    pkg_db: Box<dyn Database<DbPackage>>,
-    mfr_db: Box<dyn Database<DbManufacturer>>,
-    cat_db: Box<dyn Database<DbCategory>>,
+pub struct PartHandler<'a> {
+    pub(crate) db: &'a dyn Database<DbPart>,
+    pub(crate) pkg_db: &'a dyn Database<DbPackage>,
+    pub(crate) cat_db: &'a dyn Database<DbCategory>,
+    pub(crate) mfr_db: &'a dyn Database<DbManufacturer>,
 }
 
-impl Manager<Part> for PartManager {
-    fn init(&self) -> Result<(), EleboxError> {
-        let _ = self.pkg_db.init()?;
-        let _ = self.mfr_db.init()?;
-        let _ = self.cat_db.init()?;
-        let _ = self.db.init()?;
-        Ok(())
-    }
-
-    fn delete(&self, name: &str) -> Result<(), EleboxError> {
-        let id = self.db.get_id(name)?;
-        let _ = self.db.delete(&id)?;
-        Ok(())
-    }
-
-    fn add(&self, item: &Part) -> Result<(), EleboxError> {
-        if self.db.get_id(&item.name).is_ok() {
-            return Err(EleboxError::AlreadyExists(
-                String::from(ITEM_PART),
-                item.name.clone(),
-            ));
-        }
-
-        let db_item = self.to_db_item(item)?;
-        let _ = self.db.add(&db_item)?;
-        Ok(())
-    }
-
-    fn update(&self, ori_name: &str, new_item: &Part) -> Result<(), EleboxError> {
-        let ori_id = self.db.get_id(ori_name)?;
-
-        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
-            return Err(EleboxError::AlreadyExists(
-                String::from(ITEM_PART),
-                new_item.name.clone(),
-            ));
-        }
-
-        let db_part = self.to_db_item(new_item)?;
-        let _ = self.db.update(ori_id.as_str(), &db_part)?;
-        Ok(())
-    }
-
-    fn get(&self, name: &str) -> Result<Part, EleboxError> {
-        let id = self.db.get_id(name)?;
-        let db_part = self.db.get(&id)?;
-        self.to_item(db_part)
-    }
-
-    fn list(&self) -> Result<Vec<Part>, EleboxError> {
-        let db_items = self.db.list()?;
-        let mut items: Vec<Part> = vec![];
-        for db_item in db_items {
-            match self.to_item(db_item) {
-                Ok(item) => items.push(item),
-                Err(err) => return Err(err),
-            }
-        }
-        Ok(items)
-    }
-
-    fn check(&self) -> Result<(), EleboxError> {
-        Ok(self.db.check()?)
-    }
-}
-
-impl PartManager {
-    pub fn new(path: &str) -> Self {
-        Self {
-            db: Box::new(JammDatabase::new(path, PARTS_BUCKET)),
-            pkg_db: Box::new(JammDatabase::new(path, PACKAGES_BUCKET)),
-            mfr_db: Box::new(JammDatabase::new(path, MFR_BUCKET)),
-            cat_db: Box::new(JammDatabase::new(path, CATEGORIES_BUCKET)),
-        }
-    }
-
+impl PartHandler<'_> {
     fn to_item(&self, db_part: DbPart) -> Result<Part, EleboxError> {
         let category = match self.cat_db.get(&db_part.category_id) {
             Ok(item) => item.name,
@@ -178,7 +103,7 @@ impl PartManager {
             starred: db_part.starred,
         };
 
-        return Ok(part);
+        Ok(part)
     }
 
     fn to_db_item(&self, item: &Part) -> Result<DbPart, EleboxError> {
@@ -256,18 +181,72 @@ impl PartManager {
     }
 }
 
-impl Transferable for PartManager {
-    fn export(&self, filename: &str) -> Result<(), EleboxError> {
+impl<'a> Handler<Part> for PartHandler<'_> {
+    fn delete(&self, name: &str) -> Result<(), EleboxError> {
+        let id = self.db.get_id(name)?;
+        let _ = self.db.delete(&id)?;
+        Ok(())
+    }
+
+    fn add(&self, item: &Part) -> Result<(), EleboxError> {
+        if self.db.get_id(&item.name).is_ok() {
+            return Err(EleboxError::AlreadyExists(
+                String::from(ITEM_PART),
+                item.name.clone(),
+            ));
+        }
+
+        let db_item = self.to_db_item(item)?;
+        let _ = self.db.add(&db_item)?;
+        Ok(())
+    }
+
+    fn update(&self, ori_name: &str, new_item: &Part) -> Result<(), EleboxError> {
+        let ori_id = self.db.get_id(ori_name)?;
+
+        if ori_name != &new_item.name && self.db.get_id(&new_item.name).is_ok() {
+            return Err(EleboxError::AlreadyExists(
+                String::from(ITEM_PART),
+                new_item.name.clone(),
+            ));
+        }
+
+        let db_part = self.to_db_item(new_item)?;
+        let _ = self.db.update(ori_id.as_str(), &db_part)?;
+        Ok(())
+    }
+
+    fn get(&self, name: &str) -> Result<Part, EleboxError> {
+        let id = self.db.get_id(name)?;
+        let db_part = self.db.get(&id)?;
+        self.to_item(db_part)
+    }
+
+    fn list(&self) -> Result<Vec<Part>, EleboxError> {
+        let db_items = self.db.list()?;
+        let mut items: Vec<Part> = vec![];
+        for db_item in db_items {
+            match self.to_item(db_item) {
+                Ok(item) => items.push(item),
+                Err(err) => return Err(err),
+            }
+        }
+        Ok(items)
+    }
+}
+
+impl Transferable for PartHandler<'_> {
+    fn export(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let parts = self.list()?;
         let _ = write_yaml(filename, parts).unwrap();
         Ok(())
     }
 
-    fn import(&self, filename: &str) -> Result<(), EleboxError> {
+    fn import(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let res_parts = read_yaml(filename);
 
         if res_parts.is_err() {
-            panic!();
+            todo!()
         }
 
         let parts: Vec<Part> = res_parts.unwrap();

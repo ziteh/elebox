@@ -1,6 +1,6 @@
 use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::{fmt::Debug, path::PathBuf};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum PackageType {
@@ -26,17 +26,11 @@ impl Package {
     }
 }
 
-pub struct PackageManager {
-    db: Box<dyn Database<DbPackage>>,
+pub struct PackageHandler<'a> {
+    pub(crate) db: &'a dyn Database<DbPackage>,
 }
 
-impl PackageManager {
-    pub fn new(path: &str) -> Self {
-        Self {
-            db: Box::new(JammDatabase::new(path, PACKAGES_BUCKET)),
-        }
-    }
-
+impl PackageHandler<'_> {
     fn to_db_item(&self, item: &Package) -> Result<DbPackage, EleboxError> {
         let db_pkg = DbPackage {
             name: item.name.to_string(),
@@ -69,12 +63,7 @@ impl PackageManager {
     }
 }
 
-impl Manager<Package> for PackageManager {
-    fn init(&self) -> Result<(), EleboxError> {
-        let _ = self.db.init()?;
-        Ok(())
-    }
-
+impl<'a> Handler<Package> for PackageHandler<'_> {
     fn delete(&self, name: &str) -> Result<(), EleboxError> {
         let id = self.db.get_id(name)?;
         let _ = self.db.delete(&id)?;
@@ -123,24 +112,20 @@ impl Manager<Package> for PackageManager {
         }
         Ok(items)
     }
-
-    fn check(&self) -> Result<(), EleboxError> {
-        Ok(self.db.check()?)
-    }
 }
 
-impl Transferable for PackageManager {
-    fn export(&self, filename: &str) -> Result<(), EleboxError> {
+impl Transferable for PackageHandler<'_> {
+    fn export(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let items = self.list()?;
         let _ = write_yaml(filename, items).unwrap();
         Ok(())
     }
 
-    fn import(&self, filename: &str) -> Result<(), EleboxError> {
+    fn import(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let res_items = read_yaml(filename);
 
         if res_items.is_err() {
-            panic!();
+            todo!()
         }
 
         let items: Vec<Package> = res_items.unwrap();
