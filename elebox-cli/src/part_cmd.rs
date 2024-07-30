@@ -1,5 +1,7 @@
+use std::path::PathBuf;
+
 use clap::{Args, Subcommand};
-use elebox_core::{Manager, Transferable};
+use elebox_core::{Handler, Manager, Transferable};
 
 #[derive(Debug, Args)]
 pub struct PartCommand {
@@ -74,13 +76,11 @@ struct CsvPartArgs {
 }
 
 // pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
-pub fn part_cmd(path: &str, cmd: &PartCommand) {
-    let manager = elebox_core::PartManager::new(path);
-
+pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
     match &cmd.command {
         Some(sub_cmd) => match sub_cmd {
             PartSubCommand::New(args) => {
-                let res = manager.add(&elebox_core::Part::new(
+                let res = handler.add(&elebox_core::Part::new(
                     &args.name,
                     &args.category,
                     args.quantity,
@@ -91,7 +91,7 @@ pub fn part_cmd(path: &str, cmd: &PartCommand) {
                 }
             }
             PartSubCommand::Delete(args) => {
-                if let Err(err) = manager.delete(&args.name) {
+                if let Err(err) = handler.delete(&args.name) {
                     println!("ERR: {err}");
                 }
             }
@@ -99,28 +99,28 @@ pub fn part_cmd(path: &str, cmd: &PartCommand) {
                 todo!();
             }
             PartSubCommand::Add(args) => {
-                if let Err(err) = manager.update_part_quantity(&args.name, args.quantity as i16) {
+                if let Err(err) = handler.update_part_quantity(&args.name, args.quantity as i16) {
                     println!("ERR: {err}");
                 }
             }
             PartSubCommand::Use(args) => {
                 let q = args.quantity as i16 * -1;
-                if let Err(err) = manager.update_part_quantity(&args.name, q) {
+                if let Err(err) = handler.update_part_quantity(&args.name, q) {
                     println!("ERR: {err}");
                 }
             }
-            PartSubCommand::Export(args) => match manager.export(&args.path) {
+            PartSubCommand::Export(args) => match handler.export(&PathBuf::from(&args.path)) {
                 Ok(_) => println!("Export success: {}", args.path),
                 Err(_) => println!("Export error: {}", args.path),
             },
-            PartSubCommand::Import(args) => match manager.import(&args.path) {
+            PartSubCommand::Import(args) => match handler.import(&PathBuf::from(&args.path)) {
                 Ok(_) => println!("Import success: {}", args.path),
                 Err(_) => println!("Import error: {}", args.path),
             },
         },
         None => {
             println!("List part");
-            let parts = manager.list().unwrap();
+            let parts = handler.list().unwrap();
             for part in parts {
                 println!("{}   {}   {}", part.name, part.quantity, part.category);
             }

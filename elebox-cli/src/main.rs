@@ -1,7 +1,5 @@
-
-
 use clap::{Args, Parser, Subcommand};
-use elebox_core::{self};
+use elebox_core::{self, JammDatabase};
 
 mod category_cmd;
 mod part_cmd;
@@ -45,13 +43,19 @@ enum EntityType {
 
 fn main() {
     let cli = Cli::parse();
+    let db_path = cli.db_path;
+    println!("Database: {}", db_path);
 
-    println!("Database: {}", cli.db_path);
+    let part_db = Box::new(JammDatabase::new(&db_path));
+    let pkg_db = Box::new(JammDatabase::new(&db_path));
+    let cat_db = Box::new(JammDatabase::new(&db_path));
+    let mfr_db = Box::new(JammDatabase::new(&db_path));
+    let manager = elebox_core::Manager::new(part_db, pkg_db, cat_db, mfr_db);
 
     match &cli.entity_type {
-        EntityType::Init => elebox_core::init(&cli.db_path),
-        EntityType::Part(cmd) => part_cmd(&cli.db_path, cmd),
-        EntityType::Category(cmd) => category_cmd(&cli.db_path, cmd),
+        EntityType::Init => manager.init(),
+        EntityType::Part(cmd) => Ok(part_cmd(manager.part(), cmd)),
+        EntityType::Category(cmd) => Ok(category_cmd(manager.category(), cmd)),
         EntityType::Export(_args) => todo!(),
         EntityType::Import(_args) => todo!(),
     };
