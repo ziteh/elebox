@@ -91,18 +91,44 @@ impl Manager {
     }
 
     pub fn import(&self, path: &PathBuf) -> Result<(), EleboxError> {
-        let filename = path.join(PART_FILENAME);
-        let _ = self.part().import(&filename)?;
+        let filename = path.join(CATEGORY_FILENAME);
+        let _ = self.category().import(&filename)?;
 
         let filename = path.join(PACKAGE_FILENAME);
         let _ = self.package().import(&filename)?;
 
-        let filename = path.join(CATEGORY_FILENAME);
-        let _ = self.category().import(&filename)?;
-
         let filename = path.join(MFR_FILENAME);
         let _ = self.manufacturer().import(&filename)?;
 
+        let filename = path.join(PART_FILENAME);
+        let _ = self.part().import(&filename)?;
+
         Ok(())
+    }
+
+    pub fn from(
+        part_db: Box<dyn Database<DbPart>>,
+        package_db: Box<dyn Database<DbPackage>>,
+        category_db: Box<dyn Database<DbCategory>>,
+        mfr_db: Box<dyn Database<DbManufacturer>>,
+        path: &PathBuf,
+    ) -> Result<Self, EleboxError> {
+        // TODO
+        let mgr = Self::new(part_db, package_db, category_db, mfr_db);
+        mgr.init();
+
+        let filename = path.join(CATEGORY_FILENAME);
+        let _ = mgr.category().import(&filename)?;
+
+        let filename = path.join(PACKAGE_FILENAME);
+        let _ = mgr.package().import(&filename)?;
+
+        let filename = path.join(MFR_FILENAME);
+        let _ = mgr.manufacturer().import(&filename)?;
+
+        let filename = path.join(PART_FILENAME);
+        let _ = mgr.part().import(&filename)?;
+
+        Ok(mgr)
     }
 }
