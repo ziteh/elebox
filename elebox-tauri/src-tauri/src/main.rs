@@ -299,16 +299,21 @@ fn set_language(
 
 #[tauri::command(rename_all = "snake_case")]
 fn export_csv(manager: tauri::State<EleboxManager>, csv_path: &str) {
-    // let p = GET!(path);
-
-    // elebox_core::export(&p, csv_path);
-    todo!()
+    let mgr_lock = lock!(manager);
+    mgr_lock.export(&PathBuf::from(csv_path));
 }
 
 #[tauri::command(rename_all = "snake_case")]
-fn import_csv(csv_path: &str) -> Result<(), String> {
-    // elebox_core::import(csv_path)
-    todo!()
+fn import_csv(manager: tauri::State<EleboxManager>, csv_path: &str) -> Result<(), String> {
+    // TODO
+    let path = PathBuf::from(csv_path);
+    let db_path = path.join("import_exebox.db");
+    let part_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
+    let pkg_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
+    let cat_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
+    let mfr_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
+    Manager::from(part_db, pkg_db, cat_db, mfr_db, &path);
+    Ok(())
 }
 
 fn main() {
