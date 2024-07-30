@@ -141,7 +141,7 @@ impl JammDatabase {
 // TODO return Err
 impl<DI> Database<DI> for JammDatabase
 where
-    DI: Serialize + for<'de> Deserialize<'de> + DatabaseItem,
+    DI: Serialize + for<'de> Deserialize<'de> + DatabaseItem + Send + Sync,
 {
     fn init(&self) -> Result<(), DbError> {
         let db = DB::open(&self.path).unwrap();

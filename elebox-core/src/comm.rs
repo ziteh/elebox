@@ -7,7 +7,7 @@ pub const ITEM_CAT: &str = "category";
 pub const ITEM_PKG: &str = "package";
 pub const ITEM_MFR: &str = "manufacturer";
 
-pub trait Database<DI> {
+pub trait Database<DI>: Send + Sync {
     fn init(&self) -> Result<(), DbError>;
     fn get_id(&self, name: &str) -> Result<String, DbError>;
     fn get(&self, id: &str) -> Result<DI, DbError>;
