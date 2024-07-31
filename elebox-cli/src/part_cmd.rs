@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{Args, Subcommand};
-use elebox_core::{Handler, Manager, Transferable};
+use elebox_core::{Handler, Manager, Part, Transferable};
 
 #[derive(Debug, Args)]
 pub struct PartCommand {
@@ -14,8 +14,11 @@ enum PartSubCommand {
     /// Create a new part
     New(NewPartArgs),
 
+    /// Get a part
+    Get(NamePartArgs),
+
     /// Remove a part
-    Delete(DeletePartArgs),
+    Delete(NamePartArgs),
 
     /// Update a part
     Update(UpdatePartArgs),
@@ -38,8 +41,40 @@ struct NewPartArgs {
     name: String,
     quantity: u16,
     category: String,
+
     #[arg(short = 'm', long = "mfr")]
     mfr: Option<String>,
+
+    #[arg(short = 'p', long = "package")]
+    package: Option<String>,
+
+    #[arg(short = 'P', long = "package-detail")]
+    package_detail: Option<String>,
+
+    #[arg(short = 'M', long = "mfr-number")]
+    mfr_no: Option<String>,
+
+    #[arg(short = 'a', long = "alias")]
+    alias: Option<String>,
+
+    #[arg(short = 'l', long = "location")]
+    location: Option<String>,
+
+    #[arg(short = 'r', long = "product")]
+    product: Option<String>,
+
+    #[arg(short = 'D', long = "datasheet")]
+    datasheet: Option<String>,
+
+    #[arg(short = 'i', long = "image")]
+    image: Option<String>,
+
+    #[arg(short = 'd', long = "description")]
+    description: Option<String>,
+
+    #[arg(short = 's', long = "starred")]
+    starred: bool,
+    // TODO custom field and suppliers
 }
 
 #[derive(Debug, Args)]
@@ -65,7 +100,7 @@ struct UsePartArgs {
 }
 
 #[derive(Debug, Args)]
-struct DeletePartArgs {
+struct NamePartArgs {
     name: String,
 }
 
@@ -80,16 +115,66 @@ pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
     match &cmd.command {
         Some(sub_cmd) => match sub_cmd {
             PartSubCommand::New(args) => {
-                let res = handler.add(&elebox_core::Part::new(
-                    &args.name,
-                    &args.category,
-                    args.quantity,
-                ));
+                let part = Part {
+                    name: args.name.clone(),
+                    quantity: args.quantity,
+                    category: args.category.clone(),
+                    package: args.package.clone(),
+                    package_detail: args.package_detail.clone(),
+                    alias: args.alias.clone(),
+                    description: args.description.clone(),
+                    location: args.location.clone(),
+                    mfr: args.mfr.clone(),
+                    mfr_no: args.mfr_no.clone(),
+                    datasheet_link: args.datasheet.clone(),
+                    product_link: args.product.clone(),
+                    image_link: args.image.clone(),
+                    starred: args.starred,
+                    custom_fields: vec![], // TODO
+                    suppliers: vec![],     // TODO
+                };
+
+                let res = handler.add(&part);
                 match res {
                     Ok(()) => println!("Add part {} x{}", args.name, args.quantity),
                     Err(err) => println!("{err}"),
                 }
             }
+            PartSubCommand::Get(args) => match handler.get(&args.name) {
+                Ok(part) => {
+                    println!(
+                        "Name: {}\n\
+                        Quantity: {}\n\
+                        Category: {}\n\
+                        Package: {}\n\
+                        Package Detail: {}\n\
+                        Alias: {}\n\
+                        Description: {}\n\
+                        Location: {}\n\
+                        Manufacturer: {}\n\
+                        Manufacturer Number: {}\n\
+                        Datasheet Link: {}\n\
+                        Product Link: {}\n\
+                        Image Link: {}\n\
+                        Starred: {}",
+                        part.name,
+                        part.quantity,
+                        part.category,
+                        unwrap_none(&part.package),
+                        unwrap_none(&part.package_detail),
+                        unwrap_none(&part.alias),
+                        unwrap_none(&part.description),
+                        unwrap_none(&part.location),
+                        unwrap_none(&part.mfr),
+                        unwrap_none(&part.mfr_no),
+                        unwrap_none(&part.datasheet_link),
+                        unwrap_none(&part.product_link),
+                        unwrap_none(&part.image_link),
+                        part.starred,
+                    )
+                }
+                Err(err) => println!("Error: {err}"),
+            },
             PartSubCommand::Delete(args) => {
                 if let Err(err) = handler.delete(&args.name) {
                     println!("ERR: {err}");
@@ -125,5 +210,12 @@ pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
                 println!("{}   {}   {}", part.name, part.quantity, part.category);
             }
         }
+    }
+}
+
+fn unwrap_none(val: &Option<String>) -> String {
+    match val {
+        Some(v) => String::from(v),
+        None => String::from("-none-"),
     }
 }
