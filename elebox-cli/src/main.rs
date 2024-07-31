@@ -44,7 +44,6 @@ enum EntityType {
 fn main() {
     let cli = Cli::parse();
     let db_path = cli.db_path;
-    println!("Database: {}", db_path);
 
     let part_db = Box::new(JammDatabase::new(&db_path));
     let pkg_db = Box::new(JammDatabase::new(&db_path));
