@@ -11,9 +11,8 @@ pub struct Config {
     pub database: Option<String>,
 }
 
-pub fn load_config(dir: &str) -> Result<Config, ()> {
-    let mut cfg_path = PathBuf::from(dir);
-    cfg_path.push(CONFIG_FILENAME);
+pub fn load_config(dir: &PathBuf) -> Result<Config, ()> {
+    let cfg_path = dir.join(CONFIG_FILENAME);
 
     // TODO remove unwrap
     let content = fs::read_to_string(cfg_path).unwrap();
@@ -21,9 +20,8 @@ pub fn load_config(dir: &str) -> Result<Config, ()> {
     Ok(config)
 }
 
-pub fn save_config(dir: &str, config: &Config) -> Result<(), ()> {
-    let mut cfg_path = PathBuf::from(dir);
-    cfg_path.push(CONFIG_FILENAME);
+pub fn save_config(dir: &PathBuf, config: &Config) -> Result<(), ()> {
+    let cfg_path = dir.join(CONFIG_FILENAME);
 
     // TODO remove unwrap
     let content = serde_yaml::to_string(config).unwrap();
@@ -31,9 +29,8 @@ pub fn save_config(dir: &str, config: &Config) -> Result<(), ()> {
     Ok(())
 }
 
-pub fn create_config(dir: &str) -> Result<(), ()> {
-    let mut cfg_path = PathBuf::from(dir);
-    cfg_path.push(CONFIG_FILENAME);
+pub fn create_config(dir: &PathBuf) -> Result<(), ()> {
+    let cfg_path = dir.join(CONFIG_FILENAME);
 
     if !cfg_path.exists() {
         let default_config = Config {
