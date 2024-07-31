@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{net, path::PathBuf};
 
 use clap::{Args, Subcommand};
 use elebox_core::{Handler, Manager, Part, Transferable};
@@ -79,12 +79,50 @@ struct NewPartArgs {
 
 #[derive(Debug, Args)]
 struct UpdatePartArgs {
-    old_name: String,
-    new_name: Option<String>,
-    new_quantity: Option<u16>,
-    new_part_cat: Option<String>,
+    ori_name: String,
+
+    #[arg(short = 'n', long = "name")]
+    name: Option<String>,
+
+    #[arg(short = 'q', long = "quantity")]
+    quantity: Option<u16>,
+
+    #[arg(short = 'c', long = "category")]
+    category: Option<String>,
+
     #[arg(short = 'm', long = "mfr")]
     mfr: Option<String>,
+
+    #[arg(short = 'p', long = "package")]
+    package: Option<String>,
+
+    #[arg(short = 'P', long = "package-detail")]
+    package_detail: Option<String>,
+
+    #[arg(short = 'M', long = "mfr-number")]
+    mfr_no: Option<String>,
+
+    #[arg(short = 'a', long = "alias")]
+    alias: Option<String>,
+
+    #[arg(short = 'l', long = "location")]
+    location: Option<String>,
+
+    #[arg(short = 'r', long = "product")]
+    product: Option<String>,
+
+    #[arg(short = 'D', long = "datasheet")]
+    datasheet: Option<String>,
+
+    #[arg(short = 'i', long = "image")]
+    image: Option<String>,
+
+    #[arg(short = 'd', long = "description")]
+    description: Option<String>,
+
+    #[arg(short = 's', long = "starred")]
+    starred: Option<bool>,
+    // TODO custom field and suppliers
 }
 
 #[derive(Debug, Args)]
@@ -180,8 +218,111 @@ pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
                     println!("ERR: {err}");
                 }
             }
-            PartSubCommand::Update(_args) => {
-                todo!();
+            PartSubCommand::Update(args) => {
+                let ori_part = handler.get(&args.ori_name).expect("Not found");
+
+                let name = match &args.name {
+                    Some(n) => n.clone(),
+                    None => ori_part.name.clone(),
+                };
+
+                let category = match &args.category {
+                    Some(c) => c.clone(),
+                    None => ori_part.category.clone(),
+                };
+
+                let quantity = match args.quantity {
+                    Some(q) => q,
+                    None => ori_part.quantity,
+                };
+
+                let starred = match args.starred {
+                    Some(s) => s,
+                    None => ori_part.starred,
+                };
+
+                // TODO
+                let package = args
+                    .package
+                    .as_deref()
+                    .or_else(|| ori_part.package.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let package_detail = args
+                    .package_detail
+                    .as_deref()
+                    .or_else(|| ori_part.package_detail.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let alias = args
+                    .alias
+                    .as_deref()
+                    .or_else(|| ori_part.alias.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let description = args
+                    .description
+                    .as_deref()
+                    .or_else(|| ori_part.description.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let location = args
+                    .location
+                    .as_deref()
+                    .or_else(|| ori_part.location.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let mfr = args
+                    .mfr
+                    .as_deref()
+                    .or_else(|| ori_part.mfr.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let mfr_no = args
+                    .mfr_no
+                    .as_deref()
+                    .or_else(|| ori_part.mfr_no.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let datasheet_link = args
+                    .datasheet
+                    .as_deref()
+                    .or_else(|| ori_part.datasheet_link.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let product_link = args
+                    .product
+                    .as_deref()
+                    .or_else(|| ori_part.product_link.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+                let image_link = args
+                    .image
+                    .as_deref()
+                    .or_else(|| ori_part.image_link.as_deref())
+                    .filter(|&s| !s.is_empty())
+                    .map(String::from);
+
+                let new_item = Part {
+                    name,
+                    quantity,
+                    category,
+                    package,
+                    package_detail,
+                    alias,
+                    description,
+                    location,
+                    mfr,
+                    mfr_no,
+                    datasheet_link,
+                    product_link,
+                    image_link,
+                    starred,
+                    custom_fields: ori_part.custom_fields.clone(), // TODO
+                    suppliers: ori_part.suppliers.clone(),         // TODO
+                };
+
+                handler.update(&args.ori_name, &new_item);
             }
             PartSubCommand::Add(args) => {
                 if let Err(err) = handler.update_part_quantity(&args.name, args.quantity as i16) {
