@@ -2,9 +2,11 @@ use clap::{Args, Parser, Subcommand};
 use elebox_core::{self, JammDatabase};
 
 mod category_cmd;
+mod manufacturer_cmd;
 mod part_cmd;
 
 pub use category_cmd::*;
+pub use manufacturer_cmd::*;
 pub use part_cmd::*;
 
 #[derive(Parser)]
@@ -13,6 +15,7 @@ struct Cli {
     /// Path to the `.db` file for the database
     #[arg(default_value = "elebox.db")]
     db_path: String,
+
     #[clap(subcommand)]
     entity_type: EntityType,
 }
@@ -33,6 +36,9 @@ enum EntityType {
 
     /// Edit or list part category
     Category(CategoryCommand),
+
+    /// Edit or list manufacturer
+    Mfr(ManufacturerCommand),
 
     /// Export all data to CSVs
     Export(CsvArgs),
@@ -55,6 +61,7 @@ fn main() {
         EntityType::Init => manager.init(),
         EntityType::Part(cmd) => Ok(part_cmd(manager.part(), cmd)),
         EntityType::Category(cmd) => Ok(category_cmd(manager.category(), cmd)),
+        EntityType::Mfr(cmd) => Ok(manufacturer_cmd(manager.manufacturer(), cmd)),
         EntityType::Export(_args) => todo!(),
         EntityType::Import(_args) => todo!(),
     };
