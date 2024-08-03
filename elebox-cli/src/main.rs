@@ -16,7 +16,7 @@ pub use part_cmd::*;
 #[derive(Parser)]
 #[clap(author, version, about)]
 struct Cli {
-    /// Path to the `.db` file for the database
+    /// Path to the database file
     #[arg(default_value = "elebox.db")]
     db_path: String,
 
@@ -35,22 +35,22 @@ enum EntityType {
     /// Create and init a new database
     Init,
 
-    /// Edit or list part
+    /// Edit or query parts
     Part(PartCommand),
 
-    /// Edit or list part category
+    /// Edit or query categories
     Category(CategoryCommand),
 
-    /// Edit or list part package
+    /// Edit or query packages
     Package(PackageCommand),
 
-    /// Edit or list manufacturer
+    /// Edit or query manufacturers
     Mfr(ManufacturerCommand),
 
-    /// Export all data to CSVs
+    /// Export all data
     Export(PathArgs),
 
-    /// Import all data from CSVs
+    /// Import all data
     Import(PathArgs),
 }
 

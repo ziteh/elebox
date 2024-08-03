@@ -14,19 +14,19 @@ pub struct PackageCommand {
 
 #[derive(Debug, Subcommand)]
 enum PackageSubCommand {
-    /// Create a new package
+    /// Add a new package to the database
     New(NewArgs),
 
-    /// Get a package
+    /// Get info about a specific package
     Get(NameArgs),
 
-    /// Remove a package
+    /// Remove a package from the database
     Delete(NameArgs),
 
-    /// Update a package
+    /// Update info of an existing package
     Update(UpdateArgs),
 
-    /// Export CSV file
+    /// Export data
     Export(ExportArgs),
 }
 
@@ -46,10 +46,13 @@ struct UpdateArgs {
 
 #[derive(Debug, Args)]
 struct NewArgs {
+    /// Package name
     name: String,
 
+    /// Package technology
     pkg_type: String,
 
+    /// Alternative name
     #[arg(short = 'a', long = "alias")]
     alias: Option<String>,
 }

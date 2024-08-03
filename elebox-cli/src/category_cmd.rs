@@ -11,19 +11,19 @@ pub struct CategoryCommand {
 
 #[derive(Debug, Subcommand)]
 enum CategorySubCommand {
-    /// Create a new category
+    /// Add a new category to the database
     New(NewCategoryArgs),
 
-    /// Get a category
+    /// Get info about a specific category
     Get(NameCategoryArgs),
 
-    /// Remove a category
+    /// Remove a category from the database
     Delete(NameCategoryArgs),
 
-    /// Update a category
+    /// Update info of an existing category
     Update(UpdateCategoryArgs),
 
-    /// Export CSV file
+    /// Export data
     Export(ExportCategoryArgs),
 }
 
@@ -43,11 +43,14 @@ struct UpdateCategoryArgs {
 
 #[derive(Debug, Args)]
 struct NewCategoryArgs {
+    /// Category name
     name: String,
 
+    /// The parent category
     #[arg(short = 'p', long = "parent")]
     parent_cat: Option<String>,
 
+    /// Alternative name
     #[arg(short = 'a', long = "alias")]
     alias: Option<String>,
 }

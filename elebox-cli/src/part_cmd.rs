@@ -11,67 +11,83 @@ pub struct PartCommand {
 
 #[derive(Debug, Subcommand)]
 enum PartSubCommand {
-    /// Create a new part
+    /// Add a new part to the database
     New(NewPartArgs),
 
-    /// Get a part
+    /// Get info about a specific part
     Get(NamePartArgs),
 
-    /// Remove a part
+    /// Remove a part from the database
     Delete(NamePartArgs),
 
-    /// Update a part
+    /// Update info of an existing part
     Update(UpdatePartArgs),
 
-    /// Restock
-    Add(AddPartArgs),
+    /// Restocking inventory
+    Restock(AddPartArgs),
 
-    /// Consume
+    /// Record the consumption or use of a part, reducing inventory
     Use(UsePartArgs),
 
-    /// Export as CSV file
-    Export(CsvPartArgs),
+    /// Export data
+    Export(BackupArgs),
 
-    /// Import from CSV file
-    Import(CsvPartArgs),
+    /// Import data
+    Import(BackupArgs),
 }
 
 #[derive(Debug, Args)]
 struct NewPartArgs {
+    /// User friendly part name
     name: String,
+
+    /// Stock quantity
     quantity: u16,
+
+    /// Part category
     category: String,
 
-    #[arg(short = 'm', long = "mfr")]
-    mfr: Option<String>,
-
+    /// Part package type
     #[arg(short = 'p', long = "package")]
     package: Option<String>,
 
+    /// More detail about package
     #[arg(short = 'P', long = "package-detail")]
     package_detail: Option<String>,
 
+    /// Part Manufacturer
+    #[arg(short = 'm', long = "mfr")]
+    mfr: Option<String>,
+
+    /// Manufacturer part number
     #[arg(short = 'M', long = "mfr-number")]
     mfr_no: Option<String>,
 
+    /// Alternative name
     #[arg(short = 'a', long = "alias")]
     alias: Option<String>,
 
+    /// Storage location
     #[arg(short = 'l', long = "location")]
     location: Option<String>,
 
+    /// URL of the part product page
     #[arg(short = 'r', long = "product")]
     product: Option<String>,
 
+    /// URL of the datasheet fot this part
     #[arg(short = 'D', long = "datasheet")]
     datasheet: Option<String>,
 
+    /// URL of the image of this part
     #[arg(short = 'i', long = "image")]
     image: Option<String>,
 
+    /// Additional details about this part
     #[arg(short = 'd', long = "description")]
     description: Option<String>,
 
+    /// Marked with a star
     #[arg(short = 's', long = "starred")]
     starred: bool,
     // TODO custom field and suppliers
@@ -143,12 +159,11 @@ struct NamePartArgs {
 }
 
 #[derive(Debug, Args)]
-struct CsvPartArgs {
+struct BackupArgs {
     #[arg(default_value = "elebox_export_parts.yaml")]
     path: String,
 }
 
-// pub fn part_cmd(db: &dyn elebox_core::Database, cmd: &PartCommand) {
 pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
     match &cmd.command {
         Some(sub_cmd) => match sub_cmd {
@@ -324,7 +339,7 @@ pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
 
                 handler.update(&args.ori_name, &new_item);
             }
-            PartSubCommand::Add(args) => {
+            PartSubCommand::Restock(args) => {
                 if let Err(err) = handler.update_part_quantity(&args.name, args.quantity as i16) {
                     println!("ERR: {err}");
                 }

@@ -12,19 +12,19 @@ pub struct ManufacturerCommand {
 
 #[derive(Debug, Subcommand)]
 enum ManufacturerSubCommand {
-    /// Create a new manufacturer
+    /// Add a new manufacturer to the database
     New(NewArgs),
 
-    /// Get a manufacturer
+    /// Get info about a specific manufacturer
     Get(NameArgs),
 
-    /// Remove a manufacturer
+    /// Remove a manufacturer from the database
     Delete(NameArgs),
 
-    /// Update a manufacturer
+    /// Update info of an existing manufacturer
     Update(UpdateArgs),
 
-    /// Export CSV file
+    /// Export data
     Export(ExportArgs),
 }
 
@@ -44,11 +44,14 @@ struct UpdateArgs {
 
 #[derive(Debug, Args)]
 struct NewArgs {
+    /// Manufacturer name
     name: String,
 
+    /// Alternative name
     #[arg(short = 'a', long = "alias")]
     alias: Option<String>,
 
+    /// URL of the manufacturer
     #[arg(short = 'l', long = "link")]
     link: Option<String>,
 }
