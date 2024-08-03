@@ -3,6 +3,8 @@ use crate::{comm::*, errors::*, jamm_db::*, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Debug, path::PathBuf, thread::sleep};
 
+const DELETED_ITEM: &str = "__DELETE__";
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Part {
     pub name: String,
@@ -58,12 +60,7 @@ impl PartHandler<'_> {
         let category = match self.cat_db.get(&db_part.category_id) {
             Ok(item) => item.name,
             Err(err) => match err {
-                DbError::NotExists(_) => {
-                    return Err(EleboxError::NotExists(
-                        String::from(ITEM_CAT),
-                        db_part.category_id,
-                    ))
-                }
+                DbError::NotExists(_) => String::from(DELETED_ITEM),
                 _ => return Err(EleboxError::DatabaseError(err)),
             },
         };
@@ -71,7 +68,7 @@ impl PartHandler<'_> {
         let package = match self.pkg_db.get(&db_part.package_id) {
             Ok(item) => Some(item.name),
             Err(err) => match err {
-                DbError::NotExists(_) => None,
+                DbError::NotExists(_) => Some(String::from(DELETED_ITEM)),
                 _ => return Err(EleboxError::DatabaseError(err)),
             },
         };
@@ -79,7 +76,7 @@ impl PartHandler<'_> {
         let mfr = match self.mfr_db.get(&db_part.mfr_id) {
             Ok(item) => Some(item.name),
             Err(err) => match err {
-                DbError::NotExists(_) => None,
+                DbError::NotExists(_) => Some(String::from(DELETED_ITEM)),
                 _ => return Err(EleboxError::DatabaseError(err)),
             },
         };
@@ -107,18 +104,19 @@ impl PartHandler<'_> {
     }
 
     fn to_db_item(&self, item: &Part) -> Result<DbPart, EleboxError> {
-        let category_id = self.cat_db.get_id(&item.category)?;
+        let category_id = match self.cat_db.get_id(&item.category) {
+            Ok(id) => id,
+            Err(err) => match err {
+                DbError::NotExists(_) => String::from(DELETED_ITEM),
+                _ => return Err(EleboxError::DatabaseError(err)),
+            },
+        };
 
         let package_id = match &item.package {
             Some(name) => match self.pkg_db.get_id(&name) {
                 Ok(id) => id,
                 Err(err) => match err {
-                    DbError::NotExists(_) => {
-                        return Err(EleboxError::NotExists(
-                            String::from(ITEM_PKG),
-                            name.to_string(),
-                        ))
-                    }
+                    DbError::NotExists(_) => String::from(DELETED_ITEM),
                     _ => return Err(EleboxError::DatabaseError(err)),
                 },
             },
@@ -129,12 +127,7 @@ impl PartHandler<'_> {
             Some(name) => match self.mfr_db.get_id(&name) {
                 Ok(id) => id,
                 Err(err) => match err {
-                    DbError::NotExists(_) => {
-                        return Err(EleboxError::NotExists(
-                            String::from(ITEM_MFR),
-                            name.to_string(),
-                        ))
-                    }
+                    DbError::NotExists(_) => String::from(DELETED_ITEM),
                     _ => return Err(EleboxError::DatabaseError(err)),
                 },
             },

@@ -2,7 +2,7 @@ use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug, path::PathBuf};
 
-const ROOT_CATEGORY: &str = "__root__";
+const ROOT_CATEGORY: &str = "__ROOT__";
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Category {
