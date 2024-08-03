@@ -3,10 +3,12 @@ use elebox_core::{self, JammDatabase};
 
 mod category_cmd;
 mod manufacturer_cmd;
+mod package_cmd;
 mod part_cmd;
 
 pub use category_cmd::*;
 pub use manufacturer_cmd::*;
+pub use package_cmd::*;
 pub use part_cmd::*;
 
 #[derive(Parser)]
@@ -37,6 +39,9 @@ enum EntityType {
     /// Edit or list part category
     Category(CategoryCommand),
 
+    /// Edit or list part package
+    Package(PackageCommand),
+
     /// Edit or list manufacturer
     Mfr(ManufacturerCommand),
 
@@ -62,6 +67,7 @@ fn main() {
         EntityType::Part(cmd) => Ok(part_cmd(manager.part(), cmd)),
         EntityType::Category(cmd) => Ok(category_cmd(manager.category(), cmd)),
         EntityType::Mfr(cmd) => Ok(manufacturer_cmd(manager.manufacturer(), cmd)),
+        EntityType::Package(cmd) => Ok(package_cmd(manager.package(), cmd)),
         EntityType::Export(_args) => todo!(),
         EntityType::Import(_args) => todo!(),
     };
