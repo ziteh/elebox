@@ -92,16 +92,16 @@ impl Manager {
 
     pub fn import(&self, path: &PathBuf) -> Result<(), EleboxError> {
         let filename = path.join(CATEGORY_FILENAME);
-        let _ = self.category().import(&filename)?;
+        let _ = self.category().import(&filename);
 
         let filename = path.join(PACKAGE_FILENAME);
-        let _ = self.package().import(&filename)?;
+        let _ = self.package().import(&filename);
 
         let filename = path.join(MFR_FILENAME);
-        let _ = self.manufacturer().import(&filename)?;
+        let _ = self.manufacturer().import(&filename);
 
         let filename = path.join(PART_FILENAME);
-        let _ = self.part().import(&filename)?;
+        let _ = self.part().import(&filename);
 
         Ok(())
     }

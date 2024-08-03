@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Args, Parser, Subcommand};
 use elebox_core::{self, JammDatabase};
 
@@ -23,7 +25,7 @@ struct Cli {
 }
 
 #[derive(Debug, Args)]
-struct CsvArgs {
+struct PathArgs {
     #[arg(default_value = "./")]
     path: String,
 }
@@ -46,10 +48,10 @@ enum EntityType {
     Mfr(ManufacturerCommand),
 
     /// Export all data to CSVs
-    Export(CsvArgs),
+    Export(PathArgs),
 
     /// Import all data from CSVs
-    Import(CsvArgs),
+    Import(PathArgs),
 }
 
 fn main() {
@@ -68,7 +70,7 @@ fn main() {
         EntityType::Category(cmd) => Ok(category_cmd(manager.category(), cmd)),
         EntityType::Mfr(cmd) => Ok(manufacturer_cmd(manager.manufacturer(), cmd)),
         EntityType::Package(cmd) => Ok(package_cmd(manager.package(), cmd)),
-        EntityType::Export(_args) => todo!(),
-        EntityType::Import(_args) => todo!(),
+        EntityType::Export(args) => manager.export(&PathBuf::from(args.path.clone())),
+        EntityType::Import(args) => manager.import(&PathBuf::from(args.path.clone())),
     };
 }

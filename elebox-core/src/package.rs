@@ -146,7 +146,10 @@ impl Transferable for PackageHandler<'_> {
         let items: Vec<Package> = res_items.unwrap();
         for item in items {
             if let Err(e) = self.add(&item) {
-                panic!("{}", e.to_string())
+                match e {
+                    EleboxError::AlreadyExists(_, _) => continue,
+                    others => panic!("{}", others.to_string()),
+                }
             }
         }
 

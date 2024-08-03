@@ -252,7 +252,10 @@ impl Transferable for PartHandler<'_> {
         let parts: Vec<Part> = res_parts.unwrap();
         for part in parts {
             if let Err(e) = self.add(&part) {
-                panic!("{}", e.to_string())
+                match e {
+                    EleboxError::AlreadyExists(_, _) => continue,
+                    others => panic!("{}", others.to_string()),
+                }
             }
         }
 

@@ -116,7 +116,10 @@ impl Transferable for ManufacturerHandler<'_> {
         let items: Vec<Manufacturer> = res_items.unwrap();
         for item in items {
             if let Err(e) = self.add(&item) {
-                panic!("{}", e.to_string())
+                match e {
+                    EleboxError::AlreadyExists(_, _) => continue,
+                    others => panic!("{}", others.to_string()),
+                }
             }
         }
 
