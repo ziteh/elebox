@@ -1,12 +1,27 @@
 use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
+use core::fmt;
 use serde::{Deserialize, Serialize};
-use std::{fmt::Debug, path::PathBuf};
+use std::{
+    fmt::{write, Debug},
+    path::PathBuf,
+};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum PackageType {
     Smt,
     Tht,
     Others,
+}
+
+impl fmt::Display for PackageType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            PackageType::Smt => "SMT",
+            PackageType::Tht => "THT",
+            PackageType::Others => "Others",
+        };
+        write!(f, "{s}")
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
