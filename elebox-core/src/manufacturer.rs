@@ -302,4 +302,106 @@ mod tests {
             assert_eq!(m.url, Some(format!("{URL}{i}")));
         }
     }
+
+    #[test]
+    fn test_to_db_item_some() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ALIAS: &str = "TestAlias";
+        const URL: &str = "https://test.com";
+
+        let item = Manufacturer {
+            name: NAME.to_string(),
+            alias: Some(ALIAS.to_string()),
+            url: Some(URL.to_string()),
+        };
+
+        let mock_db = MockMyDatabase::new();
+
+        // Act
+        let handler = ManufacturerHandler { db: &mock_db };
+        let result = handler.to_db_item(&item);
+
+        // Assert
+        let db_item = result.expect("Expected OK");
+        assert_eq!(db_item.name, NAME.to_string());
+        assert_eq!(db_item.alias, ALIAS.to_string());
+        assert_eq!(db_item.url, URL.to_string());
+    }
+
+    #[test]
+    fn test_to_db_item_none() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ALIAS: &str = "";
+        const URL: &str = "";
+
+        let item = Manufacturer {
+            name: NAME.to_string(),
+            alias: None,
+            url: None,
+        };
+
+        let mock_db = MockMyDatabase::new();
+
+        // Act
+        let handler = ManufacturerHandler { db: &mock_db };
+        let result = handler.to_db_item(&item);
+
+        // Assert
+        let db_item = result.expect("Expected OK");
+        assert_eq!(db_item.name, NAME.to_string());
+        assert_eq!(db_item.alias, ALIAS.to_string());
+        assert_eq!(db_item.url, URL.to_string());
+    }
+
+    #[test]
+    fn test_to_item_some() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ALIAS: &str = "TestAlias";
+        const URL: &str = "https://test.com";
+
+        let item = DbManufacturer {
+            name: NAME.to_string(),
+            alias: ALIAS.to_string(),
+            url: URL.to_string(),
+        };
+
+        let mock_db = MockMyDatabase::new();
+
+        // Act
+        let handler = ManufacturerHandler { db: &mock_db };
+        let item = handler.to_item(&item);
+
+        // Assert
+        assert_eq!(item.name, NAME.to_string());
+        assert_eq!(item.alias, Some(ALIAS.to_string()));
+        assert_eq!(item.url, Some(URL.to_string()));
+    }
+
+    #[test]
+    fn test_to_item_none() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ALIAS: &str = "";
+        const URL: &str = "";
+
+        let item = DbManufacturer {
+            name: NAME.to_string(),
+            alias: ALIAS.to_string(),
+            url: URL.to_string(),
+        };
+
+        let mock_db = MockMyDatabase::new();
+
+        // Act
+        let handler = ManufacturerHandler { db: &mock_db };
+        let item = handler.to_item(&item);
+
+        // Assert
+        assert_eq!(item.name, NAME.to_string());
+        assert_eq!(item.alias, None);
+        assert_eq!(item.url, None);
+    }
 }
