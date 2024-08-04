@@ -1,5 +1,5 @@
 {
-	"name": "elebox-website",
+	"name": "elebox-docs",
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",

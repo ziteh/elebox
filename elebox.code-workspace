@@ -13,8 +13,8 @@
 			"path": "./elebox-cli"
 		},
 		{
-			"name": "website",
-			"path": "./website"
+			"name": "docs",
+			"path": "./docs"
 		},
 		{
 			"name": "root",

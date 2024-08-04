@@ -14,7 +14,7 @@ const config: DocsThemeConfig = {
   project: {
     link: "https://github.com/ziteh/elebox",
   },
-  docsRepositoryBase: "https://github.com/ziteh/elebox/tree/main/website",
+  docsRepositoryBase: "https://github.com/ziteh/elebox/tree/main/docs",
   head: (
     <>
       <meta name="theme-color" content="#121212" />
