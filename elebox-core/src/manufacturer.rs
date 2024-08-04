@@ -267,4 +267,39 @@ mod tests {
         assert_eq!(mfr.alias.as_deref(), Some(ALIAS));
         assert_eq!(mfr.url.as_deref(), Some(URL));
     }
+
+    #[test]
+    fn test_list_existing() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ALIAS: &str = "TestAlias";
+        const URL: &str = "https://test.com";
+        const TEST_NUMBER: u16 = 10;
+
+        let mut mock_db = MockMyDatabase::new();
+
+        // Mock list() return items
+        mock_db.expect_list().returning(|| {
+            let data: Vec<DbManufacturer> = (0..TEST_NUMBER)
+                .map(|i| DbManufacturer {
+                    name: format!("{NAME}{i}"),
+                    alias: format!("{ALIAS}{i}"),
+                    url: format!("{URL}{i}"),
+                })
+                .collect();
+            Ok(data)
+        });
+
+        // Act
+        let handler = ManufacturerHandler { db: &mock_db };
+        let result = handler.list();
+
+        // Assert
+        let mfrs = result.expect("Expected OK");
+        for (i, m) in mfrs.iter().enumerate() {
+            assert_eq!(m.name, format!("{NAME}{i}"));
+            assert_eq!(m.alias, Some(format!("{ALIAS}{i}")));
+            assert_eq!(m.url, Some(format!("{URL}{i}")));
+        }
+    }
 }
