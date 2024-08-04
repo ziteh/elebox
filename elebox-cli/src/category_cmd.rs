@@ -1,12 +1,10 @@
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
-use std::ops::Not;
 
 use clap::{Args, Subcommand};
 use elebox_core::Category;
 use elebox_core::Handler;
-use elebox_core::Manager;
 
 #[derive(Debug, Args)]
 pub struct CategoryCommand {
@@ -141,7 +139,7 @@ pub fn category_cmd(handler: elebox_core::CategoryHandler, cmd: &CategoryCommand
                 alias.filter(|&s| !s.is_empty()),
             );
 
-            handler.update(&args.ori_name, &new_item);
+            let _ = handler.update(&args.ori_name, &new_item);
         }
         Some(CategorySubCommand::Export(_args)) => {
             todo!();

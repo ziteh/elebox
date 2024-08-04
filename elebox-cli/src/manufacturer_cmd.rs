@@ -1,12 +1,11 @@
 use clap::{Args, Subcommand};
-use elebox_core::Category;
+
 use elebox_core::Handler;
-use elebox_core::Manager;
+
 use elebox_core::Manufacturer;
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
-use std::ops::Not;
 
 #[derive(Debug, Args)]
 pub struct ManufacturerCommand {
@@ -138,7 +137,7 @@ pub fn manufacturer_cmd(handler: elebox_core::ManufacturerHandler, cmd: &Manufac
                 link.filter(|&s| !s.is_empty()),
             );
 
-            handler.update(&args.ori_name, &new_item);
+            let _ = handler.update(&args.ori_name, &new_item);
         }
         Some(ManufacturerSubCommand::Export(_args)) => {
             todo!();

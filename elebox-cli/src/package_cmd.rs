@@ -1,14 +1,12 @@
 use clap::{Args, Subcommand};
-use elebox_core::Category;
+
 use elebox_core::Handler;
-use elebox_core::Manager;
-use elebox_core::Manufacturer;
+
 use elebox_core::Package;
 use elebox_core::PackageType;
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
-use std::ops::Not;
 
 #[derive(Debug, Args)]
 pub struct PackageCommand {
@@ -143,7 +141,7 @@ pub fn package_cmd(handler: elebox_core::PackageHandler, cmd: &PackageCommand) {
                 alias.filter(|&s| !s.is_empty()),
             );
 
-            handler.update(&args.ori_name, &new_item);
+            let _ = handler.update(&args.ori_name, &new_item);
         }
         Some(PackageSubCommand::Export(_args)) => {
             todo!();

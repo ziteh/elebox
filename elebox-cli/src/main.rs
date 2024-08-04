@@ -64,7 +64,7 @@ fn main() {
     let mfr_db = Box::new(JammDatabase::new(&db_path));
     let manager = elebox_core::Manager::new(part_db, pkg_db, cat_db, mfr_db);
 
-    match &cli.entity_type {
+    let _ = match &cli.entity_type {
         EntityType::Init => manager.init(),
         EntityType::Part(cmd) => Ok(part_cmd(manager.part(), cmd)),
         EntityType::Category(cmd) => Ok(category_cmd(manager.category(), cmd)),

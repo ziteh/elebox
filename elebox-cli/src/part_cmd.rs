@@ -1,11 +1,10 @@
-use std::{net, path::PathBuf};
+use std::path::PathBuf;
 
 use clap::{Args, Subcommand};
-use elebox_core::{Handler, Manager, Part, Transferable};
+use elebox_core::{Handler, Part, Transferable};
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
-use std::ops::Not;
 
 #[derive(Debug, Args)]
 pub struct PartCommand {
@@ -366,7 +365,7 @@ pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
                     suppliers: ori_part.suppliers.clone(),         // TODO
                 };
 
-                handler.update(&args.ori_name, &new_item);
+                let _ = handler.update(&args.ori_name, &new_item);
             }
             PartSubCommand::Restock(args) => {
                 if let Err(err) = handler.update_part_quantity(&args.name, args.quantity as i16) {
