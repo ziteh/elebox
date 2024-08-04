@@ -203,4 +203,32 @@ mod tests {
         // Assert
         assert!(result.is_ok());
     }
+
+    #[test]
+    fn test_delete_existing() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ID: &str = "TestID";
+
+        let mut mock_db = MockMyDatabase::new();
+
+        // Mock get_id() to check name, and return ID indicating the item existing
+        mock_db
+            .expect_get_id()
+            .withf(|name| name == NAME)
+            .returning(|_| Ok(ID.to_string()));
+
+        // Mock delete() to check ID, and return Ok(())
+        mock_db
+            .expect_delete()
+            .withf(|id| id == ID)
+            .returning(|_| Ok(()));
+
+        // Act
+        let handler = ManufacturerHandler { db: &mock_db };
+        let result = handler.delete(NAME);
+
+        // Assert
+        assert!(result.is_ok());
+    }
 }
