@@ -163,7 +163,7 @@ mod tests {
         ];
 
         for (name, alias, url) in test_cases {
-            test_add_no_existing_value(
+            test_add_not_existing_value(
                 name.to_string(),
                 alias.map(|s| s.to_string()),
                 url.map(|s| s.to_string()),
@@ -171,7 +171,7 @@ mod tests {
         }
     }
 
-    fn test_add_no_existing_value(name: String, alias: Option<String>, url: Option<String>) {
+    fn test_add_not_existing_value(name: String, alias: Option<String>, url: Option<String>) {
         // Arrange
         let mfr = Manufacturer::new(
             &name.clone(),
@@ -301,6 +301,47 @@ mod tests {
             assert_eq!(m.alias, Some(format!("{ALIAS}{i}")));
             assert_eq!(m.url, Some(format!("{URL}{i}")));
         }
+    }
+
+    #[test]
+    fn test_update_not_existing() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ALIAS: &str = "TestAlias";
+        const URL: &str = "https://test.com";
+        const ID: &str = "TestID";
+
+        let mut mock_db = MockMyDatabase::new();
+
+        // Mock get_id() to check name, and return ID indicating the item existing
+        mock_db
+            .expect_get_id()
+            .withf(|name| name == NAME)
+            .returning(|_| Ok(ID.to_string()));
+
+        // Mock update() check all fields and return Ok
+        mock_db
+            .expect_update()
+            .withf(|ori_id, new_item| {
+                ori_id == ID
+                    && new_item.name == NAME
+                    && new_item.alias == ALIAS
+                    && new_item.url == URL
+            })
+            .returning(|_, _| Ok(()));
+
+        // Act
+        let new_item = Manufacturer {
+            name: NAME.to_string(),
+            alias: Some(ALIAS.to_string()),
+            url: Some(URL.to_string()),
+        };
+
+        let handler = ManufacturerHandler { db: &mock_db };
+        let result = handler.update(NAME, &new_item);
+
+        // Assert
+        assert!(result.is_ok());
     }
 
     #[test]
