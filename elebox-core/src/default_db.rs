@@ -10,7 +10,7 @@ pub fn create_default_db(path: &str) {
     let mfr_db = Box::new(JammDatabase::new(&path));
     let manager = Manager::new(part_db, pkg_db, cat_db, mfr_db);
 
-    manager.init();
+    let _ = manager.init();
 
     if exists {
         return;
@@ -405,6 +405,6 @@ pub fn create_default_db(path: &str) {
         suppliers: vec![],
     };
 
-    manager.part().add(&rp2040);
-    manager.part().add(&rt9183);
+    let _ = manager.part().add(&rp2040);
+    let _ = manager.part().add(&rt9183);
 }

@@ -69,7 +69,7 @@ impl CategoryHandler<'_> {
     fn add_recursion(&self, category: &Category, cats: &[Category]) -> Result<(), EleboxError> {
         if let Some(parent_name) = &category.parent {
             if let Some(parent_cat) = cats.iter().find(|c| c.name == *parent_name) {
-                self.add_recursion(parent_cat, cats);
+                self.add_recursion(parent_cat, cats)?;
             }
         }
 
@@ -206,7 +206,7 @@ impl Transferable for CategoryHandler<'_> {
 
         let items: Vec<Category> = res_items.unwrap();
         for item in &items {
-            self.add_recursion(item, &items);
+            let _ = self.add_recursion(item, &items);
         }
 
         Ok(())

@@ -1,9 +1,8 @@
 use std::path::PathBuf;
 
 use crate::{
-    Category, CategoryHandler, Database, DbCategory, DbManufacturer, DbPackage, DbPart,
-    EleboxError, JammDatabase, Manufacturer, ManufacturerHandler, Package, PackageHandler,
-    PartHandler, Transferable, CATEGORIES_BUCKET, MFR_BUCKET, PACKAGES_BUCKET, PARTS_BUCKET,
+    CategoryHandler, Database, DbCategory, DbManufacturer, DbPackage, DbPart, EleboxError,
+    ManufacturerHandler, PackageHandler, PartHandler, Transferable,
 };
 
 const PART_FILENAME: &str = "elebox_export_parts.yaml";
@@ -115,7 +114,7 @@ impl Manager {
     ) -> Result<Self, EleboxError> {
         // TODO
         let mgr = Self::new(part_db, package_db, category_db, mfr_db);
-        mgr.init();
+        let _ = mgr.init();
 
         let filename = path.join(CATEGORY_FILENAME);
         let _ = mgr.category().import(&filename)?;

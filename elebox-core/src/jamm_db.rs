@@ -232,7 +232,7 @@ where
             println!("Tx");
             let tx = db.tx(false).unwrap();
             println!("Bk");
-            let bkt = tx.get_bucket(DI::get_bucket()).unwrap();
+            let _bkt = tx.get_bucket(DI::get_bucket()).unwrap();
             println!("ok");
         });
 

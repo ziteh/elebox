@@ -1,10 +1,7 @@
 use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
 use core::fmt;
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt::{write, Debug},
-    path::PathBuf,
-};
+use std::{fmt::Debug, path::PathBuf};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum PackageType {

@@ -1,7 +1,7 @@
 use crate::{comm::*, errors::*, jamm_db::*, yaml::*};
 
 use serde::{Deserialize, Serialize};
-use std::{fmt::Debug, path::PathBuf, thread::sleep};
+use std::{fmt::Debug, path::PathBuf};
 
 const DELETED_ITEM: &str = "__DELETE__";
 
