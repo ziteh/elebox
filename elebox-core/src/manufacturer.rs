@@ -538,4 +538,36 @@ mod tests {
         assert_eq!(item.alias, None);
         assert_eq!(item.url, None);
     }
+
+    #[test]
+    fn test_new_item_some() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ALIAS: Option<&str> = Some("TestAlias");
+        const URL: Option<&str> = Some("https://test.com");
+
+        // Act
+        let item = Manufacturer::new(NAME, ALIAS, URL);
+
+        // Assert
+        assert_eq!(item.name, NAME);
+        assert_eq!(item.alias.as_deref(), ALIAS);
+        assert_eq!(item.url.as_deref(), URL);
+    }
+
+    #[test]
+    fn test_new_item_none() {
+        // Arrange
+        const NAME: &str = "TestName";
+        const ALIAS: Option<&str> = None;
+        const URL: Option<&str> = None;
+
+        // Act
+        let item = Manufacturer::new(NAME, ALIAS, URL);
+
+        // Assert
+        assert_eq!(item.name, NAME);
+        assert_eq!(item.alias.as_deref(), ALIAS);
+        assert_eq!(item.url.as_deref(), URL);
+    }
 }
