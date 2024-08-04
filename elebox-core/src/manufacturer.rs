@@ -189,7 +189,7 @@ mod tests {
         // Mock add() to check all field and return Ok(())
         mock_db
             .expect_add()
-            .withf(move |db_mfr: &DbManufacturer| {
+            .withf(move |db_mfr| {
                 db_mfr.name == name
                     && db_mfr.alias == alias.as_deref().unwrap_or("")
                     && db_mfr.url == url.as_deref().unwrap_or("")
@@ -230,5 +230,41 @@ mod tests {
 
         // Assert
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_get_existing() {
+        // Arrange
+        const ID: &str = "TestID";
+        const NAME: &str = "TestName";
+        const ALIAS: &str = "TestAlias";
+        const URL: &str = "https://test.com";
+
+        let mut mock_db = MockMyDatabase::new();
+
+        // Mock get_id() to check name, and return ID indicating the item existing
+        mock_db
+            .expect_get_id()
+            .withf(|name| name == NAME)
+            .returning(|_| Ok(ID.to_string()));
+
+        // Mock get() to check ID, and return item
+        mock_db.expect_get().withf(|id| id == ID).returning(|_| {
+            Ok(DbManufacturer {
+                name: NAME.to_string(),
+                alias: ALIAS.to_string(),
+                url: URL.to_string(),
+            })
+        });
+
+        // Act
+        let handler = ManufacturerHandler { db: &mock_db };
+        let result = handler.get(NAME);
+
+        // Assert
+        let mfr = result.expect("Expected OK");
+        assert_eq!(mfr.name, NAME);
+        assert_eq!(mfr.alias.as_deref(), Some(ALIAS));
+        assert_eq!(mfr.url.as_deref(), Some(URL));
     }
 }
