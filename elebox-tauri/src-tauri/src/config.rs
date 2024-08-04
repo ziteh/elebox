@@ -37,7 +37,7 @@ pub fn create_config(dir: &PathBuf) -> Result<(), ()> {
             language: Some("en".to_string()),
             database: None,
         };
-        save_config(dir, &default_config);
+        let _ = save_config(dir, &default_config);
     }
     Ok(())
 }

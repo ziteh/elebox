@@ -4,16 +4,11 @@
 mod config;
 
 use config::{save_config, Config};
-use dirs::{self, document_dir};
+use dirs::{self};
 use elebox_core::{
-    Category, CustomField, Database, Handler, JammDatabase, Manager, Manufacturer, Package,
-    PackageType, Part, Supplier, TreeNode,
+    Category, Handler, JammDatabase, Manager, Manufacturer, Package, Part, TreeNode,
 };
-use std::{
-    path::{Path, PathBuf},
-    sync::Mutex,
-    task::ready,
-};
+use std::{path::PathBuf, sync::Mutex};
 use tauri::Manager as TauriManager;
 
 macro_rules! lock {
@@ -252,7 +247,7 @@ fn set_db_path(
     cfg.database = Some(path.to_string_lossy().into_owned());
 
     let dir = lock!(user_dir);
-    save_config(&dir, &cfg);
+    let _ = save_config(&dir, &cfg);
     Ok(())
 }
 
@@ -261,7 +256,7 @@ fn create_db(
     config: tauri::State<EleboxConfig>,
     user_dir: tauri::State<EleboxUserDir>,
     new_path: &str,
-    empty: bool,
+    _empty: bool,
 ) -> Result<(), String> {
     let path = PathBuf::from(new_path);
     let mut cfg = lock!(config);
@@ -270,7 +265,7 @@ fn create_db(
     init_db(new_path);
 
     let dir = lock!(user_dir);
-    save_config(&dir, &cfg);
+    let _ = save_config(&dir, &cfg);
 
     Ok(())
 }
@@ -303,17 +298,17 @@ fn set_language(
     cfg.language = Some(String::from(new_lang));
 
     let dir = lock!(user_dir);
-    save_config(&dir, &cfg);
+    let _ = save_config(&dir, &cfg);
 }
 
 #[tauri::command(rename_all = "snake_case")]
 fn export_csv(manager: tauri::State<EleboxManager>, csv_path: &str) {
     let mgr_lock = lock!(manager);
-    mgr_lock.export(&PathBuf::from(csv_path));
+    let _ = mgr_lock.export(&PathBuf::from(csv_path));
 }
 
 #[tauri::command(rename_all = "snake_case")]
-fn import_csv(manager: tauri::State<EleboxManager>, csv_path: &str) -> Result<(), String> {
+fn import_csv(_manager: tauri::State<EleboxManager>, csv_path: &str) -> Result<(), String> {
     // TODO
     let path = PathBuf::from(csv_path);
     let db_path = path.join("import_exebox.db");
@@ -321,14 +316,14 @@ fn import_csv(manager: tauri::State<EleboxManager>, csv_path: &str) -> Result<()
     let pkg_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
     let cat_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
     let mfr_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
-    Manager::from(part_db, pkg_db, cat_db, mfr_db, &path);
+    let _ = Manager::from(part_db, pkg_db, cat_db, mfr_db, &path);
     Ok(())
 }
 
 fn main() {
     let user_dir = get_user_dir().unwrap();
 
-    config::create_config(&user_dir);
+    let _ = config::create_config(&user_dir);
     let mut config = config::load_config(&user_dir).unwrap();
 
     if config.database.is_none() {
@@ -349,7 +344,7 @@ fn main() {
         config.language = Some("en".to_string());
     }
 
-    config::save_config(&user_dir, &config);
+    let _ = config::save_config(&user_dir, &config);
 
     tauri::Builder::default()
         .setup(|app| {
@@ -437,7 +432,7 @@ fn init_db(path: &str) {
 }
 
 // TODO
-fn check_db(path: &str) -> bool {
+fn check_db(_path: &str) -> bool {
     true
 
     // return elebox_core::check_db(&path).is_ok();
