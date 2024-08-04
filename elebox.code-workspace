@@ -33,9 +33,11 @@
 			"elebox",
 			"Jamm",
 			"jammdb",
+			"mockall",
+			"nextra",
 			"tauri",
 			"vuetify",
-			"nextra"
+			"withf"
 		],
 		"files.exclude": {
 			"**/.git": true,
