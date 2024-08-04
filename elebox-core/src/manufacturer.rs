@@ -303,6 +303,7 @@ mod tests {
         }
     }
 
+    /// Update item, name does not change
     #[test]
     fn test_update_not_existing() {
         // Arrange
@@ -342,6 +343,98 @@ mod tests {
 
         // Assert
         assert!(result.is_ok());
+    }
+
+    /// Update item, name changed and not duplicate
+    #[test]
+    fn test_update_new_name_not_existing() {
+        // Arrange
+        const ORI_NAME: &str = "TestNameOri";
+        const NEW_NAME: &str = "TestNameNew";
+        const ALIAS: &str = "TestAlias";
+        const URL: &str = "https://test.com";
+        const ID: &str = "TestID";
+
+        let mut mock_db = MockMyDatabase::new();
+
+        // Mock get_id() to check name, and return ID indicating the item existing
+        mock_db
+            .expect_get_id()
+            .withf(|name| name == ORI_NAME)
+            .returning(|_| Ok(ID.to_string()));
+
+        // New item new does not existing
+        mock_db
+            .expect_get_id()
+            .withf(|name| name == NEW_NAME)
+            .returning(|_| Err(DbError::NotExists(NEW_NAME.to_string())));
+
+        // Mock update() check all fields and return Ok
+        mock_db
+            .expect_update()
+            .withf(|ori_id, new_item| {
+                ori_id == ID
+                    && new_item.name == NEW_NAME
+                    && new_item.alias == ALIAS
+                    && new_item.url == URL
+            })
+            .returning(|_, _| Ok(()));
+
+        // Act
+        let new_item = Manufacturer {
+            name: NEW_NAME.to_string(),
+            alias: Some(ALIAS.to_string()),
+            url: Some(URL.to_string()),
+        };
+
+        let handler = ManufacturerHandler { db: &mock_db };
+        let result = handler.update(ORI_NAME, &new_item);
+
+        // Assert
+        assert!(result.is_ok());
+    }
+
+    /// Update item, name changed and duplicate
+    #[test]
+    fn test_update_new_name_existing() {
+        // Arrange
+        const ORI_NAME: &str = "TestNameOri";
+        const NEW_NAME: &str = "TestNameNew";
+        const ALIAS: &str = "TestAlias";
+        const URL: &str = "https://test.com";
+        const ORI_ID: &str = "TestIDOri";
+        const NEW_ID: &str = "TestIDNew";
+
+        let mut mock_db = MockMyDatabase::new();
+
+        // Check original item existing
+        mock_db
+            .expect_get_id()
+            .withf(|name| name == ORI_NAME)
+            .returning(|_| Ok(ORI_ID.to_string()));
+
+        // New item name existing
+        mock_db
+            .expect_get_id()
+            .withf(|name| name == NEW_NAME)
+            .returning(|_| Ok(NEW_ID.to_string()));
+
+        // Act
+        let new_item = Manufacturer {
+            name: NEW_NAME.to_string(),
+            alias: Some(ALIAS.to_string()),
+            url: Some(URL.to_string()),
+        };
+
+        let handler = ManufacturerHandler { db: &mock_db };
+        let result = handler.update(ORI_NAME, &new_item);
+
+        // Assert
+        if let Err(EleboxError::AlreadyExists(_, _)) = result {
+            // Ok
+        } else {
+            panic!("Expected AlreadyExists error")
+        }
     }
 
     #[test]
