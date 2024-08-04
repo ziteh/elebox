@@ -4,6 +4,13 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { dialog } from "@tauri-apps/api";
 
 const target_dir = ref("");
+const extension = ref("yaml");
+
+const extension_list = [
+  { title: "YAML", value: "yaml" },
+  { title: "JSON", value: "json" },
+];
+
 const emit = defineEmits(["notify"]);
 
 function emitNotify(msg: string) {
@@ -18,15 +25,15 @@ async function handleFileOperation(op: "export" | "import") {
   let cmd: string;
   let msg: string;
   if (op === "export") {
-    cmd = "export_csv";
+    cmd = "export_file";
     msg = "Export";
   } else {
-    cmd = "import_csv";
+    cmd = "import_file";
     msg = "Import";
   }
 
   try {
-    await invoke(cmd, { csv_path: target_dir.value });
+    await invoke(cmd, { dir: target_dir.value, extension: extension.value });
 
     console.log(`${msg} success, ${target_dir.value}`);
     emitNotify(`${msg} success`);
@@ -65,6 +72,15 @@ async function openDirDialog() {
         v-model="target_dir"
         @click:control="openDirDialog"
       ></v-text-field>
+    </v-col>
+    <v-col cols="auto" class="mb-6">
+      <v-select
+        label="Type"
+        variant="outlined"
+        :items="extension_list"
+        v-model="extension"
+        hide-details
+      ></v-select>
     </v-col>
     <v-col cols="auto" class="mb-6">
       <v-btn @click="handleFileOperation('export')">Export</v-btn>
