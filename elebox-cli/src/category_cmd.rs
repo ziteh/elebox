@@ -1,3 +1,8 @@
+use std::io::stdin;
+use std::io::stdout;
+use std::io::Write;
+use std::ops::Not;
+
 use clap::{Args, Subcommand};
 use elebox_core::Category;
 use elebox_core::Handler;
@@ -18,7 +23,7 @@ enum CategorySubCommand {
     Get(NameCategoryArgs),
 
     /// Remove a category from the database
-    Delete(NameCategoryArgs),
+    Delete(DeleteCategoryArgs),
 
     /// Update info of an existing category
     Update(UpdateCategoryArgs),
@@ -61,6 +66,15 @@ struct NameCategoryArgs {
 }
 
 #[derive(Debug, Args)]
+struct DeleteCategoryArgs {
+    name: String,
+
+    /// Skip confirm, delete directly
+    #[arg(short = 'Y', long = "yes")]
+    yes: bool,
+}
+
+#[derive(Debug, Args)]
 struct ExportCategoryArgs {
     #[arg(default_value = "elebox_export_categories.tsv")]
     path: String,
@@ -89,6 +103,22 @@ pub fn category_cmd(handler: elebox_core::CategoryHandler, cmd: &CategoryCommand
             Err(err) => println!("Error: {err}"),
         },
         Some(CategorySubCommand::Delete(args)) => {
+            // Confirm delete message
+            if !args.yes {
+                println!("Are you sure you want to delete '{}' ?", args.name);
+                print!("This action cannot be undone. [y/N]: ");
+
+                let mut input = String::new();
+                let _ = stdout().flush();
+                stdin().read_line(&mut input).expect("Failed to read input");
+
+                if input.trim_end().to_lowercase() != String::from("y") {
+                    println!("Deletion canceled");
+                    return;
+                }
+            }
+
+            println!("Deleting '{}'...", args.name);
             if let Err(err) = handler.delete(&args.name) {
                 println!("Error: {err}");
             };

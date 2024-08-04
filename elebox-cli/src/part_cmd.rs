@@ -2,6 +2,10 @@ use std::{net, path::PathBuf};
 
 use clap::{Args, Subcommand};
 use elebox_core::{Handler, Manager, Part, Transferable};
+use std::io::stdin;
+use std::io::stdout;
+use std::io::Write;
+use std::ops::Not;
 
 #[derive(Debug, Args)]
 pub struct PartCommand {
@@ -18,7 +22,7 @@ enum PartSubCommand {
     Get(NamePartArgs),
 
     /// Remove a part from the database
-    Delete(NamePartArgs),
+    Delete(DeleteArgs),
 
     /// Update info of an existing part
     Update(UpdatePartArgs),
@@ -159,6 +163,15 @@ struct NamePartArgs {
 }
 
 #[derive(Debug, Args)]
+struct DeleteArgs {
+    name: String,
+
+    /// Skip confirm, delete directly
+    #[arg(short = 'Y', long = "yes")]
+    yes: bool,
+}
+
+#[derive(Debug, Args)]
 struct BackupArgs {
     #[arg(default_value = "elebox_export_parts.yaml")]
     path: String,
@@ -229,6 +242,22 @@ pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
                 Err(err) => println!("Error: {err}"),
             },
             PartSubCommand::Delete(args) => {
+                // Confirm delete message
+                if !args.yes {
+                    println!("Are you sure you want to delete '{}' ?", args.name);
+                    print!("This action cannot be undone. [y/N]: ");
+
+                    let mut input = String::new();
+                    let _ = stdout().flush();
+                    stdin().read_line(&mut input).expect("Failed to read input");
+
+                    if input.trim_end().to_lowercase() != String::from("y") {
+                        println!("Deletion canceled");
+                        return;
+                    }
+                }
+
+                println!("Deleting '{}'...", args.name);
                 if let Err(err) = handler.delete(&args.name) {
                     println!("ERR: {err}");
                 }
