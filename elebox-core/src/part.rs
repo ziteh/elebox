@@ -1,4 +1,4 @@
-use crate::{comm::*, errors::*, jamm_db::*, yaml::*};
+use crate::{comm::*, errors::*, jamm_db::*, json::*, yaml::*};
 
 use serde::{Deserialize, Serialize};
 use std::{fmt::Debug, path::PathBuf};
@@ -230,19 +230,33 @@ impl<'a> Handler<Part> for PartHandler<'_> {
 
 impl Transferable for PartHandler<'_> {
     fn export(&self, filename: &PathBuf) -> Result<(), EleboxError> {
-        let parts = self.list()?;
-        let _ = write_yaml(filename, parts).unwrap();
+        let items = self.list()?;
+
+        if YamlFile::check_extension(filename) {
+            let _ = YamlFile::write(filename, items);
+        } else if JsonFile::check_extension(filename) {
+            let _ = JsonFile::write(filename, items);
+        } else {
+            todo!()
+        }
+
         Ok(())
     }
 
     fn import(&self, filename: &PathBuf) -> Result<(), EleboxError> {
-        let res_parts = read_yaml(filename);
+        let res_items: Result<Vec<Part>, ()> = if YamlFile::check_extension(filename) {
+            YamlFile::read(filename)
+        } else if JsonFile::check_extension(filename) {
+            JsonFile::read(filename)
+        } else {
+            todo!()
+        };
 
-        if res_parts.is_err() {
+        if res_items.is_err() {
             todo!()
         }
 
-        let parts: Vec<Part> = res_parts.unwrap();
+        let parts: Vec<Part> = res_items.unwrap();
         for part in parts {
             if let Err(e) = self.add(&part) {
                 match e {

@@ -73,33 +73,34 @@ impl Manager {
         ManufacturerHandler { db: &*self.mfr_db }
     }
 
-    pub fn export(&self, path: &PathBuf) -> Result<(), EleboxError> {
-        let filename = path.join(PART_FILENAME);
+    pub fn export(&self, path: &PathBuf, extension: &str) -> Result<(), EleboxError> {
+        let filename = path.join(PART_FILENAME).with_extension(extension);
         let _ = self.part().export(&filename)?;
 
-        let filename = path.join(PACKAGE_FILENAME);
+        let filename = path.join(PACKAGE_FILENAME).with_extension(extension);
         let _ = self.package().export(&filename)?;
 
-        let filename = path.join(CATEGORY_FILENAME);
+        let filename = path.join(CATEGORY_FILENAME).with_extension(extension);
         let _ = self.category().export(&filename)?;
 
-        let filename = path.join(MFR_FILENAME);
+        let filename = path.join(MFR_FILENAME).with_extension(extension);
         let _ = self.manufacturer().export(&filename)?;
 
         Ok(())
     }
 
-    pub fn import(&self, path: &PathBuf) -> Result<(), EleboxError> {
-        let filename = path.join(CATEGORY_FILENAME);
+    // TODO auto detect type
+    pub fn import(&self, path: &PathBuf, extension: &str) -> Result<(), EleboxError> {
+        let filename = path.join(CATEGORY_FILENAME).with_extension(extension);
         let _ = self.category().import(&filename);
 
-        let filename = path.join(PACKAGE_FILENAME);
+        let filename = path.join(PACKAGE_FILENAME).with_extension(extension);
         let _ = self.package().import(&filename);
 
-        let filename = path.join(MFR_FILENAME);
+        let filename = path.join(MFR_FILENAME).with_extension(extension);
         let _ = self.manufacturer().import(&filename);
 
-        let filename = path.join(PART_FILENAME);
+        let filename = path.join(PART_FILENAME).with_extension(extension);
         let _ = self.part().import(&filename);
 
         Ok(())
@@ -112,7 +113,7 @@ impl Manager {
         mfr_db: Box<dyn Database<DbManufacturer>>,
         path: &PathBuf,
     ) -> Result<Self, EleboxError> {
-        // TODO
+        // TODO extension
         let mgr = Self::new(part_db, package_db, category_db, mfr_db);
         let _ = mgr.init();
 

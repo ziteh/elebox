@@ -4,6 +4,7 @@ mod csv;
 mod default_db;
 mod errors;
 mod jamm_db;
+mod json;
 mod manager;
 mod manufacturer;
 mod package;

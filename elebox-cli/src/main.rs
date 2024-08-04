@@ -26,6 +26,8 @@ struct Cli {
 
 #[derive(Debug, Args)]
 struct PathArgs {
+    filetype: String, // TODO enum
+
     #[arg(default_value = "./")]
     path: String,
 }
@@ -70,7 +72,11 @@ fn main() {
         EntityType::Category(cmd) => Ok(category_cmd(manager.category(), cmd)),
         EntityType::Mfr(cmd) => Ok(manufacturer_cmd(manager.manufacturer(), cmd)),
         EntityType::Package(cmd) => Ok(package_cmd(manager.package(), cmd)),
-        EntityType::Export(args) => manager.export(&PathBuf::from(args.path.clone())),
-        EntityType::Import(args) => manager.import(&PathBuf::from(args.path.clone())),
+        EntityType::Export(args) => {
+            manager.export(&PathBuf::from(args.path.clone()), &args.filetype)
+        }
+        EntityType::Import(args) => {
+            manager.import(&PathBuf::from(args.path.clone()), &args.filetype)
+        }
     };
 }

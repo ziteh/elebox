@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{DbError, EleboxError};
 
 pub const ITEM_PART: &str = "part";
@@ -29,4 +31,10 @@ pub trait Handler<T> {
 pub trait Transferable {
     fn export(&self, filename: &PathBuf) -> Result<(), EleboxError>;
     fn import(&self, filename: &PathBuf) -> Result<(), EleboxError>;
+}
+
+pub trait HumanReadable {
+    fn write<T: Serialize>(filename: &PathBuf, items: Vec<T>) -> Result<(), ()>;
+    fn read<T: for<'de> Deserialize<'de>>(filename: &PathBuf) -> Result<Vec<T>, ()>;
+    fn check_extension(filename: &PathBuf) -> bool;
 }
