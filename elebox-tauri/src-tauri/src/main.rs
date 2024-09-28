@@ -302,15 +302,19 @@ fn set_language(
 }
 
 #[tauri::command(rename_all = "snake_case")]
-fn export_csv(manager: tauri::State<EleboxManager>, csv_path: &str) {
+fn export_file(manager: tauri::State<EleboxManager>, dir: &str, extension: &str) {
     let mgr_lock = lock!(manager);
-    let _ = mgr_lock.export(&PathBuf::from(csv_path));
+    let _ = mgr_lock.export(&PathBuf::from(dir), extension);
 }
 
 #[tauri::command(rename_all = "snake_case")]
-fn import_csv(_manager: tauri::State<EleboxManager>, csv_path: &str) -> Result<(), String> {
+fn import_file(
+    _manager: tauri::State<EleboxManager>,
+    dir: &str,
+    extension: &str,
+) -> Result<(), String> {
     // TODO
-    let path = PathBuf::from(csv_path);
+    let path = PathBuf::from(dir);
     let db_path = path.join("import_exebox.db");
     let part_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
     let pkg_db = Box::new(JammDatabase::new(&db_path.to_string_lossy().into_owned()));
@@ -393,8 +397,8 @@ fn main() {
             set_language,
             get_language,
             create_db,
-            export_csv,
-            import_csv,
+            export_file,
+            import_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

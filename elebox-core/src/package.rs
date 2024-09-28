@@ -1,4 +1,4 @@
-use crate::{comm::*, errors::EleboxError, jamm_db::*, yaml::*};
+use crate::{comm::*, errors::EleboxError, jamm_db::*, json::*, yaml::*};
 use core::fmt;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Debug, path::PathBuf};
@@ -129,12 +129,26 @@ impl<'a> Handler<Package> for PackageHandler<'_> {
 impl Transferable for PackageHandler<'_> {
     fn export(&self, filename: &PathBuf) -> Result<(), EleboxError> {
         let items = self.list()?;
-        let _ = write_yaml(filename, items).unwrap();
+
+        if YamlFile::check_extension(filename) {
+            let _ = YamlFile::write(filename, items);
+        } else if JsonFile::check_extension(filename) {
+            let _ = JsonFile::write(filename, items);
+        } else {
+            todo!()
+        }
+
         Ok(())
     }
 
     fn import(&self, filename: &PathBuf) -> Result<(), EleboxError> {
-        let res_items = read_yaml(filename);
+        let res_items: Result<Vec<Package>, ()> = if YamlFile::check_extension(filename) {
+            YamlFile::read(filename)
+        } else if JsonFile::check_extension(filename) {
+            JsonFile::read(filename)
+        } else {
+            todo!()
+        };
 
         if res_items.is_err() {
             todo!()

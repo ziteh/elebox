@@ -378,14 +378,20 @@ pub fn part_cmd(handler: elebox_core::PartHandler, cmd: &PartCommand) {
                     println!("ERR: {err}");
                 }
             }
-            PartSubCommand::Export(args) => match handler.export(&PathBuf::from(&args.path)) {
-                Ok(_) => println!("Export success: {}", args.path),
-                Err(_) => println!("Export error: {}", args.path),
-            },
-            PartSubCommand::Import(args) => match handler.import(&PathBuf::from(&args.path)) {
-                Ok(_) => println!("Import success: {}", args.path),
-                Err(_) => println!("Import error: {}", args.path),
-            },
+            PartSubCommand::Export(args) => {
+                todo!();
+                // match handler.export(&PathBuf::from(&args.path)) {
+                //     Ok(_) => println!("Export success: {}", args.path),
+                //     Err(_) => println!("Export error: {}", args.path),
+                // }
+            }
+            PartSubCommand::Import(args) => {
+                todo!();
+                // match handler.import(&PathBuf::from(&args.path)) {
+                //     Ok(_) => println!("Import success: {}", args.path),
+                //     Err(_) => println!("Import error: {}", args.path),
+                // }
+            }
         },
         None => {
             println!("List part");
