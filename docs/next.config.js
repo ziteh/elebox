@@ -9,8 +9,8 @@ module.exports = withNextra({
   //   locales: ["en", "zh"],
   //   defaultLocale: "en",
   // },
-  assetPrefix: "./",
-  basePath: "/elebox",
+  // assetPrefix: "./",
+  // basePath: "/elebox",
   reactStrictMode: true,
   images: {
     loader: "akamai",
